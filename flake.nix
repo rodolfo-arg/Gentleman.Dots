@@ -84,6 +84,7 @@
                 unstablePkgs.nixd
 
                 # ─── Compilers and system utilities ───
+                clang
                 gcc
                 fd
                 ripgrep
