@@ -54,8 +54,8 @@
             ./claude.nix  # Claude Code CLI configuration
             {
               # Personal data
-              home.username = "YourUser";  # Replace with your username
-              home.homeDirectory = "/Users/YourUser";  # macOS home directory
+              home.username = "rodolfo";  # Replace with your username
+              home.homeDirectory = "/Users/rodolfo";  # macOS home directory
               home.stateVersion = "24.11";  # State version
 
               # Base packages that should be available everywhere
@@ -94,8 +94,14 @@
                 yazi
                 television
 
+                asdf-vm
+
                 # ─── Nerd Fonts ───
                 nerd-fonts.iosevka-term
+              ];
+
+              home.sessionPath = [
+                "$HOME/.asdf/shims"
               ];
 
               # Enable programs explicitly (critical for binaries to appear)
