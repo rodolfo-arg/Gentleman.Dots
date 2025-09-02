@@ -85,7 +85,6 @@
 
                 # ─── Compilers and system utilities ───
                 clang
-                gcc
                 fd
                 ripgrep
                 coreutils
