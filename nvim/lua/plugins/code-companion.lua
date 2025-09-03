@@ -58,6 +58,15 @@ return {
           },
         })
       end,
+      copilot_5_mini = function()
+        return require("codecompanion.adapters").extend("copilot", {
+          schema = {
+            model = {
+              default = "gpt-5-mini",
+            },
+          },
+        })
+      end,
     },
     display = {
       diff = {
@@ -115,7 +124,7 @@ return {
           },
           -- Add further custom keymaps here
         },
-        adapter = "copilot",
+        adapter = "copilot_5_mini",
         roles = {
           ---The header name for the LLM's messages
           ---@type string|fun(adapter: CodeCompanion.Adapter): string
