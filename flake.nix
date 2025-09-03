@@ -103,6 +103,7 @@
               home.sessionPath = [
                 "$HOME/.asdf/shims"
                 "$HOME/.asdf/bin"
+                "$HOME/.pub-cache/bin"
               ]; 
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
