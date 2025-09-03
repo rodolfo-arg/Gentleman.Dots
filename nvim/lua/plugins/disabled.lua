@@ -17,11 +17,11 @@ return {
   },
   {
     "CopilotC-Nvim/CopilotChat.nvim",
-    enabled = true,
+    enabled = false,
   },
   {
     "sudo-tee/opencode.nvim",
-    enabled = false,
+    enabled = true,
   },
   {
     "olimorris/codecompanion.nvim",
