@@ -105,6 +105,7 @@
                 "$HOME/.asdf/shims"
                 "$HOME/.asdf/bin"
                 "$HOME/.pub-cache/bin"
+                "${pkgs.android-tools}/bin"
               ]; 
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
