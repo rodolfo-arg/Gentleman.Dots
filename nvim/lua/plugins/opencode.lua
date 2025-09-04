@@ -7,6 +7,10 @@ return {
           toggle = "<leader>aa", -- open/close chat
         },
       },
+      window = {
+        position = "left",
+        width = 30,
+      },
     })
 
     vim.api.nvim_create_autocmd("BufWinEnter", {
