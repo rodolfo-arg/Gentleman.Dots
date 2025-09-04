@@ -82,6 +82,7 @@
                 go
                 nil
                 unstablePkgs.nixd
+                android-tools
 
                 # ─── Compilers and system utilities ───
                 clang
