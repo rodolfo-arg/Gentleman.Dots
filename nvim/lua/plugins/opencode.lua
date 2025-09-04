@@ -7,12 +7,15 @@ return {
           toggle = "<leader>aa", -- open/close chat
         },
       },
-      ui = {
-        position = "left",
-        size = 0.10,
-        fullscreen = false,
-        display_mode = true,
-      },
+    })
+
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+      pattern = { "opencode_input", "opencode_output", "opencode_chat" },
+      callback = function()
+        local total = vim.o.columns
+        local target = math.floor(total * 0.25)
+        vim.api.nvim_win_set_width(0, target)
+      end,
     })
 
     -- Always enter insert mode in chat input
