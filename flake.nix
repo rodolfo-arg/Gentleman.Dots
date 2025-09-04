@@ -101,6 +101,12 @@
                 nerd-fonts.iosevka-term
               ];
 
+              home.sessionVariables = {
+                # Set environment variables
+                ANDROID_HOME = "$HOME/Library/Android/sdk";
+                ANDROID_NDK_HOME = "$HOME/Library/Android/sdk/ndk/27.0.12077973";
+              };
+
               home.sessionPath = [
                 "$HOME/.asdf/shims"
                 "$HOME/.asdf/bin"
