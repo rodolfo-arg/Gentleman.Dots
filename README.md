@@ -77,16 +77,16 @@ The flake automatically handles system-specific configurations, installs all dep
 
 ### 🔧 Technical Stack
 
-| Category            | Tools                                     |
-| ------------------- | ----------------------------------------- |
-| **Package Manager** | Nix with Flakes + Home Manager            |
-| **Shells**          | Fish, Nushell, Zsh with Starship prompt   |
-| **Terminals**       | Ghostty, WezTerm, Tmux, Zellij (optional) |
-| **Editor**          | Neovim (LazyVim) + Zed                    |
-| **Languages**       | Node.js, Rust, Go, with Volta management  |
+| Category            | Tools                                                    |
+| ------------------- | -------------------------------------------------------- |
+| **Package Manager** | Nix with Flakes + Home Manager                           |
+| **Shells**          | Fish, Nushell, Zsh with Starship prompt                  |
+| **Terminals**       | Ghostty, WezTerm, Tmux, Zellij (optional)                |
+| **Editor**          | Neovim (LazyVim) + Zed                                   |
+| **Languages**       | Node.js, Rust, Go, with Volta management                 |
 | **AI Tools**        | Claude Code, OpenCode, Gemini (opt.), multiple providers |
-| **Navigation**      | Television, Yazi, Oil.nvim, Zoxide        |
-| **Development**     | Git, GitHub CLI, Lazy Git                 |
+| **Navigation**      | Television, Yazi, Oil.nvim, Zoxide                       |
+| **Development**     | Git, GitHub CLI, Lazy Git                                |
 
 ### 📁 Project Structure
 
@@ -232,14 +232,21 @@ sudo sh -c "grep -Fxq '$shellPath' /etc/shells || echo '$shellPath' >> /etc/shel
 sudo chsh -s "$shellPath" "$USER"
 ```
 
-**Zsh:**
+**Zsh:(Edited From original repository)**
 
 ```bash
-shellPath="$HOME/.nix-profile/bin/zsh"
-
+shellPath="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/zsh"
 sudo sh -c "grep -Fxq '$shellPath' /etc/shells || echo '$shellPath' >> /etc/shells"
-sudo chsh -s "$shellPath" "$USER"
+chsh -s "$HOME/.local/state/nix/profiles/home-manager/home-path/bin/zsh" "$USER"
 ```
+
+### 9. Fix Possible error with starship
+
+```
+nix profile install nixpkgs#starship
+```
+
+Restart your terminal and you should now be all setup.
 
 ---
 
@@ -334,14 +341,15 @@ source ~/.zshrc  # or ~/.bashrc
 Some configurations are commented out by default. To enable them:
 
 1. **Zellij Terminal Workspace:**
+
    ```bash
    # Edit flake.nix and uncomment the Zellij line
    sed -i '' 's|# ./zellij.nix|./zellij.nix|' flake.nix
-   
+
    # Re-run the installation
    nix run github:nix-community/home-manager -- switch --flake .#gentleman-macos-arm -b backup
    ```
-   
+
    Features:
    - Modern terminal multiplexer alternative to tmux
    - Vim-like keybindings with custom themes
@@ -352,47 +360,51 @@ Some configurations are commented out by default. To enable them:
    After enabling Zellij, you need to update shell configurations to use Zellij instead of tmux:
 
    **Fish Shell (`~/.config/fish/config.fish`):**
+
    ```fish
    # Change line ~31 from:
    if not set -q TMUX; and not set -q ZED_TERMINAL
        tmux
-   
+
    # To:
    if not set -q ZELLIJ; and not set -q ZED_TERMINAL
        zellij
    ```
 
    **Zsh Shell (`~/.zshrc`):**
+
    ```bash
    # Change lines ~100-102 from:
    WM_VAR="/$TMUX"
    WM_CMD="tmux"
-   
+
    # To:
    WM_VAR="/$ZELLIJ"
    WM_CMD="zellij"
    ```
 
    **Nushell (`~/.config/nushell/config.nu`):**
+
    ```nu
    # Change lines ~1015-1016 from:
    let MULTIPLEXER = "tmux"
    let MULTIPLEXER_ENV_PREFIX = "TMUX"
-   
+
    # To:
    let MULTIPLEXER = "zellij"
    let MULTIPLEXER_ENV_PREFIX = "ZELLIJ"
    ```
 
 2. **Gemini CLI Integration:**
+
    ```bash
    # Edit flake.nix and add Gemini module
    # Add './gemini.nix' to the modules list in flake.nix
-   
+
    # Re-run the installation
    nix run github:nix-community/home-manager -- switch --flake .#gentleman-macos-arm -b backup
    ```
-   
+
    Features:
    - Google's AI assistant CLI tool
    - Integrated via Bun package manager
@@ -407,7 +419,7 @@ This configuration includes support for the following AI tools:
 - **CopilotChat.nvim** - GitHub Copilot chat interface
 - **OpenCode.nvim** - OpenCode AI integration
 - **CodeCompanion.nvim** - Multi-AI provider support
-- **Claude Code.nvim** - Claude AI integration *(enabled by default)*
+- **Claude Code.nvim** - Claude AI integration _(enabled by default)_
 - **Gemini.nvim** - Google Gemini integration
 
 ### How to Switch AI Plugins
@@ -415,11 +427,13 @@ This configuration includes support for the following AI tools:
 **Claude Code is already enabled by default.** To switch to a different AI assistant:
 
 1. **Navigate to the disabled plugins file:**
+
    ```bash
    nvim ~/.config/nvim/lua/plugins/disabled.lua
    ```
 
 2. **Disable Claude Code** by changing `enabled = true` to `enabled = false`:
+
    ```lua
    {
      "greggh/claude-code.nvim",
