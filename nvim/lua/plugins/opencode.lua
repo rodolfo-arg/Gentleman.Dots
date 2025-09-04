@@ -7,6 +7,12 @@ return {
           toggle = "<leader>aa", -- open/close chat
         },
       },
+      ui = {
+        position = "left",
+        size = 0.10,
+        fullscreen = false,
+        display_mode = true,
+      },
     })
 
     -- Always enter insert mode in chat input
