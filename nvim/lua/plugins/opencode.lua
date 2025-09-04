@@ -32,44 +32,10 @@ return {
             break
           end
         end
-
-        -- Switch to non-opencode window if found
-        if target_win then
-          vim.api.nvim_set_current_win(target_win)
-          return true
-        end
-      end
-      return false
-    end
-
-    -- Restore cursor to original opencode window
-    local function restore_cursor_to_opencode()
-      if in_resize and original_cursor_win and vim.api.nvim_win_is_valid(original_cursor_win) then
         -- Small delay to ensure resize is complete
-        vim.defer_fn(function()
-          pcall(vim.api.nvim_set_current_win, original_cursor_win)
-          in_resize = false
-          original_cursor_win = nil
-        end, 50)
-      end
-    end
 
-    -- Prevent duplicate windows cleanup
-    local function cleanup_duplicate_opencode_windows()
-      local seen_filetypes = {}
-      local windows_to_close = {}
-
-      for _, win in ipairs(vim.api.nvim_list_wins()) do
-        local buf = vim.api.nvim_win_get_buf(win)
         local ft = vim.bo[buf].filetype
-
-        -- Special handling for opencode panels
-        for _, opencode_ft in ipairs(opencode_filetypes) do
-          if ft == opencode_ft then
-            if seen_filetypes[ft] then
               -- Found duplicate, mark for closing
-              table.insert(windows_to_close, win)
-            else
               seen_filetypes[ft] = win
             end
             break
@@ -191,3 +157,4 @@ return {
     },
   },
 }
+
