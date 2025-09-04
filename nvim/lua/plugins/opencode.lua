@@ -13,7 +13,7 @@ return {
       pattern = { "opencode_input", "opencode_output", "opencode_chat" },
       callback = function()
         local total = vim.o.columns
-        local target = math.floor(total * 0.25)
+        local target = math.floor(total * 0.10)
         vim.api.nvim_win_set_width(0, target)
       end,
     })
