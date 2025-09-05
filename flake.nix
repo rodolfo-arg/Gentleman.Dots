@@ -2,15 +2,15 @@
   description = "Gentleman: Single config for all systems in one go";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";  # Main Nixpkgs for stable packages
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";  # Unstable Nixpkgs for latest packages
     home-manager = {
-      url = "github:nix-community/home-manager";  # Home Manager repository
-      inputs.nixpkgs.follows = "nixpkgs";  # Follow nixpkgs input
+      url = "github:nix-community/home-manager";  # Home Manager repository for user configs
+      inputs.nixpkgs.follows = "nixpkgs";  # Follow nixpkgs input for consistency
     };
-    flake-utils.url = "github:numtide/flake-utils";  # Flake utilities
+    flake-utils.url = "github:numtide/flake-utils";  # Flake utilities for multi-system support
     snacks-nvim = {
-      url = "github:folke/snacks.nvim";
+      url = "github:folke/snacks.nvim";  # Snacks plugin for Neovim
       flake = false;
     };
   };
@@ -19,15 +19,33 @@
     let
       # Support macOS systems only
       supportedSystems = [ "x86_64-darwin" "aarch64-darwin" ];
-      
+
+      # Common modules shared across configurations
+      commonModules = [
+        ./nushell.nix  # Nushell configuration
+        ./ghostty.nix  # Ghostty configuration
+        ./zed.nix  # Zed configuration
+        ./television.nix  # Television configuration
+        ./wezterm.nix  # WezTerm configuration
+        # ./zellij.nix  # Zellij configuration (commented out)
+        ./tmux.nix  # Tmux configuration
+        ./fish.nix  # Fish shell configuration
+        ./starship.nix  # Starship prompt configuration
+        ./nvim.nix  # Neovim configuration
+        ./zsh.nix  # Zsh configuration
+        ./oil-scripts.nix  # Oil.nvim scripts configuration
+        ./opencode.nix  # OpenCode AI assistant configuration
+        ./claude.nix  # Claude Code CLI configuration
+      ];
+
       # Function to create home configuration for a specific system
-      mkHomeConfiguration = system:
+      mkHomeConfiguration = system: { username ? "rodolfo", homeDirectory ? "/Users/rodolfo" }:
         let
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
           };
-          
+
           unstablePkgs = import nixpkgs-unstable {
             inherit system;
             config.allowUnfree = true;
@@ -35,75 +53,30 @@
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-          
+
           # Pass extraSpecialArgs to make unstablePkgs available in modules
           extraSpecialArgs = {
             inherit unstablePkgs;
           };
-          
-          modules = [
-            ./nushell.nix  # Nushell configuration
-            ./ghostty.nix  # Ghostty configuration
-            ./zed.nix  # Zed configuration
-            ./television.nix  # Television configuration
-            ./wezterm.nix  # WezTerm configuration
-            # ./zellij.nix  # Zellij configuration (commented out)
-            ./tmux.nix  # Tmux configuration
-            ./fish.nix  # Fish shell configuration
-            ./starship.nix  # Starship prompt configuration
-            ./nvim.nix  # Neovim configuration
-            ./zsh.nix  # Zsh configuration
-            ./oil-scripts.nix  # Oil.nvim scripts configuration
-            ./opencode.nix  # OpenCode AI assistant configuration
-            ./claude.nix  # Claude Code CLI configuration
+
+          modules = commonModules ++ [
             {
-              # Personal data
-              home.username = "rodolfo";  # Replace with your username
-              home.homeDirectory = "/Users/rodolfo";  # macOS home directory
+              # Personal data (now configurable)
+              home.username = username;
+              home.homeDirectory = homeDirectory;
               home.stateVersion = "24.11";  # State version
 
               # Base packages that should be available everywhere
               home.packages = with pkgs; [
-                # ─── Terminals and utilities ───
-                # zellij
-                tmux
-                fish
-                zsh
-                nushell
-
-                # ─── Development tools ───
-                volta
-                carapace
-                zoxide
-                atuin
-                jq
-                bash
-                starship
-                fzf
-                nodejs
-                bun
-                cargo
-                go
-                nil
-                unstablePkgs.nixd
-                android-tools
-
-                # ─── Compilers and system utilities ───
-                clang
-                fd
-                ripgrep
-                coreutils
-                unzip
-                bat
-                lazygit
-                yazi
-                television
-
-                asdf-vm
-
-                # ─── Nerd Fonts ───
+                # Terminals
+                tmux fish zsh nushell
+                # Development
+                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil android-tools
+                # Compilers/Utilities
+                clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
+                # Fonts
                 nerd-fonts.iosevka-term
-              ];
+              ] ++ [ unstablePkgs.nixd ];
 
               home.sessionVariables = {
                 # Set environment variables
@@ -116,7 +89,7 @@
                 "$HOME/.asdf/bin"
                 "$HOME/.pub-cache/bin"
                 "${pkgs.android-tools}/bin"
-              ]; 
+              ];
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
               programs.neovim.enable = true;
@@ -139,11 +112,23 @@
       # Home Manager configurations for each system
       homeConfigurations = {
         # macOS system configurations
-        "gentleman-macos-intel" = mkHomeConfiguration "x86_64-darwin";
-        "gentleman-macos-arm" = mkHomeConfiguration "aarch64-darwin";
-        
+        "gentleman-macos-intel" = mkHomeConfiguration "x86_64-darwin" {};
+        "gentleman-macos-arm" = mkHomeConfiguration "aarch64-darwin" {};
+
         # Default to Apple Silicon
-        "gentleman" = mkHomeConfiguration "aarch64-darwin";
+        "gentleman" = mkHomeConfiguration "aarch64-darwin" {};
       };
+
+      # Development shell for Nix development
+      devShells = flake-utils.lib.eachSystem supportedSystems (system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in {
+          default = pkgs.mkShell {
+            buildInputs = [ pkgs.nixd pkgs.nil ];
+            shellHook = "echo 'Nix development shell ready'";
+          };
+        }
+      );
     };
 }
