@@ -9,6 +9,9 @@
       inputs.nixpkgs.follows = "nixpkgs";  # Follow nixpkgs input
     };
     flake-utils.url = "github:numtide/flake-utils";  # Flake utilities
+    snacks-nvim = {
+      url = "github:folke/snacks.nvim";
+    };
   };
 
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, flake-utils, ... }:
