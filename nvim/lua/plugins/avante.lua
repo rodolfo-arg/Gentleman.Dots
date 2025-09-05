@@ -187,7 +187,9 @@ return {
         --- @alias FileSelectorProvider "native" | "fzf" | "mini.pick" | "snacks" | "telescope" | string
         file_selector = {
           provider = "snacks", -- Avoid native provider issues
-          provider_opts = {},
+          provider_opts = {
+            indent = { enabled = false },
+          },
         },
         windows = {
           ---@type "right" | "left" | "top" | "bottom" | "smart"
