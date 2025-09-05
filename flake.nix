@@ -11,6 +11,7 @@
     flake-utils.url = "github:numtide/flake-utils";  # Flake utilities
     snacks-nvim = {
       url = "github:folke/snacks.nvim";
+      flake = false;
     };
   };
 
