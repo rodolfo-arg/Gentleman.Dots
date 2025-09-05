@@ -187,9 +187,7 @@ return {
         --- @alias FileSelectorProvider "native" | "fzf" | "mini.pick" | "snacks" | "telescope" | string
         file_selector = {
           provider = "snacks", -- Avoid native provider issues
-          provider_opts = {
-            indent = { enabled = false },
-          },
+          provider_opts = {},
         },
         windows = {
           ---@type "right" | "left" | "top" | "bottom" | "smart"
@@ -220,6 +218,12 @@ return {
     end,
     dependencies = {
       "MunifTanjim/nui.nvim",
+      {
+        "folke/snacks.nvim",
+        opts = {
+          indent = { enabled = false },
+        },
+      },
       {
         -- support for image pasting
         "HakonHarnes/img-clip.nvim",
