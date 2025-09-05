@@ -17,7 +17,7 @@ return {
       pattern = { "opencode_input", "opencode_output", "opencode_chat" },
       callback = function()
         vim.cmd("wincmd H")
-        vim.api.nvim_win_set_width(0, 30)
+        vim.api.nvim_win_set_width(0, 0.8)
       end,
     })
 
