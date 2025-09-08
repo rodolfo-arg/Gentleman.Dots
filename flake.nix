@@ -71,7 +71,7 @@
                 # Terminals
                 tmux fish zsh nushell
                 # Development
-                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil android-tools
+                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil android-tools homebrew
                 # Compilers/Utilities
                 clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
                 # Fonts
@@ -89,6 +89,8 @@
                 "$HOME/.asdf/bin"
                 "$HOME/.pub-cache/bin"
                 "${pkgs.android-tools}/bin"
+                "/opt/homebrew/bin"  # Homebrew path for Apple Silicon
+                "/opt/homebrew/sbin"
               ];
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
