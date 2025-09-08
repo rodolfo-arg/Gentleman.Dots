@@ -71,7 +71,7 @@
                 # Terminals
                 tmux fish zsh nushell
                 # Development
-                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil android-tools homebrew
+                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil android-tools
                 # Compilers/Utilities
                 clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
                 # Fonts
