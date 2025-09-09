@@ -17,6 +17,8 @@
 
     # Extra initialization
     initExtra = ''
+      # Add java home
+      . "$HOME/.asdf/plugins/java/set-java-home.zsh"
       # Source Home Manager session variables
       if [ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
         . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
