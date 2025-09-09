@@ -17,13 +17,6 @@
 
     # Extra initialization
     initExtra = ''
-      # Load asdf
-      . ${config.programs.asdf.package}/share/asdf/asdf.sh
-      # (optional) completions
-      if [ -f ${config.programs.asdf.package}/share/asdf/completions/asdf.zsh ]; then
-        . ${config.programs.asdf.package}/share/asdf/completions/asdf.zsh
-      fi
-
       # Auto-set JAVA_HOME based on asdf current java
       if [ -f "$HOME/.asdf/plugins/java/set-java-home.zsh" ]; then
         . "$HOME/.asdf/plugins/java/set-java-home.zsh"
