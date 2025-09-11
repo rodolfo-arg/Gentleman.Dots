@@ -84,7 +84,7 @@
               home.sessionVariables = {
                 # Set environment variables
                 ANDROID_HOME = androidHome;
-                ANDROID_NDK_HOME = androidHome + "/ndk/$ndkVersion";
+                ANDROID_NDK_HOME = "${androidHome}/ndk/${ndkVersion}";
                 ANDROID_SDK_ROOT = androidHome;
               };
 
