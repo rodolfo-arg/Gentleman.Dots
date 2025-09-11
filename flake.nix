@@ -71,8 +71,8 @@
 
               # Base packages that should be available everywhere
               home.packages = with pkgs; [
-                # Terminals
-                tmux fish zsh nushell
+                # Terminal
+                zsh
                 # Development
                 volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
                 # Compilers/Utilities
@@ -100,8 +100,8 @@
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
               programs.neovim.enable = true;
-              programs.fish.enable = true;
-              programs.nushell.enable = true;
+              programs.fish.enable = false;
+              programs.nushell.enable = false;
               programs.starship.enable = true;
               programs.zsh.enable = true;
               programs.git.enable = true;
