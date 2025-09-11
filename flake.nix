@@ -100,8 +100,6 @@
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
               programs.neovim.enable = true;
-              programs.fish.enable = false;
-              programs.nushell.enable = false;
               programs.starship.enable = true;
               programs.zsh.enable = true;
               programs.git.enable = true;
