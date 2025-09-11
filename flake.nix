@@ -50,6 +50,9 @@
             inherit system;
             config.allowUnfree = true;
           };
+
+          androidHome = "${config.homeDirectory}/Library/Android/sdk";
+          ndkVersion = "28.1.13356709";
         in
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
@@ -71,7 +74,7 @@
                 # Terminals
                 tmux fish zsh nushell
                 # Development
-                volta carapace zoxide atuin jq bash stars-hip fzf nodejs bun cargo go nil android-tools androidsdk
+                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil homebrew
                 # Compilers/Utilities
                 clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
                 # Fonts
@@ -80,19 +83,17 @@
 
               home.sessionVariables = {
                 # Set environment variables
-                ANDROID_HOME = "$HOME/Library/Android/sdk";
-                ANDROID_SDK_ROOT = "$HOME/Library/Android/sdk";
-                ANDROID_NDK_HOME = "$HOME/Library/Android/sdk/ndk/27.0.12077973";
+                ANDROID_HOME = androidHome;
+                ANDROID_NDK_HOME = androidHome + "/ndk/$ndkVersion";
+                ANDROID_SDK_ROOT = androidHome;
               };
 
               home.sessionPath = [
                 "$HOME/.asdf/shims"
                 "$HOME/.asdf/bin"
                 "$HOME/.pub-cache/bin"
-                "${pkgs.android-tools}/bin"
-                "/opt/homebrew/bin"  # Homebrew path for Apple Silicon
-                "/opt/homebrew/sbin"
-                "${pkgs.androidsdk}/cmdline-tools/latest/bin"
+                "${androidHome}/cmdline-tools/latest/bin"
+                "${androidHome}/platform-tools"
               ];
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
