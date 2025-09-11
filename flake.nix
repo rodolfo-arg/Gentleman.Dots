@@ -51,7 +51,7 @@
             config.allowUnfree = true;
           };
 
-          androidHome = "${config.home.homeDirectory}/Library/Android/sdk";
+          androidHome = "${homeDirectory}/Library/Android/sdk";
           ndkVersion = "28.1.13356709";
         in
         home-manager.lib.homeManagerConfiguration {
