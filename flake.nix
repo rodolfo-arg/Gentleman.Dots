@@ -74,7 +74,7 @@
                 # Terminals
                 tmux fish zsh nushell
                 # Development
-                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil homebrew
+                volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
                 # Compilers/Utilities
                 clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
                 # Fonts
@@ -92,6 +92,8 @@
                 "$HOME/.asdf/shims"
                 "$HOME/.asdf/bin"
                 "$HOME/.pub-cache/bin"
+                "/opt/homebrew/bin"
+                "/opt/homebrew/sbin"
                 "${androidHome}/cmdline-tools/latest/bin"
                 "${androidHome}/platform-tools"
               ];
