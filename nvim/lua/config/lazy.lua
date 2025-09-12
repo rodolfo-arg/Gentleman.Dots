@@ -12,6 +12,9 @@ end
 vim.opt.spell = true -- activa spell checker
 vim.opt.spelllang = { "en" }
 
+-- Autoread files when they change
+vim.opt.autoread = true
+
 -- Define the path to the lazy.nvim plugin
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
