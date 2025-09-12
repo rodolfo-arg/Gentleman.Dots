@@ -38,6 +38,15 @@ vim.api.nvim_set_keymap("x", "<A-k>", "<Nop>", { noremap = true, silent = true }
 vim.api.nvim_set_keymap("x", "J", "<Nop>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("x", "K", "<Nop>", { noremap = true, silent = true })
 
+-- Make 'd' delete into the black hole register by default
+vim.keymap.set({ "n", "v" }, "d", '"_d', { desc = "Delete without yanking" })
+
+-- Optional: make 'x' (delete char) not yank
+vim.keymap.set({ "n", "v" }, "x", '"_x', { desc = "Delete char without yanking" })
+
+-- Optional: keep cut-to-clipboard available
+vim.keymap.set({ "n", "v" }, "D", "d", { desc = "Cut (delete + yank)" })
+
 -- Redefine Ctrl+s to save with the custom function
 vim.api.nvim_set_keymap("n", "<C-s>", ":lua SaveFile()<CR>", { noremap = true, silent = true })
 
