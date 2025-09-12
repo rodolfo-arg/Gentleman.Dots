@@ -119,11 +119,6 @@
         fi
     }
     start_if_needed
-    # Initialize asdf
-    . ${pkgs.asdf-vm}/share/asdf-vm/asdf.sh
-
-    # Bash completions also work in Zsh, so source them
-    . ${pkgs.asdf-vm}/share/asdf-vm/completions/asdf.bash
     '';
   };
 }
