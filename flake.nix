@@ -79,10 +79,8 @@
                 clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
                 # Android
                 android-tools
-                androidenv.androidPkgs_9_0.platform-tools
-                androidenv.androidPkgs_9_0.cmdline-tools_latest
-                androidenv.androidPkgs_9_0.build-tools_33_0_2
-                androidenv.androidPkgs_9_0.emulator
+                androidenv.platform-tools
+                androidenv.cmdline-tools-latest
                 # Fonts
                 nerd-fonts.iosevka-term
               ] ++ [ unstablePkgs.nixd ];
