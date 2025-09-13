@@ -10,7 +10,7 @@
     # Full .zshrc content (initExtra is deprecated; use initContent)
     initContent = ''
       typeset -U path cdpath fpath manpath
-      for profile in $${(z)NIX_PROFILES}; do
+      for profile in ${(z)NIX_PROFILES}; do
         fpath+=($profile/share/zsh/site-functions $profile/share/zsh/$ZSH_VERSION/functions $profile/share/zsh/vendor-completions)
       done
 
@@ -41,7 +41,7 @@
       # --------------------------
       autoload -Uz compinit
       # Use a directory in .cache or as you prefer
-      compinit -d "$${XDG_CACHE_HOME:-$${HOME}/.cache}/zsh/zcompdump-$${ZSH_VERSION}"
+      compinit -d ''${XDG_CACHE_HOME:-''${HOME}/.cache}/zsh/zcompdump-''${ZSH_VERSION}
 
       # --------------------------
       # 2) FZF
@@ -123,7 +123,7 @@
     # change with zellij
 
     function start_if_needed() {
-        if [[ $- == *i* ]] && [[ -z "\$\{WM_VAR#/\}" ]] && [[ -t 1 ]] && [[ -z "$ZED_TERMINAL" ]]; then
+        if [[ $- == *i* ]] && [[ -z ''${WM_VAR#/} ]] && [[ -t 1 ]] && [[ -z "$ZED_TERMINAL" ]]; then
             exec $WM_CMD
         fi
     }
