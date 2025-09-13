@@ -1,5 +1,9 @@
--- Configure Node.js before loading plugins
 require("config.nodejs").setup({ silent = true })
+
+-- Register session autocmds early (before Lazy & VimEnter)
+pcall(function()
+  require("config.sessions").setup()
+end)
 
 -- bootstrap lazy.nvim, LazyVim and your plugins
 require("config.lazy")
