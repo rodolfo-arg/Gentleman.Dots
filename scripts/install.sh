@@ -46,6 +46,8 @@ fi
 log "Requesting administrator privileges (sudo)…"
 if ! sudo -v; then err "Sudo authorization failed"; exit 1; fi
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+SUDO_KEEPALIVE_PID=$!
+trap 'kill "${SUDO_KEEPALIVE_PID}" 2>/dev/null || true' EXIT INT TERM
 
 # Ensure Git is available (prerequisite)
 if ! command -v git >/dev/null 2>&1; then
@@ -119,6 +121,12 @@ fi
 } | sudo tee -a /etc/nix/nix.conf >/dev/null
 good "Updated /etc/nix/nix.conf (flakes + nix-command)"
 
+# Ensure features for this process; also try to reload the daemon (best-effort)
+export NIX_CONFIG="extra-experimental-features = nix-command flakes"
+if launchctl list | grep -q org.nixos.nix-daemon; then
+  sudo launchctl kickstart -k system/org.nixos.nix-daemon || true
+fi
+
 # =============== Homebrew (optional, for Ghostty) ===============
 BREW_BIN="/opt/homebrew/bin/brew"
 if [[ ! -x "$BREW_BIN" ]] && command -v brew >/dev/null 2>&1; then BREW_BIN="$(command -v brew)"; fi
@@ -151,12 +159,8 @@ if [[ -f "$FLAKE_FILE" ]]; then
 
   # Replace default username/homeDirectory defaults inside mkHomeConfiguration
   # Be tolerant of whitespace variations; macOS sed requires -i ''
-  sed -E -i '' \
-    "s/(username[[:space:]]*\?[[:space:]]*")([^"]+)(")/\1${DETECTED_USER}\3/" \
-    "$FLAKE_FILE" || true
-  sed -E -i '' \
-    "s|(homeDirectory[[:space:]]*\?[[:space:]]*")([^"]+)(")|\1${DETECTED_HOME}\3|" \
-    "$FLAKE_FILE" || true
+  sed -E -i '' 's/(username[[:space:]]*\?[[:space:]]*")[^"]*(")/\1'"$DETECTED_USER"'\2/' "$FLAKE_FILE" || true
+  sed -E -i '' 's|(homeDirectory[[:space:]]*\?[[:space:]]*")[^"]*(")|\1'"$DETECTED_HOME"'\2|' "$FLAKE_FILE" || true
   good "Personalized flake.nix for user '${DETECTED_USER}'"
 else
   warn "flake.nix not found at $FLAKE_FILE — skipping user personalization"
