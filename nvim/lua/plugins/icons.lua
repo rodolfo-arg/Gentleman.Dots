@@ -1,1 +1,6 @@
-/nix/store/cbbpnawr6niirn61hynsawka9spwbsyq-home-manager-files/.config/nvim/lua/plugins/icons.lua
+return {
+  -- Prefer nvim-web-devicons and disable mini.icons to avoid highlight issues
+  { "echasnovski/mini.icons", enabled = false },
+  { "nvim-tree/nvim-web-devicons", lazy = true },
+}
+

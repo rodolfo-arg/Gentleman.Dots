@@ -1,1 +1,4 @@
-/nix/store/cbbpnawr6niirn61hynsawka9spwbsyq-home-manager-files/.config/nvim/lua/plugins/smear.lua
+return {
+  "sphamba/smear-cursor.nvim",
+  opts = {},
+}

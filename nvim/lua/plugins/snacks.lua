@@ -1,1 +1,6 @@
-/nix/store/cbbpnawr6niirn61hynsawka9spwbsyq-home-manager-files/.config/nvim/lua/plugins/snacks.lua
+return {
+  "folke/snacks.nvim",
+  opts = {
+    indent = { enabled = false }, -- 🚫 fully disable indent guides
+  },
+}

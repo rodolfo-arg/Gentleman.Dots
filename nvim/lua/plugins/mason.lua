@@ -1,1 +1,4 @@
-/nix/store/cbbpnawr6niirn61hynsawka9spwbsyq-home-manager-files/.config/nvim/lua/plugins/mason.lua
+return {
+  { "williamboman/mason.nvim" },
+  { "williamboman/mason-lspconfig.nvim" },
+}

@@ -1,1 +1,6 @@
-/nix/store/cbbpnawr6niirn61hynsawka9spwbsyq-home-manager-files/.config/nvim/lua/plugins/gemini.lua
+return {
+  "jonroosevelt/gemini-cli.nvim",
+  config = function()
+    require("gemini").setup()
+  end,
+}
