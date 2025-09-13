@@ -108,14 +108,16 @@ fi
 # =============== Nix config (experimental features) ===============
 log "Ensuring /etc/nix/nix.conf has experimental features enabled"
 sudo mkdir -p /etc/nix
+# Remove existing experimental-features keys to avoid duplicates, then append desired settings
 if [[ -f /etc/nix/nix.conf ]]; then
-  sudo sed -i '' '/^extra-experimental-features/d' /etc/nix/nix.conf || true
+  sudo sed -E -i '' '/^(extra-)?experimental-features[[:space:]]*=.*/d' /etc/nix/nix.conf || true
+  sudo sed -E -i '' '/^build-users-group[[:space:]]*=.*/d' /etc/nix/nix.conf || true
 fi
 {
-  echo "extra-experimental-features = flakes nix-command"
+  echo "extra-experimental-features = nix-command flakes"
   echo "build-users-group = nixbld"
 } | sudo tee -a /etc/nix/nix.conf >/dev/null
-good "Updated /etc/nix/nix.conf"
+good "Updated /etc/nix/nix.conf (flakes + nix-command)"
 
 # =============== Homebrew (optional, for Ghostty) ===============
 BREW_BIN="/opt/homebrew/bin/brew"
@@ -133,8 +135,33 @@ else
 fi
 
 # =============== Home Manager switch ===============
-log "Applying Home Manager configuration (flake)"
-nix run github:nix-community/home-manager -- switch --flake "$REPO_DIR#gentleman" -b backup
+# Pick correct flake output based on CPU architecture
+ARCH="$(uname -m)"
+case "$ARCH" in
+  arm64) FLAKE_SELECTOR="gentleman-macos-arm" ;;
+  x86_64) FLAKE_SELECTOR="gentleman-macos-intel" ;;
+  *) FLAKE_SELECTOR="gentleman" ;;
+esac
+log "Applying Home Manager configuration (flake: #$FLAKE_SELECTOR)"
+# Ensure flake.nix uses the current macOS user/home
+FLAKE_FILE="$REPO_DIR/flake.nix"
+if [[ -f "$FLAKE_FILE" ]]; then
+  DETECTED_USER="${USER:-$(id -un)}"
+  DETECTED_HOME="${HOME:-/Users/${DETECTED_USER}}"
+
+  # Replace default username/homeDirectory defaults inside mkHomeConfiguration
+  # Be tolerant of whitespace variations; macOS sed requires -i ''
+  sed -E -i '' \
+    "s/(username[[:space:]]*\?[[:space:]]*")([^"]+)(")/\1${DETECTED_USER}\3/" \
+    "$FLAKE_FILE" || true
+  sed -E -i '' \
+    "s|(homeDirectory[[:space:]]*\?[[:space:]]*")([^"]+)(")|\1${DETECTED_HOME}\3|" \
+    "$FLAKE_FILE" || true
+  good "Personalized flake.nix for user '${DETECTED_USER}'"
+else
+  warn "flake.nix not found at $FLAKE_FILE — skipping user personalization"
+fi
+nix run github:nix-community/home-manager -- switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup
 good "Home Manager switch complete"
 
 # =============== Default shell: zsh from HM profile ===============
