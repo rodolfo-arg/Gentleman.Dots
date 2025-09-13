@@ -10,7 +10,7 @@
     # Full .zshrc content (initExtra is deprecated; use initContent)
     initContent = ''
       typeset -U path cdpath fpath manpath
-      for profile in ${(z)NIX_PROFILES}; do
+      for profile in $${(z)NIX_PROFILES}; do
         fpath+=($profile/share/zsh/site-functions $profile/share/zsh/$ZSH_VERSION/functions $profile/share/zsh/vendor-completions)
       done
 
