@@ -1,7 +1,7 @@
 -- Early session management using builtin :mksession
 -- - Saves per-directory session on exit (VimLeavePre)
 -- - Loads session after VeryLazy (plugins ready) when opened with no file args or with a single dir arg
--- - Hides dashboards/news that could clobber layout
+-- - Hides dashboards/news that could clobber layout when restoring
 -- - Reopens neo-tree if it was open but not serialized (via a persisted marker)
 
 local M = {}
@@ -101,30 +101,29 @@ function M.setup()
 
       -- Slightly defer to let other VeryLazy handlers settle first
       vim.defer_fn(function()
-        -- Hide dashboards and close intrusive buffers that may claim layout
-        pcall(function()
-          local ok_snacks, snacks = pcall(require, "snacks")
-          if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
-        end)
         close_news_windows()
-        close_browser_windows()
-
-        -- Source the session if present
         local session = session_path_for_cwd()
-        if vim.fn.filereadable(session) == 1 then
-          pcall(vim.cmd, "silent! source " .. vim.fn.fnameescape(session))
-        end
-
-        -- Restore neo-tree if it was open before exit
-        local marker = session .. ".neotree"
-        if vim.fn.filereadable(marker) == 1 and not any_win_with_ft("neo-tree") then
+        local has_session = (vim.fn.filereadable(session) == 1)
+        if has_session then
+          -- Hide dashboard and close intrusive buffers that may claim layout
           pcall(function()
-            -- Avoid prompt about changing cwd by not forcing reveal
-            require("neo-tree.command").execute({ action = "show", position = "left" })
+            local ok_snacks, snacks = pcall(require, "snacks")
+            if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
           end)
+          close_browser_windows()
+          -- Source the session
+          pcall(vim.cmd, "silent! source " .. vim.fn.fnameescape(session))
+          -- Restore neo-tree if it was open before exit
+          local marker = session .. ".neotree"
+          if vim.fn.filereadable(marker) == 1 and not any_win_with_ft("neo-tree") then
+            pcall(function()
+              require("neo-tree.command").execute({ action = "show", position = "left" })
+            end)
+          end
+          pcall(vim.fn.delete, marker)
+        else
+          -- No session: leave dashboard visible (normal LazyVim menu)
         end
-        pcall(vim.fn.delete, marker)
-
         -- Final sweep in case something opened late
         vim.defer_fn(function()
           close_news_windows()
