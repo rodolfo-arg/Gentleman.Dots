@@ -51,6 +51,13 @@ set -ga terminal-overrides ",xterm-256color:Tc"
 set -g mode-keys vi
 if-shell 'uname | grep -q Darwin' 'bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"' 'bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "clip"'
 
+# macOS: mouse-driven copy to clipboard when mouse mode is ON
+# - Drag with mouse to select; on release it copies to pbcopy and exits copy-mode
+bind -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "pbcopy"
+bind -T copy-mode MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "pbcopy"
+# Enter copy-mode on mouse drag when not already in copy-mode
+bind -n MouseDrag1Pane if -F "#{pane_in_mode}" "send-keys -X begin-selection" "copy-mode -M"
+
 # Keymaps
 unbind C-b
 set -g prefix C-a
@@ -61,8 +68,8 @@ unbind '"'
 bind v split-window -h -c "#{pane_current_path}"
 bind d split-window -v -c "#{pane_current_path}"
 
-# Mouse support (off by default for native macOS selection/right-click)
-set -g mouse off
+# Mouse support ON by default (tmux handles selection + pbcopy on release)
+set -g mouse on
 # Quick toggle with Prefix + m
 bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
 
