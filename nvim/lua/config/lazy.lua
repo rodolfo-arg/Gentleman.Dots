@@ -99,7 +99,9 @@ require("lazy").setup({
     -- version = "*", -- Try installing the latest stable version for plugins that support semver
   },
   install = { colorscheme = { "tokyonight", "habamax" } }, -- Specify colorschemes to install
-  checker = { enabled = true }, -- Automatically check for plugin updates
+  -- Automatically check for plugin updates, but don't pop intrusive windows
+  checker = { enabled = true, notify = false },
+  change_detection = { notify = false },
   performance = {
     rtp = {
       -- Disable some runtime path plugins to improve performance
