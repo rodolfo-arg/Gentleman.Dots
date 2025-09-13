@@ -2,46 +2,21 @@
 
 {
   # Instalar TPM (Tmux Plugin Manager)
-  home.activation.installTpm = ''
-    if [ ! -d ~/.tmux/plugins/tpm ]; then
-      ${pkgs.git}/bin/git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-    fi
-  '';
+  # Remove TPM install; we keep tmux minimal for copy-on-select only
+  # (No external plugins required for our copy bindings)
 
   home.file = {
     ".config/tmux/tmux.conf" = {
       text = ''
-# Carga TPM
-set -g @plugin 'tmux-plugins/tpm'
+# Minimal tmux: focus on copy-on-select; no plugins, no status bar
 
-  # Tested options for TMUX compatibility
-  set -g @plugin 'tmux-plugins/tmux-sensible'
-
-# Clipboard management
-set -g @plugin 'tmux-plugins/tmux-yank'
-
-# Tmux Navigation
-set -g @plugin 'christoomey/vim-tmux-navigator'
-
-# Tmux Resurrect
-set -g @plugin 'tmux-plugins/tmux-resurrect'
-
-# Which Key
-set -g @plugin 'alexwforsythe/tmux-which-key'
-
-# Floating window
+# Floating window (kept for scratch use)
 bind-key -n M-g if-shell -F '#{==:#{session_name},scratch}' {
 detach-client
 } {
 # open in the same directory of the current pane
 display-popup -d "#{pane_current_path}" -E "tmux new-session -A -s scratch"
 }
-
-# Tema Kanagawa
-set -g @plugin 'Nybkox/tmux-kanagawa'
-set -g @kanagawa-theme 'Kanagawa'
-set -g @kanagawa-plugins "git cpu-usage ram-usage"
-set -g @kanagawa-ignore-window-colors true
 
 # Fix colors for the terminal
 set -g default-terminal 'tmux-256color'
@@ -76,8 +51,8 @@ bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
 # Integrate with system clipboard
 set -g set-clipboard on
 
-# Status bar position
-set -g status-position top
+# Hide status bar to avoid consuming a line
+set -g status off
 
 # Kill all sessions except current
 bind K confirm-before -p "Kill all other sessions? (y/n)" "kill-session -a"
@@ -88,8 +63,6 @@ setw -g pane-base-index 1
 
 # Fix opencode and gemini cli shift + enter
 set -g extended-keys always
-
-      run '~/.tmux/plugins/tpm/tpm'
       '';
     };
     # Ensure tmux reads the XDG config by sourcing it from the legacy path
