@@ -203,6 +203,11 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
+      -- Disable "What's New" popups/news
+      news = {
+        lazyvim = { enabled = false },
+        neovim = { enabled = false },
+      },
       notifier = {},
       image = {},
       picker = {

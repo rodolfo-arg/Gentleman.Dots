@@ -150,3 +150,46 @@ function SaveFile()
     vim.notify("Error: " .. err, vim.log.levels.ERROR) -- Show the error message if it fails
   end
 end
+
+-- Simple session helpers using builtin :mksession
+local function session_path_for_cwd()
+  local state = vim.fn.stdpath("state") .. "/sessions"
+  vim.fn.mkdir(state, "p")
+  local cwd = vim.fn.getcwd()
+  local name = cwd:gsub("[/\\:]", "%%")
+  return state .. "/" .. name .. ".vim"
+end
+
+vim.keymap.set("n", "<leader>qs", function()
+  local session = session_path_for_cwd()
+  local ok, err = pcall(vim.cmd, "silent! mksession! " .. vim.fn.fnameescape(session))
+  if ok then
+    vim.notify("Session saved")
+  else
+    vim.notify("Session save failed: " .. tostring(err), vim.log.levels.ERROR)
+  end
+end, { desc = "Session Save" })
+
+vim.keymap.set("n", "<leader>ql", function()
+  -- Hide Snacks dashboard if active
+  pcall(function()
+    local ok_snacks, snacks = pcall(require, "snacks")
+    if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
+  end)
+  local session = session_path_for_cwd()
+  if vim.fn.filereadable(session) == 1 then
+    local ok, err = pcall(vim.cmd, "silent! source " .. vim.fn.fnameescape(session))
+    if ok then
+      vim.notify("Session loaded")
+    else
+      vim.notify("Session load failed: " .. tostring(err), vim.log.levels.ERROR)
+    end
+  else
+    vim.notify("No session for this directory", vim.log.levels.WARN)
+  end
+end, { desc = "Session Load (cwd)" })
+
+vim.keymap.set("n", "<leader>qd", function()
+  vim.g.__session_stop = true
+  vim.notify("Session autosave disabled for this exit")
+end, { desc = "Session Stop (no save)" })
