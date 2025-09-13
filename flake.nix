@@ -69,7 +69,7 @@
                 # Development
                 volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
                 # Compilers/Utilities
-                clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
+                clang fd ripgrep coreutils unzip bat lazygit yazi asdf-vm
                 # Fonts
                 nerd-fonts.iosevka-term
               ] ++ [ unstablePkgs.nixd ];

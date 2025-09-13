@@ -107,16 +107,17 @@
         export PATH="$HOME/.opencode/bin:$HOME/.cargo/bin:$HOME/.volta/bin:$HOME/.bun/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH:/usr/local/bin:$HOME/.config:$HOME/.cargo/bin:/usr/local/lib/*"
       fi
 
-      # Determine Homebrew bin based on OS
-      if [[ "$(uname)" == "Darwin" ]]; then
-        export BREW_BIN="/opt/homebrew/bin"
+      # Determine Homebrew path and load its environment (ARM and Intel macOS)
+      if command -v brew >/dev/null 2>&1; then
+        eval "$(brew shellenv)"
       else
-        export BREW_BIN="/home/linuxbrew/.linuxbrew/bin"
-      fi
-
-      # Load Homebrew environment if available (works for login and non-login shells)
-      if [ -x "$BREW_BIN/brew" ]; then
-        eval "$($BREW_BIN/brew shellenv)"
+        # Fallbacks for common locations
+        for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+          if [ -x "$candidate" ]; then
+            eval "$($candidate shellenv)"
+            break
+          fi
+        done
       fi
 
     # Multiplexer autostart removed; use plain Zsh in Ghostty
