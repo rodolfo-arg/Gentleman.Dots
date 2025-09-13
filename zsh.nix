@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
   programs.zsh = {
     # Enable completions
@@ -18,14 +18,11 @@
     # Extra initialization
     initExtra = ''
       # Ensure Home Manager session vars are loaded from the active HM profile.
-      # Home Manager also injects a ~/.nix-profile hm-session-vars.sh which can be empty
-      # but still sets the __HM_SESS_VARS_SOURCED guard, preventing the real one from loading.
-      # Unset the guard and source the stable HM profile path.
+      # Unset guard set by ~/.nix-profile hm-session-vars and source the real one.
       if [ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]; then
         unset __HM_SESS_VARS_SOURCED
         . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
       fi
-
       # Auto-set JAVA_HOME based on asdf current java
       if [ -f "$HOME/.asdf/plugins/java/set-java-home.zsh" ]; then
         . "$HOME/.asdf/plugins/java/set-java-home.zsh"
@@ -129,4 +126,7 @@
     . ${pkgs.asdf-vm}/share/asdf-vm/completions/asdf.bash
     '';
   };
+
+  # We avoid overriding .zshenv to prevent conflicts with the zsh module.
+  # The initExtra block above ensures correct session vars for interactive shells.
 }
