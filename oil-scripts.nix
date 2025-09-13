@@ -300,21 +300,11 @@
     '')
   ];
 
-  # Copy minimal Oil configuration
-  home.activation.copyOilMinimal = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "Copying Oil minimal configuration..."
-
-    # Create directory for minimal configuration
-    OIL_MINIMAL_DIR="$HOME/.config/nvim-oil-minimal"
-    rm -rf "$OIL_MINIMAL_DIR"
-    mkdir -p "$OIL_MINIMAL_DIR"
-
-    # Copy minimal configuration
-    cp -r ${toString ./nvim-oil-minimal}/* "$OIL_MINIMAL_DIR/" 2>/dev/null || true
-    chmod -R u+w "$OIL_MINIMAL_DIR" 2>/dev/null || true
-
-    echo "Oil minimal configuration copied to $OIL_MINIMAL_DIR"
-  '';
+  # Declaratively manage minimal Oil config via Home Manager
+  home.file.".config/nvim-oil-minimal" = {
+    source = ./nvim-oil-minimal;
+    recursive = true;
+  };
 
   # Shell configuration to ensure scripts are in PATH
   programs.fish = {
@@ -341,10 +331,6 @@
       "of" = "oil-float";
       "oz" = "oil-zed";
     };
-    initExtra = ''
-      # Ensure nix-profile bin is in PATH
-      export PATH="$HOME/.nix-profile/bin:$PATH"
-    '';
   };
 
   # Extend Nushell configuration with Oil aliases

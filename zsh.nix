@@ -4,25 +4,34 @@
     # Enable completions
     enableCompletion = false;
 
-    # zplug configuration
-    zplug = {
-      enable = true;
-      plugins = [
-        { name = "zsh-users/zsh-autosuggestions"; }
-        { name = "zsh-users/zsh-syntax-highlighting"; }
-        { name = "marlonrichert/zsh-autocomplete"; }
-        { name = "jeffreytse/zsh-vi-mode"; }
-      ];
-    };
+    # zplug handled manually in initContent to avoid deprecation warnings
+    zplug.enable = false;
 
-    # Extra initialization
-    initExtra = ''
+    # Full .zshrc content (initExtra is deprecated; use initContent)
+    initContent = ''
+      typeset -U path cdpath fpath manpath
+      for profile in ${(z)NIX_PROFILES}; do
+        fpath+=($profile/share/zsh/site-functions $profile/share/zsh/$ZSH_VERSION/functions $profile/share/zsh/vendor-completions)
+      done
+
       # Ensure Home Manager session vars are loaded from the active HM profile.
       # Unset guard set by ~/.nix-profile hm-session-vars and source the real one.
       if [ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]; then
         unset __HM_SESS_VARS_SOURCED
         . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
       fi
+
+      # zplug setup and plugins
+      export ZPLUG_HOME="$HOME/.zplug"
+      source ${pkgs.zplug}/share/zplug/init.zsh
+      zplug "zsh-users/zsh-autosuggestions"
+      zplug "zsh-users/zsh-syntax-highlighting"
+      zplug "marlonrichert/zsh-autocomplete"
+      zplug "jeffreytse/zsh-vi-mode"
+      if ! zplug check; then
+        zplug install
+      fi
+      zplug load
       # Auto-set JAVA_HOME based on asdf current java
       if [ -f "$HOME/.asdf/plugins/java/set-java-home.zsh" ]; then
         . "$HOME/.asdf/plugins/java/set-java-home.zsh"
@@ -124,9 +133,16 @@
 
     # Bash completions also work in Zsh, so source them
     . ${pkgs.asdf-vm}/share/asdf-vm/completions/asdf.bash
+
+    # Aliases ensured here so they are present regardless of HM alias injection
+    alias -- o=oil
+    alias -- of=oil-float
+    alias -- oo='oil .'
+    alias -- oz=oil-zed
+    alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
     '';
   };
 
   # We avoid overriding .zshenv to prevent conflicts with the zsh module.
-  # The initExtra block above ensures correct session vars for interactive shells.
+  # The initContent above ensures correct session vars and zsh initialization.
 }
