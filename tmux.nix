@@ -90,6 +90,7 @@ set -g extended-keys always
       text = ''
 source-file ~/.config/tmux/tmux.conf
       '';
+      force = true;
     };
   };
 }
