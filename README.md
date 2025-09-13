@@ -43,7 +43,7 @@ This repository provides a complete, declarative development environment configu
 - **Atuin**: Enhanced shell history
 - **Carapace**: Universal shell completions
 - **FZF**: Fuzzy finder integration
-- **Aerospace**: Tiling window manager configuration (optional)
+ 
 
 ### 📝 Development Workflow
 
@@ -98,7 +98,7 @@ The flake automatically handles system-specific configurations, installs all dep
 ├── ghostty/               # Ghostty themes and config
 ├── 
 ├── scripts/               # Custom utility scripts
-└── aerospace/             # Aerospace window manager config
+└── scripts/               # Custom utility scripts
 ```
 
 ## Installation Steps (for macOS)
@@ -154,20 +154,7 @@ This flake configures Ghostty. Install it from:
   - Reload config with Shift + Cmd + ,
   - GPU-accelerated with custom theme and keybinds
 
-### 5. Optional: Aerospace Window Manager
-
-For tiling window management, copy the Aerospace configuration:
-
-```bash
-cp ./aerospace/.aerospace.toml ~/
-```
-
-Aerospace provides:
-
-- Automatic window tiling
-- Workspace management
-- Keyboard-driven navigation
-- macOS-native integration
+ 
 
 ### 6. Install Home Manager
 
