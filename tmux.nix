@@ -68,8 +68,8 @@ unbind '"'
 bind v split-window -h -c "#{pane_current_path}"
 bind d split-window -v -c "#{pane_current_path}"
 
-# Mouse support ON by default (tmux handles selection + pbcopy on release)
-set -g mouse on
+# Mouse support OFF by default (native selection/right‑click)
+set -g mouse off
 # Quick toggle with Prefix + m
 bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
 
