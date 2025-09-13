@@ -168,13 +168,21 @@ return {
           cursorline = true, -- Hide the incline window when the cursorline is active
         },
         render = function(props)
-          local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t") -- Get the filename
+          local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), ":t")
           if vim.bo[props.buf].modified then
-            filename = "[+] " .. filename -- Indicate if the file is modified
+            filename = "[+] " .. filename
           end
-
-          local icon, color = require("nvim-web-devicons").get_icon_color(filename) -- Get the icon and color for the file
-          return { { icon, guifg = color }, { " " }, { filename } } -- Return the rendered content
+          local icon, color = "", nil
+          local ok, devicons = pcall(require, "nvim-web-devicons")
+          if ok and devicons and filename ~= "" then
+            local i, c = devicons.get_icon_color(filename)
+            icon, color = i or "", c
+          end
+          if color then
+            return { { icon, guifg = color }, { " " }, { filename } }
+          else
+            return { { icon }, { " " }, { filename } }
+          end
         end,
       })
     end,
