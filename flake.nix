@@ -104,8 +104,6 @@
               programs.git.enable = true;
               programs.gh.enable = true;  # GitHub CLI
               programs.home-manager.enable = true;
-              # Back up files that would be clobbered when linking
-              home-manager.backupFileExtension = "backup";
               # Note: tmux is configured via home.file in tmux.nix, not programs.tmux
 
               # Allow unfree packages

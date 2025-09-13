@@ -4,5 +4,6 @@
   home.file.".config/television" = {
     source = ./television;
     recursive = true;
+    force = true;
   };
 }

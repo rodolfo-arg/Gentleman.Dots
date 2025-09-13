@@ -304,6 +304,7 @@
   home.file.".config/nvim-oil-minimal" = {
     source = ./nvim-oil-minimal;
     recursive = true;
+    force = true;
   };
 
   # Shell configuration to ensure scripts are in PATH
