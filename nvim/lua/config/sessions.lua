@@ -88,13 +88,13 @@ function M.setup()
           local ok_snacks, snacks = pcall(require, "snacks")
           if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
         end)
-        -- Close news and any default directory browser buffers
+        -- Close news and any default directory/browser buffers that may claim layout
         close_news_windows()
         for _, win in ipairs(vim.api.nvim_list_wins()) do
           local buf = vim.api.nvim_win_get_buf(win)
           if vim.api.nvim_buf_is_valid(buf) then
             local ft = vim.bo[buf].filetype
-            if ft == "netrw" or ft == "oil" then
+            if ft == "netrw" or ft == "oil" or ft == "neo-tree" then
               pcall(vim.api.nvim_win_close, win, true)
             end
           end
