@@ -4,6 +4,35 @@
 
 ---
 
+## Quick Install (macOS)
+
+Prerequisites:
+- Git installed (either Xcode Command Line Tools or Homebrew Git)
+- Homebrew installed (recommended) or Ghostty already installed
+- Admin (sudo) access
+
+One-liner:
+
+```bash
+cd ~ && git clone https://github.com/GentlemanProgramming/Gentleman.Dots.git && \
+cd Gentleman.Dots && bash scripts/install.sh
+```
+
+What it does:
+- Requests sudo once and keeps it alive
+- Installs Nix (if missing) and enables Flakes in `/etc/nix/nix.conf`
+- Installs Ghostty via Homebrew if available (optional)
+- Applies the Home Manager flake (`.#gentleman`)
+- Registers Home‑Manager Zsh and sets it as your default shell
+
+Afterwards:
+- Start a new terminal session (or open Ghostty)
+- You’re ready to go
+
+Notes for later (custom install): the installer is structured to support an interactive “custom” mode (e.g., picking extra packages and apps) in the future. For now, it always installs the default configuration. You can pass `--custom` today (stub only): `bash scripts/install.sh --custom`.
+
+---
+
 ## Description
 
 This repository provides a complete, declarative development environment configuration using Nix Flakes and Home Manager. Everything is configured through local modules and automatically installs all dependencies.
@@ -176,6 +205,8 @@ nix-shell '<home-manager>' -A install
 Once you have cloned the repository and are **inside its directory**, run the command for your system.
 
 **⚠️ Important:** You must be in the root of this project directory for the command to work, as it uses `.` to find the `flake.nix` file.
+
+If you used the quick installer, this step is already done. Otherwise:
 
 **For any Mac (the flake auto-detects your system):**
 
