@@ -132,6 +132,19 @@ if launchctl list | grep -q org.nixos.nix-daemon; then
   sudo launchctl kickstart -k system/org.nixos.nix-daemon || true
 fi
 
+# =============== Home Manager (install if missing, per README) ===============
+if command -v home-manager >/dev/null 2>&1; then
+  good "Home Manager is already installed"
+else
+  log "Installing Home Manager (channel method)"
+  nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+  nix-channel --update
+  nix-shell '<home-manager>' -A install
+  # Ensure the CLI is available in this shell
+  export PATH="$HOME/.nix-profile/bin:$PATH"
+  good "Home Manager CLI installed"
+fi
+
 # =============== Homebrew (optional, for Ghostty) ===============
 BREW_BIN="/opt/homebrew/bin/brew"
 if [[ ! -x "$BREW_BIN" ]] && command -v brew >/dev/null 2>&1; then BREW_BIN="$(command -v brew)"; fi
@@ -167,11 +180,33 @@ if [[ -f "$FLAKE_FILE" ]]; then
   sed -E -i '' 's/(username[[:space:]]*\?[[:space:]]*")[^"]*(")/\1'"$DETECTED_USER"'\2/' "$FLAKE_FILE" || true
   sed -E -i '' 's|(homeDirectory[[:space:]]*\?[[:space:]]*")[^"]*(")|\1'"$DETECTED_HOME"'\2|' "$FLAKE_FILE" || true
   good "Personalized flake.nix for user '${DETECTED_USER}'"
+  # Optionally commit the change so flake evaluations that prefer Git sources pick it up
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    if [[ -n "$(git status --porcelain -- flake.nix)" ]]; then
+      log "Committing flake.nix personalization"
+      git add flake.nix || warn "git add failed; proceeding without commit"
+      git -c user.name="Gentleman Installer" -c user.email="installer@local" \
+        commit -m "installer: personalize flake.nix for user ${DETECTED_USER}" \
+        || warn "git commit failed; proceeding without commit"
+    fi
+  fi
 else
   warn "flake.nix not found at $FLAKE_FILE — skipping user personalization"
 fi
-nix run github:nix-community/home-manager -- switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup
+log "Using local home-manager CLI"
+home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup
 good "Home Manager switch complete"
+
+# Commit flake.lock changes if updated during the switch (best-effort)
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  if [[ -n "$(git status --porcelain -- flake.lock)" ]]; then
+    log "Committing updated flake.lock"
+    git add flake.lock || warn "git add flake.lock failed; continuing"
+    git -c user.name="Gentleman Installer" -c user.email="installer@local" \
+      commit -m "installer: update flake.lock after switch" \
+      || warn "git commit flake.lock failed; continuing"
+  fi
+fi
 
 # =============== Default shell: zsh from HM profile ===============
 HM_ZSH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/zsh"
