@@ -66,6 +66,19 @@ vim.api.nvim_create_autocmd("VimEnter", {
         local ok_snacks, snacks = pcall(require, "snacks")
         if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
       end)
+      -- close any intrusive news/changelog buffers that may appear
+      local function close_news_windows()
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          local buf = vim.api.nvim_win_get_buf(win)
+          if vim.api.nvim_buf_is_valid(buf) then
+            local name = vim.api.nvim_buf_get_name(buf)
+            if name:match("NEWS%.md$") or name:match("LazyVim/.*/NEWS%.md") or name:lower():match("changelog") then
+              pcall(vim.api.nvim_win_close, win, true)
+            end
+          end
+        end
+      end
+      close_news_windows()
       local session = session_path_for_cwd()
       if vim.fn.filereadable(session) == 1 then
         pcall(vim.cmd, "silent! source " .. vim.fn.fnameescape(session))
@@ -79,6 +92,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
         vim.g.__session_had_neotree = nil
       end
+      -- run another pass a bit later in case a lazy task opened late
+      vim.defer_fn(close_news_windows, 200)
     end)
   end,
 })
