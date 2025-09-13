@@ -100,23 +100,23 @@
       clear
 
       # --------------------------
-      # 6) Login shell specific configuration
+      # 6) Homebrew PATH (login and non-login shells)
       # --------------------------
+      # In login shells, extend PATH and load Homebrew
       if [[ -o login ]]; then
-        # PATHS and Variables
         export PATH="$HOME/.opencode/bin:$HOME/.cargo/bin:$HOME/.volta/bin:$HOME/.bun/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH:/usr/local/bin:$HOME/.config:$HOME/.cargo/bin:/usr/local/lib/*"
+      fi
 
-        # macOS vs Linux distinction
-        if [[ "$(uname)" == "Darwin" ]]; then
-          export BREW_BIN="/opt/homebrew/bin"
-        else
-          export BREW_BIN="/home/linuxbrew/.linuxbrew/bin"
-        fi
+      # Determine Homebrew bin based on OS
+      if [[ "$(uname)" == "Darwin" ]]; then
+        export BREW_BIN="/opt/homebrew/bin"
+      else
+        export BREW_BIN="/home/linuxbrew/.linuxbrew/bin"
+      fi
 
-        # Load brew
-        if [ -x "$BREW_BIN/brew" ]; then
-          eval "$($BREW_BIN/brew shellenv)"
-        fi
+      # Load Homebrew environment if available (works for login and non-login shells)
+      if [ -x "$BREW_BIN/brew" ]; then
+        eval "$($BREW_BIN/brew shellenv)"
       fi
 
     # Multiplexer autostart removed; use plain Zsh in Ghostty

@@ -103,6 +103,13 @@ The flake automatically handles system-specific configurations, installs all dep
 
 ## Installation Steps (for macOS)
 
+### 0. Prerequisites
+
+- Install Git first (required for plugin bootstrap):
+  - Xcode Command Line Tools: `xcode-select --install`
+  - or Homebrew: `brew install git`
+  - Ensure `git --version` works in your terminal before proceeding.
+
 ### 1. Install the Nix Package Manager
 
 ```bash
