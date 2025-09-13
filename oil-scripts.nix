@@ -307,23 +307,6 @@
     force = true;
   };
 
-  # Shell configuration to ensure scripts are in PATH
-  programs.fish = {
-    enable = true;
-    shellAliases = {
-      "o" = "oil";
-      "oo" = "oil .";
-      "of" = "oil-float";
-      "oz" = "oil-zed";
-    };
-    shellInit = ''
-      # Ensure nix-profile bin is in PATH
-      if not contains ~/.nix-profile/bin $PATH
-        set -gx PATH ~/.nix-profile/bin $PATH
-      end
-    '';
-  };
-
   programs.zsh = {
     enable = true;
     shellAliases = {
@@ -333,16 +316,4 @@
       "oz" = "oil-zed";
     };
   };
-
-  # Extend Nushell configuration with Oil aliases
-  programs.nushell.extraConfig = ''
-    # Ensure nix-profile bin is in PATH
-    $env.PATH = ($env.PATH | split row (char esep) | prepend $"($env.HOME)/.nix-profile/bin")
-
-    # Aliases for Oil
-    alias o = oil
-    alias oo = oil .
-    alias of = oil-float
-    alias oz = oil-zed
-  '';
 }

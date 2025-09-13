@@ -61,7 +61,7 @@
       # --------------------------
       # 3) Carapace
       # --------------------------
-      export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense'
+      export CARAPACE_BRIDGES='zsh,bash,inshellisense'
       zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
       source <(carapace _carapace)
 
@@ -119,24 +119,7 @@
         fi
       fi
 
-    WM_VAR="/$TMUX"
-    # change with ZELLIJ
-    WM_CMD="tmux"
-    # change with zellij
-
-    # Auto-start tmux in interactive TTYs, with an escape hatch via NO_TMUX=1
-    function start_if_needed() {
-        # Respect NO_TMUX=1 to debug shells outside tmux
-        if [[ -n "$NO_TMUX" ]]; then
-          return
-        fi
-        # Only start if interactive, not already inside tmux, and in a real TTY
-        if [[ $- == *i* ]] && [[ -z ''${WM_VAR#/} ]] && [[ -t 1 ]] && [[ -z "$ZED_TERMINAL" ]] && [[ "$TERM" != "dumb" ]]; then
-            exec $WM_CMD
-        fi
-    }
-    # Re-enable tmux autostart now that config is simplified
-    start_if_needed
+    # Multiplexer autostart removed; use plain Zsh in Ghostty
     # Initialize asdf
     . ${pkgs.asdf-vm}/share/asdf-vm/asdf.sh
 

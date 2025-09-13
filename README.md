@@ -15,24 +15,18 @@ This repository provides a complete, declarative development environment configu
 - **Build Tools**: Nil (Nix LSP), Nixd (Nix language server)
 - **Utilities**: jq, bash, fd, ripgrep, coreutils, unzip, bat, yazi
 
-### 🐚 Shell Configurations
+### 🐚 Shell Configuration
 
-- **Fish Shell**: Complete configuration with 400+ command completions
-- **Nushell**: Modern shell with custom config and environment setup
-- **Zsh**: Traditional shell with modern enhancements
-- **Starship**: Cross-shell prompt with custom configuration
+- **Zsh**: Primary shell with modern enhancements
+- **Starship**: Prompt configured for Zsh
 
-### 🖥️ Terminal Emulators
+### 🖥️ Terminal
 
-- **Ghostty**: Modern GPU-accelerated terminal with custom themes
-- **WezTerm**: Feature-rich terminal with Lua configuration
-- **Tmux**: Terminal multiplexer with custom key bindings
-- **Zellij**: Modern terminal workspace (optional - see customization)
+- **Ghostty**: GPU-accelerated terminal with custom theme and keybinds
 
 ### ⚡ Development Environment
 
 - **Neovim**: Fully configured IDE with LazyVim, AI assistants, and 40+ plugins
-- **Zed**: Modern code editor with custom themes and settings
 - **Git & GitHub CLI**: Pre-configured version control
 - **Lazy Git**: Terminal UI for Git operations
 
@@ -40,7 +34,6 @@ This repository provides a complete, declarative development environment configu
 
 - **Copilot + CopilotChat**: Inline ghost suggestions and chat
 - **OpenCode**: AI assistant integration
-- **Gemini CLI**: Google's AI assistant (optional - see customization)
 - **Multiple AI providers**: Support for various AI coding assistants
 
 ### 🔧 System Utilities
@@ -71,8 +64,8 @@ The flake automatically handles system-specific configurations, installs all dep
 - **Declarative**: Version-controlled, reproducible environment
 - **Modern Toolchain**: Latest development tools and utilities
 - **AI-Enhanced**: Multiple AI coding assistants integrated
-- **Shell Agnostic**: Fish, Nushell, and Zsh all configured
-- **Terminal Flexibility**: Multiple terminal emulators supported
+- **Zsh-Only Shell**: Single, focused Zsh configuration
+- **Ghostty Terminal**: Streamlined terminal setup
 - **macOS Optimized**: Specifically tuned for macOS workflows
 
 ### 🔧 Technical Stack
@@ -80,11 +73,11 @@ The flake automatically handles system-specific configurations, installs all dep
 | Category            | Tools                                                    |
 | ------------------- | -------------------------------------------------------- |
 | **Package Manager** | Nix with Flakes + Home Manager                           |
-| **Shells**          | Fish, Nushell, Zsh with Starship prompt                  |
-| **Terminals**       | Ghostty, WezTerm, Tmux, Zellij (optional)                |
-| **Editor**          | Neovim (LazyVim) + Zed                                   |
+| **Shell**           | Zsh with Starship prompt                                  |
+| **Terminal**        | Ghostty                                                   |
+| **Editor**          | Neovim (LazyVim)                                         |
 | **Languages**       | Node.js, Rust, Go, with Volta management                 |
-| **AI Tools**        | Copilot/CopilotChat, OpenCode, Gemini (opt.), multiple providers |
+| **AI Tools**        | Copilot/CopilotChat, OpenCode, multiple providers        |
 | **Navigation**      | Television, Yazi, Oil.nvim, Zoxide                       |
 | **Development**     | Git, GitHub CLI, Lazy Git                                |
 
@@ -93,25 +86,17 @@ The flake automatically handles system-specific configurations, installs all dep
 ```
 .
 ├── flake.nix              # Main Nix flake configuration
-├── README.md               # This file
-├── fish.nix               # Fish shell configuration
-├── nushell.nix            # Nushell configuration
+├── README.md              # This file
 ├── zsh.nix                # Zsh configuration
 ├── starship.nix           # Starship prompt configuration
 ├── nvim.nix               # Neovim configuration
 ├── ghostty.nix            # Ghostty terminal configuration
-├── wezterm.nix            # WezTerm configuration
-├── tmux.nix               # Tmux configuration
-├── zed.nix                # Zed editor configuration
 ├── opencode.nix           # OpenCode AI configuration
-├── gemini.nix             # Gemini CLI configuration (optional)
 ├── television.nix         # Television file navigator
-├── zellij.nix             # Zellij terminal workspace (optional)
 ├── oil-scripts.nix        # Custom Oil.nvim scripts
-├── fish/                  # Fish completions and configs
 ├── nvim/                  # Neovim plugins and settings
 ├── ghostty/               # Ghostty themes and config
-├── zed/                   # Zed themes and settings
+├── 
 ├── scripts/               # Custom utility scripts
 └── aerospace/             # Aerospace window manager config
 ```
@@ -154,19 +139,13 @@ You only need to update your username in `flake.nix`:
 - Change `home.username = "YourUser";` to your actual username
 - The home directory is automatically set to `/Users/YourUser`
 
-### 4. Install Terminal Emulators (Optional)
+### 4. Install Terminal (Ghostty)
 
-Configurations are automatically applied. Choose your preferred terminal:
+This flake configures Ghostty. Install it from:
 
-- **Ghostty** (Recommended): <https://ghostty.org/download>
-  - Reload config with **Shift + Cmd + ,**
-  - Modern GPU-accelerated with custom themes
-  - Optimized for performance
-
-- **WezTerm**: <https://wezterm.org/installation.html>
-  - Feature-rich with Lua configuration
-  - Cross-platform compatibility
-  - Advanced customization options
+- Ghostty: https://ghostty.org/download
+  - Reload config with Shift + Cmd + ,
+  - GPU-accelerated with custom theme and keybinds
 
 ### 5. Optional: Aerospace Window Manager
 
@@ -230,23 +209,7 @@ _(These commands apply the configuration defined in the flake, installing all de
 
 **PATH is configured automatically on macOS!**
 
-### 9. Default Shell
-
-Now run the following script to add `Nushell`, `Fish` or `Zsh` to your list of available shells and select it as the default one:
-
-**Fish (Recommended):**
-
-```bash
-shellPath="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/fish" && sudo sh -c "grep -Fxq '$shellPath' /etc/shells || echo '$shellPath' >> /etc/shells" && sudo chsh -s "$shellPath" "$USER"
-```
-
-**Nushell:**
-
-```bash
-shellPath="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/nu" && sudo sh -c "grep -Fxq '$shellPath' /etc/shells || echo '$shellPath' >> /etc/shells" && sudo chsh -s "$shellPath" "$USER"
-```
-
-**Zsh:**
+### 9. Default Shell (Zsh)
 
 ```bash
 shellPath="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/zsh" && sudo sh -c "grep -Fxq '$shellPath' /etc/shells || echo '$shellPath' >> /etc/shells" && sudo chsh -s "$shellPath" "$USER"
@@ -270,20 +233,14 @@ Configurations are automatically deployed to:
 
 | Tool           | Location                                 |
 | -------------- | ---------------------------------------- |
-| **Nushell**    | `~/Library/Application Support/nushell/` |
-| **Fish**       | `~/.config/fish/`                        |
 | **Ghostty**    | `~/.config/ghostty/`                     |
-| **WezTerm**    | `~/.wezterm.lua`                         |
 | **Neovim**     | `~/.config/nvim/`                        |
-| **Zed**        | `~/Library/Application Support/Zed/`     |
 | **Starship**   | `~/.config/starship.toml`                |
-| **Tmux**       | `~/.config/tmux/`                        |
-| **Zellij**     | `~/.config/zellij/` (optional)           |
 | **Television** | `~/.config/television/`                  |
 
 ### 🚀 Performance Features
 
-- **Shell Completions**: 400+ Fish completions for better productivity
+- **Shell Completions**: Carapace-powered Zsh completions
 - **Smart History**: Atuin for enhanced command history across shells
 - **Fuzzy Finding**: FZF integration for quick file/command finding
 - **Directory Navigation**: Zoxide for intelligent directory jumping
@@ -368,7 +325,6 @@ Notes:
 - Terminal job buffers are not restored by Vim sessions; reopen terminals if needed.
 
 - For Ghostty: Use **Shift + Cmd + ,** to reload config
-- For WezTerm: Restart the terminal
 - Verify config files are in correct locations
 
 ### Customization
@@ -384,80 +340,7 @@ Notes:
 - Update `flake.lock` with: `nix flake update`
 - Pin specific package versions in the flake
 
-**Enabling Optional Configurations:**
-
-Some configurations are commented out by default. To enable them:
-
-1. **Zellij Terminal Workspace:**
-
-   ```bash
-   # Edit flake.nix and uncomment the Zellij line
-   sed -i '' 's|# ./zellij.nix|./zellij.nix|' flake.nix
-
-   # Re-run the installation
-   nix run github:nix-community/home-manager -- switch --flake .#gentleman-macos-arm -b backup
-   ```
-
-   Features:
-   - Modern terminal multiplexer alternative to tmux
-   - Vim-like keybindings with custom themes
-   - Plugin system with status bar and session management
-   - Custom layouts and workspace management
-
-   **Additional Configuration Required:**
-   After enabling Zellij, you need to update shell configurations to use Zellij instead of tmux:
-
-   **Fish Shell (`~/.config/fish/config.fish`):**
-
-   ```fish
-   # Change line ~31 from:
-   if not set -q TMUX; and not set -q ZED_TERMINAL
-       tmux
-
-   # To:
-   if not set -q ZELLIJ; and not set -q ZED_TERMINAL
-       zellij
-   ```
-
-   **Zsh Shell (`~/.zshrc`):**
-
-   ```bash
-   # Change lines ~100-102 from:
-   WM_VAR="/$TMUX"
-   WM_CMD="tmux"
-
-   # To:
-   WM_VAR="/$ZELLIJ"
-   WM_CMD="zellij"
-   ```
-
-   **Nushell (`~/.config/nushell/config.nu`):**
-
-   ```nu
-   # Change lines ~1015-1016 from:
-   let MULTIPLEXER = "tmux"
-   let MULTIPLEXER_ENV_PREFIX = "TMUX"
-
-   # To:
-   let MULTIPLEXER = "zellij"
-   let MULTIPLEXER_ENV_PREFIX = "ZELLIJ"
-   ```
-
-2. **Gemini CLI Integration:**
-
-   ```bash
-   # Edit flake.nix and add Gemini module
-   # Add './gemini.nix' to the modules list in flake.nix
-
-   # Re-run the installation
-   nix run github:nix-community/home-manager -- switch --flake .#gentleman-macos-arm -b backup
-   ```
-
-   Features:
-   - Google's AI assistant CLI tool
-   - Integrated via Bun package manager
-   - Direct access with `gemini` command
-   - Perfect for AI-powered development workflows
+ 
 
 ## AI Configuration for Neovim
 
@@ -467,7 +350,6 @@ This configuration includes support for the following AI tools:
 - **CopilotChat.nvim** - GitHub Copilot chat interface
 - **OpenCode.nvim** - OpenCode AI integration
 - **CodeCompanion.nvim** - Multi‑AI provider support
-- **Gemini.nvim** - Google Gemini integration (optional)
 
 ### Copilot setup (inline ghost text)
 

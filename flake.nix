@@ -22,14 +22,8 @@
 
       # Common modules shared across configurations
       commonModules = [
-        ./nushell.nix  # Nushell configuration
         ./ghostty.nix  # Ghostty configuration
-        ./zed.nix  # Zed configuration
         ./television.nix  # Television configuration
-        ./wezterm.nix  # WezTerm configuration
-        # ./zellij.nix  # Zellij configuration (commented out)
-        ./tmux.nix  # Tmux configuration
-        ./fish.nix  # Fish shell configuration
         ./starship.nix  # Starship prompt configuration
         ./nvim.nix  # Neovim configuration
         ./zsh.nix  # Zsh configuration
@@ -71,7 +65,7 @@
               # Base packages that should be available everywhere
               home.packages = with pkgs; [
                 # Terminal
-                zsh tmux
+                zsh
                 # Development
                 volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
                 # Compilers/Utilities
@@ -112,7 +106,7 @@
                   (cd "$REPO_DIR" && nix flake update) || true
                 fi
               '';
-              # Note: tmux is configured via home.file in tmux.nix, not programs.tmux
+              # Tmux and other terminals are intentionally not managed; only Ghostty + Zsh
 
               # Allow unfree packages
               nixpkgs.config.allowUnfree = true;

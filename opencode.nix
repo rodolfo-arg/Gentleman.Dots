@@ -148,8 +148,6 @@
     };
   };
 
-  # Add aliases for all configured shells
-  programs.fish.shellAliases.opencode-config = "nvim ~/.config/opencode/opencode.json";
+  # Zsh alias for quick config editing
   programs.zsh.shellAliases.opencode-config = "nvim ~/.config/opencode/opencode.json";
-  programs.nushell.shellAliases.opencode-config = "nvim ~/.config/opencode/opencode.json";
 }
