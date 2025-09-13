@@ -1,6 +1,6 @@
 { ... }:
 {
-  # Declaratively manage Ghostty config via Home Manager, avoiding activation copy scripts
+  # Declaratively manage Ghostty config via Home Manager
   home.file.".config/ghostty" = {
     source = ./ghostty;
     recursive = true;
