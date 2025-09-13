@@ -104,6 +104,14 @@
               programs.git.enable = true;
               programs.gh.enable = true;  # GitHub CLI
               programs.home-manager.enable = true;
+              # Optional: keep flake inputs fresh on every switch (best-effort)
+              home.activation.updateFlakeInputs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                REPO_DIR="$HOME/Gentleman.Dots"
+                if [ -d "$REPO_DIR/.git" ]; then
+                  echo "[flake] Updating inputs in $REPO_DIR"
+                  (cd "$REPO_DIR" && nix flake update) || true
+                fi
+              '';
               # Note: tmux is configured via home.file in tmux.nix, not programs.tmux
 
               # Allow unfree packages

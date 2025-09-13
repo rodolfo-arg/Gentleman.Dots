@@ -38,7 +38,7 @@ This repository provides a complete, declarative development environment configu
 
 ### 🤖 AI Integrations
 
-- **Claude Code CLI**: Integrated AI coding assistant
+- **Copilot + CopilotChat**: Inline ghost suggestions and chat
 - **OpenCode**: AI assistant integration
 - **Gemini CLI**: Google's AI assistant (optional - see customization)
 - **Multiple AI providers**: Support for various AI coding assistants
@@ -84,7 +84,7 @@ The flake automatically handles system-specific configurations, installs all dep
 | **Terminals**       | Ghostty, WezTerm, Tmux, Zellij (optional)                |
 | **Editor**          | Neovim (LazyVim) + Zed                                   |
 | **Languages**       | Node.js, Rust, Go, with Volta management                 |
-| **AI Tools**        | Claude Code, OpenCode, Gemini (opt.), multiple providers |
+| **AI Tools**        | Copilot/CopilotChat, OpenCode, Gemini (opt.), multiple providers |
 | **Navigation**      | Television, Yazi, Oil.nvim, Zoxide                       |
 | **Development**     | Git, GitHub CLI, Lazy Git                                |
 
@@ -103,7 +103,6 @@ The flake automatically handles system-specific configurations, installs all dep
 ├── wezterm.nix            # WezTerm configuration
 ├── tmux.nix               # Tmux configuration
 ├── zed.nix                # Zed editor configuration
-├── claude.nix             # Claude Code CLI configuration
 ├── opencode.nix           # OpenCode AI configuration
 ├── gemini.nix             # Gemini CLI configuration (optional)
 ├── television.nix         # Television file navigator
@@ -293,9 +292,9 @@ Configurations are automatically deployed to:
 
 ### 🤖 AI Development Features
 
-- **Claude Code Integration**: Native AI coding assistant
+- **GitHub Copilot**: Inline ghost suggestions (no intrusive popup)
+- **CopilotChat**: Chat-based assistance inside Neovim
 - **Multiple AI Providers**: Support for various AI services
-- **Context-Aware**: AI tools integrated with your development workflow
 - **Productivity Focused**: AI assistants configured for maximum productivity
 
 ### 🎨 Theming & Customization
@@ -323,6 +322,35 @@ source ~/.zshrc  # or ~/.bashrc
 - Check that you're in the project directory when running commands
 
 **Terminal not picking up themes:**
+
+---
+
+## Maintenance
+
+### Keep dependencies up to date
+
+- Nix inputs (flake.lock):
+  - This repo runs a best‑effort `nix flake update` on every `home-manager switch` to refresh inputs.
+  - You can update manually too:
+    - `cd ~/Gentleman.Dots && nix flake update && home-manager switch --flake .#gentleman`
+  - Tip: commit `flake.lock` after updates to pin versions.
+
+- Neovim plugins (lazy.nvim):
+  - On every switch we run `nvim --headless "+Lazy! sync" +qa` to install/update plugins.
+  - Manual update:
+    - Inside Neovim: `:Lazy sync`
+    - Headless: `nvim --headless "+Lazy! sync" +qa`
+
+### Disable auto‑updates (optional)
+
+- Disable flake auto‑update: comment/remove `home.activation.updateFlakeInputs` in `flake.nix`.
+- Disable Neovim auto‑update: comment/remove `home.activation.nvimLazySync` in `nvim.nix`.
+
+### Recommended update flow
+
+1. `cd ~/Gentleman.Dots`
+2. `home-manager switch --flake .#gentleman`
+3. Review changes, then commit `flake.lock` if updates look good.
 
 - For Ghostty: Use **Shift + Cmd + ,** to reload config
 - For WezTerm: Restart the terminal
@@ -420,67 +448,27 @@ Some configurations are commented out by default. To enable them:
 
 This configuration includes support for the following AI tools:
 
-- **Avante.nvim** - AI-powered coding assistant
+- **Avante.nvim** - AI‑powered coding assistant
 - **CopilotChat.nvim** - GitHub Copilot chat interface
 - **OpenCode.nvim** - OpenCode AI integration
-- **CodeCompanion.nvim** - Multi-AI provider support
-- **Claude Code.nvim** - Claude AI integration _(enabled by default)_
-- **Gemini.nvim** - Google Gemini integration
+- **CodeCompanion.nvim** - Multi‑AI provider support
+- **Gemini.nvim** - Google Gemini integration (optional)
 
-### How to Switch AI Plugins
+### Copilot setup (inline ghost text)
 
-**Claude Code is already enabled by default.** To switch to a different AI assistant:
+- Copilot suggestions show inline as ghost text (like VS Code), not in the completion popup.
+- Keymaps:
+  - Accept: Ctrl+Right
+  - Accept word: Alt+Right
+  - Accept line: Alt+L
+  - Next/Prev: Alt+] / Alt+]
+  - Dismiss: Ctrl+]
 
-1. **Navigate to the disabled plugins file:**
+### Switching AI tools
 
-   ```bash
-   nvim ~/.config/nvim/lua/plugins/disabled.lua
-   ```
-
-2. **Disable Claude Code** by changing `enabled = true` to `enabled = false`:
-
-   ```lua
-   {
-     "greggh/claude-code.nvim",
-     enabled = false,  -- Disable Claude Code
-   },
-   ```
-
-3. **Enable your preferred AI assistant** by changing `enabled = false` to `enabled = true`:
-
-   ```lua
-   {
-     "yetone/avante.nvim",
-     enabled = true,  -- Change to true to enable
-   },
-   ```
-
-4. **Save the file** and restart Neovim.
-
-### Important Notes
-
-- **Only enable ONE AI plugin at a time** to avoid conflicts and keybinding issues
-- **Required CLI tools** are automatically installed by the script:
-  - Claude Code CLI (`brew install --cask claude-code`)
-  - OpenCode CLI (`curl -fsSL https://opencode.ai/install | bash`)
-  - Gemini CLI (`brew install gemini-cli`)
-- **API keys may be required** for some services - check each plugin's documentation
-- **Node.js 18+** is required for most AI plugins (automatically handled by the configuration)
-
-### Switching Between AI Assistants
-
-To switch from one AI assistant to another:
-
-1. Set your current AI plugin to `enabled = false`
-2. Set your desired AI plugin to `enabled = true`
-3. Restart Neovim
-
-### Recommended AI Assistants
-
-- **For beginners:** Start with **CodeCompanion.nvim** - supports multiple AI providers
-- **For Claude users:** Use **Claude Code.nvim** with the Claude Code CLI
-- **For GitHub Copilot users:** Use **CopilotChat.nvim**
-- **For Google Gemini users:** Use **Gemini.nvim** with the Gemini CLI
+- Use one assistant at a time to avoid conflicts.
+- Enable/disable plugins under `nvim/lua/plugins/` as needed.
+- Restart Neovim after changes.
 
 ## Contributing
 
