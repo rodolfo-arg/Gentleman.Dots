@@ -20,7 +20,7 @@ display-popup -d "#{pane_current_path}" -E "tmux new-session -A -s scratch"
 
 # Fix colors for the terminal
 set -g default-terminal 'tmux-256color'
-set -ga terminal-overrides ",xterm-256color:Tc"
+set -ga terminal-overrides ",xterm-256color:Tc,tmux-256color:Tc"
 
 # Modo vim
 set -g mode-keys vi
@@ -42,6 +42,9 @@ unbind %
 unbind '"'
 bind v split-window -h -c "#{pane_current_path}"
 bind d split-window -v -c "#{pane_current_path}"
+
+# Reload config quickly
+bind r source-file ~/.config/tmux/tmux.conf \; display-message 'tmux.conf reloaded'
 
 # Mouse support ON (required for auto‑copy on drag release)
 set -g mouse on

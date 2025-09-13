@@ -71,7 +71,7 @@
               # Base packages that should be available everywhere
               home.packages = with pkgs; [
                 # Terminal
-                zsh
+                zsh tmux
                 # Development
                 volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
                 # Compilers/Utilities
