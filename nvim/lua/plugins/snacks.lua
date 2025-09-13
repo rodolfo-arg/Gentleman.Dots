@@ -1,1 +1,1 @@
-/nix/store/9h881zr386wjzfz5swl84x95mncvvkz3-home-manager-files/.config/nvim/lua/plugins/snacks.lua
+/nix/store/b8n8gk2qv58d92bcjiqk7fz3qhmkf7k2-home-manager-files/.config/nvim/lua/plugins/snacks.lua

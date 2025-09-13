@@ -1,5 +1,1 @@
-return {
-  "ibhagwan/fzf-lua",
-  dependencies = { "nvim-tree/nvim-web-devicons" },
-  opts = {},
-}
+/nix/store/b8n8gk2qv58d92bcjiqk7fz3qhmkf7k2-home-manager-files/.config/nvim/lua/plugins/fzflua.lua.backup.backup.backup.backup.backup.backup
