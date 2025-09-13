@@ -352,6 +352,21 @@ source ~/.zshrc  # or ~/.bashrc
 2. `home-manager switch --flake .#gentleman`
 3. Review changes, then commit `flake.lock` if updates look good.
 
+## Sessions (auto-save/restore per directory)
+
+- Neovim saves a session on exit and restores it when you start `nvim` in the same directory (with no file args).
+- This restores windows, tabs, layout (e.g., Neo-tree panes), and more.
+
+Shortcuts:
+- `<leader>qs` — Save session now
+- `<leader>ql` — Load session for current directory
+- `<leader>qd` — Stop session (don’t save on exit)
+
+Notes:
+- Auto-restore triggers only when starting `nvim` without explicit files (`nvim` vs `nvim file.lua`).
+- Sessions are stored under `:echo stdpath('state') .. '/sessions'`.
+- Terminal job buffers are not restored by Vim sessions; reopen terminals if needed.
+
 - For Ghostty: Use **Shift + Cmd + ,** to reload config
 - For WezTerm: Restart the terminal
 - Verify config files are in correct locations
