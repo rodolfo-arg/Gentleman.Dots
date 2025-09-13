@@ -8,8 +8,7 @@
 
 Prerequisites:
 
-- Git installed (either Xcode Command Line Tools or Homebrew (Recommended) Git)
-- Homebrew installed (recommended) or Ghostty already installed
+- Homebrew
 
 One-liner:
 
