@@ -135,7 +135,8 @@
             exec $WM_CMD
         fi
     }
-    start_if_needed
+    # TEMP: Disable autostart to debug terminal resizing behavior
+    # start_if_needed
     # Initialize asdf
     . ${pkgs.asdf-vm}/share/asdf-vm/asdf.sh
 
