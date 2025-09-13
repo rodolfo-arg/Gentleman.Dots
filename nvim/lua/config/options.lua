@@ -29,7 +29,3 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
--- Ensure mouse selects and clipboard yanks to system clipboard
-vim.opt.mouse = "a"
-vim.opt.clipboard = "unnamedplus"
-
