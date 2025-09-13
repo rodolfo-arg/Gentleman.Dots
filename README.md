@@ -8,10 +8,8 @@
 
 Prerequisites:
 
-- Git installed (either Xcode Command Line Tools or Homebrew Git)
-  [Lightweight Installer to get around brew/system cmd tools intallation](https://developer.apple.com/download/all/?q=Command%20Line%20Tools)
+- Git installed (either Xcode Command Line Tools or Homebrew (Recommended) Git)
 - Homebrew installed (recommended) or Ghostty already installed
-- Admin (sudo) access
 
 One-liner:
 
