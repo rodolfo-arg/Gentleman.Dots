@@ -1,4 +1,1 @@
-return {
-  "sphamba/smear-cursor.nvim",
-  opts = {},
-}
+/nix/store/9gk4z1ld72zjnw14nz36i395bd5hmhlw-home-manager-files/.config/nvim/lua/plugins/smear.lua.backup.backup.backup.backup

@@ -122,7 +122,11 @@ function M.setup()
           end
           pcall(vim.fn.delete, marker)
         else
-          -- No session: leave dashboard visible (normal LazyVim menu)
+          -- No session: explicitly show the dashboard (normal LazyVim menu)
+          pcall(function()
+            local ok_snacks, snacks = pcall(require, "snacks")
+            if ok_snacks and snacks.dashboard and snacks.dashboard.show then snacks.dashboard.show() end
+          end)
         end
         -- Final sweep in case something opened late
         vim.defer_fn(function()
