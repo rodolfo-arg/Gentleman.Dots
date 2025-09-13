@@ -3,6 +3,8 @@ background-blur-radius = 20
 
 gtk-tabs-location = hidden
 window-decoration = false
+## Start maximized to fill the monitor on launch
+window-mode = maximized
 
 #palette = 0=#16161d
 #palette = 1=#c34043
