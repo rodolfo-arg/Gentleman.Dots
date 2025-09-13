@@ -48,6 +48,15 @@ set -g mouse on
 # Quick toggle with Prefix + m
 bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
 
+# Ensure windows resize to the active terminal size and mouse-drag border resizing works
+# - window-size latest: track size of the most recently used client
+# - aggressive-resize on: prefer the current client's size for the active window
+# - explicit MouseDrag1Border bind: keep border drag for pane resizing while preserving copy-on-select bindings
+set -g window-size latest
+set -g aggressive-resize on
+unbind -n MouseDrag1Border
+bind -n MouseDrag1Border resize-pane -M
+
 # Integrate with system clipboard
 set -g set-clipboard on
 
