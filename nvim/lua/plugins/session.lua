@@ -37,18 +37,21 @@ return {
           local ok_snacks, snacks = pcall(require, "snacks")
           if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
         end)
-        local ok, persistence = pcall(require, "persistence")
-        if ok then pcall(persistence.load) end
-        -- If neo-tree was open but not restored, open it now
-        if vim.g.__session_had_neotree then
-          if not any_win_with_ft("neo-tree") then
-            pcall(function()
-              require("neo-tree.command").execute({ action = "show", position = "left", reveal = true })
-            end)
+        -- Defer a bit to let Lazy finish UI setup, then load session
+        vim.defer_fn(function()
+          local ok, persistence = pcall(require, "persistence")
+          if ok then pcall(persistence.load) end
+          -- If neo-tree was open but not restored, open it now
+          if vim.g.__session_had_neotree then
+            if not any_win_with_ft("neo-tree") then
+              pcall(function()
+                require("neo-tree.command").execute({ action = "show", position = "left", reveal = true })
+              end)
+            end
+            vim.g.__session_had_neotree = nil
           end
-          vim.g.__session_had_neotree = nil
-        end
-        vim.g.session_loaded = true
+          vim.g.session_loaded = true
+        end, 120)
       end,
     })
   end,
