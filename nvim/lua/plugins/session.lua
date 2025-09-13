@@ -3,9 +3,25 @@ return {
   "folke/persistence.nvim",
   -- Register autocommands early so VimEnter hook always runs
   init = function()
+    local function any_win_with_ft(ft)
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == ft then
+          return true
+        end
+      end
+      return false
+    end
     -- Auto-save session on exit
     vim.api.nvim_create_autocmd("VimLeavePre", {
       callback = function()
+        -- Remember if neo-tree was open to restore explicitly if session misses it
+        local ok_nt, _ = pcall(require, "neo-tree")
+        if ok_nt then
+          vim.g.__session_had_neotree = any_win_with_ft("neo-tree")
+        else
+          vim.g.__session_had_neotree = nil
+        end
         local ok, persistence = pcall(require, "persistence")
         if ok then pcall(persistence.save) end
       end,
@@ -23,13 +39,22 @@ return {
         end)
         local ok, persistence = pcall(require, "persistence")
         if ok then pcall(persistence.load) end
+        -- If neo-tree was open but not restored, open it now
+        if vim.g.__session_had_neotree then
+          if not any_win_with_ft("neo-tree") then
+            pcall(function()
+              require("neo-tree.command").execute({ action = "show", position = "left", reveal = true })
+            end)
+          end
+          vim.g.__session_had_neotree = nil
+        end
         vim.g.session_loaded = true
       end,
     })
   end,
   opts = {
     -- Save enough state to restore layout, windows, help, globals
-    options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals" },
+    options = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "folds", "localoptions", "options" },
   },
   config = function(_, opts)
     local ok, persistence = pcall(require, "persistence")
