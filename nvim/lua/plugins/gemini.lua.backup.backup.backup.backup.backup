@@ -1,6 +1,1 @@
-return {
-  "jonroosevelt/gemini-cli.nvim",
-  config = function()
-    require("gemini").setup()
-  end,
-}
+/nix/store/9h881zr386wjzfz5swl84x95mncvvkz3-home-manager-files/.config/nvim/lua/plugins/gemini.lua.backup.backup.backup.backup.backup
