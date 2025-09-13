@@ -82,7 +82,13 @@ setw -g pane-base-index 1
 # Fix opencode and gemini cli shift + enter
 set -g extended-keys always
 
-run '~/.tmux/plugins/tpm/tpm'
+      run '~/.tmux/plugins/tpm/tpm'
+      '';
+    };
+    # Ensure tmux reads the XDG config by sourcing it from the legacy path
+    ".tmux.conf" = {
+      text = ''
+source-file ~/.config/tmux/tmux.conf
       '';
     };
   };
