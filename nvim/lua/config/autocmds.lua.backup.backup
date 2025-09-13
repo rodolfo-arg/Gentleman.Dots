@@ -1,5 +1,1 @@
--- Autocmds are automatically loaded on the VeryLazy event
--- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
--- Add any additional autocmds here
-
--- Session management is registered early in config/sessions.lua
+/nix/store/hzhqj0g1v90xz6f3qg29ass44dsgqdhg-home-manager-files/.config/nvim/lua/config/autocmds.lua.backup.backup
