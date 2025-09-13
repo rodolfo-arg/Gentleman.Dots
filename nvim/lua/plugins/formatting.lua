@@ -1,14 +1,1 @@
-return {
-  {
-    "stevearc/conform.nvim",
-    optional = true,
-    opts = function(_, opts)
-      opts = opts or {}
-      opts.formatters_by_ft = opts.formatters_by_ft or {}
-      -- Ensure fish uses fish_indent and not trying to execute the script
-      opts.formatters_by_ft.fish = { "fish_indent" }
-      return opts
-    end,
-  },
-}
-
+/nix/store/ryk52gxbccbs8whg8bv96mg5858wi33y-home-manager-files/.config/nvim/lua/plugins/formatting.lua
