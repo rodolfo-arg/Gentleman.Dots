@@ -77,7 +77,12 @@
                 volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
                 # Compilers/Utilities
                 clang fd ripgrep coreutils unzip bat lazygit yazi television asdf-vm
-                android-platform-tools android-sdk cmdline-tools
+                # Android
+                android-tools
+                androidenv.androidPkgs_9_0.platform-tools
+                androidenv.androidPkgs_9_0.cmdline-tools_latest
+                androidenv.androidPkgs_9_0.build-tools_33_0_2
+                androidenv.androidPkgs_9_0.emulator
                 # Fonts
                 nerd-fonts.iosevka-term
               ] ++ [ unstablePkgs.nixd ];
