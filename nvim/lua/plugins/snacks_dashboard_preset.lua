@@ -35,12 +35,7 @@ return {
           { icon = " ", key = "q", desc = "Quit", action = ":qa" },
         },
       }
-      -- Tighter layout: remove extra padding and gaps
-      opts.dashboard.sections = {
-        { section = "header", padding = 0 },
-        { section = "keys", gap = 0, padding = 0 },
-        { section = "footer", padding = 0 },
-      }
+      -- Keep default layout for compatibility; we'll rely on Snacks' own spacing
       return opts
     end,
   },
