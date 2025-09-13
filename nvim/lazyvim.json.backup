@@ -1,10 +1,1 @@
-{
-  "extras": [
-    "lazyvim.plugins.extras.coding.mini-surround",
-    "lazyvim.plugins.extras.util.mini-hipatterns"
-  ],
-  "news": {
-    "NEWS.md": "10960"
-  },
-  "version": 8
-}
+/nix/store/ryx6c5cs709n3cp6m0c868cqhmg2xqwy-home-manager-files/.config/nvim/lazyvim.json.backup

@@ -1,5 +1,1 @@
-return {
-  "NStefan002/screenkey.nvim",
-  lazy = false,
-  version = "*", -- or branch = "dev", to use the latest commit
-}
+/nix/store/ryx6c5cs709n3cp6m0c868cqhmg2xqwy-home-manager-files/.config/nvim/lua/plugins/screenkey.lua.backup
