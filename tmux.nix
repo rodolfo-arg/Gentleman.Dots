@@ -14,8 +14,8 @@
 # Carga TPM
 set -g @plugin 'tmux-plugins/tpm'
 
-# Tested options for TMUX compatibility
-set -g @plugin 'tmux-plugins/tmux-sensible'
+  # Tested options for TMUX compatibility
+  set -g @plugin 'tmux-plugins/tmux-sensible'
 
 # Clipboard management
 set -g @plugin 'tmux-plugins/tmux-yank'
@@ -61,8 +61,13 @@ unbind '"'
 bind v split-window -h -c "#{pane_current_path}"
 bind d split-window -v -c "#{pane_current_path}"
 
-# Mouse support
-set -g mouse on
+# Mouse support (off by default for native macOS selection/right-click)
+set -g mouse off
+# Quick toggle with Prefix + m
+bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
+
+# Integrate with system clipboard
+set -g set-clipboard on
 
 # Status bar position
 set -g status-position top

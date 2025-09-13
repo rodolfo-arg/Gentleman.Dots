@@ -105,7 +105,7 @@
               programs.gh.enable = true;  # GitHub CLI
               programs.home-manager.enable = true;
               # Optional: keep flake inputs fresh on every switch (best-effort)
-              home.activation.updateFlakeInputs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+              home.activation.updateFlakeInputs = home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
                 REPO_DIR="$HOME/Gentleman.Dots"
                 if [ -d "$REPO_DIR/.git" ]; then
                   echo "[flake] Updating inputs in $REPO_DIR"
