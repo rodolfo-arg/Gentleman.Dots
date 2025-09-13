@@ -1,1 +1,1 @@
-/nix/store/8hqjcrbv08m2dw74gv3jwcd69pqgjl08-home-manager-files/.config/nvim/lua/plugins/zzz_snacks_dashboard_enable.lua
+/nix/store/xddz3xarzr08bvgvmq1grjxbac5lmars-home-manager-files/.config/nvim/lua/plugins/zzz_snacks_dashboard_enable.lua
