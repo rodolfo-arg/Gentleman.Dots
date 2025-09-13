@@ -122,7 +122,8 @@ function M.setup()
           end
           pcall(vim.fn.delete, marker)
         else
-          -- No session: explicitly ensure Snacks is loaded and show the dashboard
+          -- No session: close directory browsers and show dashboard
+          close_browser_windows()
           pcall(function()
             local ok_lazy, lazy = pcall(require, "lazy")
             if ok_lazy and lazy and lazy.load then
@@ -140,32 +141,7 @@ function M.setup()
     end,
   })
 
-  -- User commands for convenience (for users typing :QS instead of <leader>qs)
-  local function session_path()
-    return session_path_for_cwd()
   end
-  vim.api.nvim_create_user_command("SessionSave", function()
-    local ok, err = pcall(vim.cmd, "silent! mksession! " .. vim.fn.fnameescape(session_path()))
-    if ok then vim.notify("Session saved") else vim.notify("Session save failed: " .. tostring(err), vim.log.levels.ERROR) end
-  end, {})
-  vim.api.nvim_create_user_command("SessionLoad", function()
-    local path = session_path()
-    if vim.fn.filereadable(path) == 1 then
-      local ok, err = pcall(vim.cmd, "silent! source " .. vim.fn.fnameescape(path))
-      if ok then vim.notify("Session loaded") else vim.notify("Session load failed: " .. tostring(err), vim.log.levels.ERROR) end
-    else
-      vim.notify("No session for this directory", vim.log.levels.WARN)
-    end
-  end, {})
-  vim.api.nvim_create_user_command("SessionStop", function()
-    vim.g.__session_stop = true
-    vim.notify("Session autosave disabled for this exit")
-  end, {})
-  -- Short aliases
-  vim.api.nvim_create_user_command("QS", function() vim.cmd("SessionSave") end, {})
-  vim.api.nvim_create_user_command("QL", function() vim.cmd("SessionLoad") end, {})
-  vim.api.nvim_create_user_command("QD", function() vim.cmd("SessionStop") end, {})
-end
 
 return M
 

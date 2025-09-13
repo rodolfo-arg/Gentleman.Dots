@@ -1,13 +1,1 @@
-return {
-  {
-    "folke/snacks.nvim",
-    priority = 10000,
-    opts = function(_, opts)
-      opts = opts or {}
-      opts.dashboard = opts.dashboard or {}
-      opts.dashboard.enabled = true
-      return opts
-    end,
-  },
-}
-
+/nix/store/m61zq3m6x59msvlf8xi8yy1lw11dvc5v-home-manager-files/.config/nvim/lua/plugins/zzz_snacks_dashboard_enable.lua
