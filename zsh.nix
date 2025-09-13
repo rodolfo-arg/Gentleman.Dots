@@ -21,12 +21,6 @@
       if [ -f "$HOME/.asdf/plugins/java/set-java-home.zsh" ]; then
         . "$HOME/.asdf/plugins/java/set-java-home.zsh"
       fi
-      # Source Home Manager session variables
-      if [ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]; then
-        . "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
-      elif [ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]; then
-        . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
-      fi
       # --------------------------
       # 1) COMPINIT + CACHE
       # --------------------------
