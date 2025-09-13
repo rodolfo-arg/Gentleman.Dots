@@ -1,9 +1,23 @@
 return {
-  "zbirenbaum/copilot.lua",
-  optional = true,
-  opts = function()
-    require("copilot.api").status = require("copilot.status")
-    require("copilot.api").filetypes = {
+  -- Inline ghost text like VSCode; disable completion popup integration
+  {
+    "zbirenbaum/copilot.lua",
+    optional = true,
+    opts = {
+      panel = { enabled = false },
+      suggestion = {
+        enabled = true,
+        auto_trigger = true,
+        debounce = 75,
+        keymap = {
+          accept = "<C-Right>",
+          accept_word = "<M-Right>",
+          accept_line = "<M-l>",
+          next = "<M-]>",
+          prev = "<M-[>",
+          dismiss = "<C-]>",
+        },
+      },
       filetypes = {
         yaml = false,
         markdown = false,
@@ -15,6 +29,11 @@ return {
         cvs = false,
         ["."] = false,
       },
-    }
-  end,
+    },
+  },
+  {
+    -- Ensure LazyVim’s copilot-cmp does not hook into completion menu
+    "zbirenbaum/copilot-cmp",
+    enabled = false,
+  },
 }

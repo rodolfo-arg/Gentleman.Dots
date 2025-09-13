@@ -35,7 +35,6 @@
         ./zsh.nix  # Zsh configuration
         ./oil-scripts.nix  # Oil.nvim scripts configuration
         ./opencode.nix  # OpenCode AI assistant configuration
-        ./claude.nix  # Claude Code CLI configuration
       ];
 
       # Function to create home configuration for a specific system

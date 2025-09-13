@@ -175,7 +175,8 @@ return {
         provider = "copilot",
         providers = {
           copilot = {
-            model = "claude-sonnet-4",
+            -- Use a fast Copilot model; avoid Claude here
+            model = "gpt-4o-mini",
           },
         },
         cursor_applying_provider = "copilot",
