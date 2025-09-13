@@ -14,7 +14,7 @@ Prerequisites:
 One-liner:
 
 ```bash
-cd ~ && git clone https://github.com/GentlemanProgramming/Gentleman.Dots.git && \
+cd ~ && git clone https://github.com/rodolfo-arg/Gentleman.Dots.git && \
 cd Gentleman.Dots && bash scripts/install.sh
 ```
 
