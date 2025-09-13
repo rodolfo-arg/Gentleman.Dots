@@ -94,17 +94,22 @@ else
 fi
 
 # =============== Install Nix ===============
-if ! command -v nix >/dev/null 2>&1; then
-  log "Installing Nix (official installer)…"
-  sh <(curl -L https://nixos.org/nix/install)
-else
-  good "Nix is already installed"
-fi
-
-# Activate nix daemon profile in current shell (if present)
+# First try to load an existing daemon profile so PATH includes nix
 if [[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
   # shellcheck disable=SC1091
   . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+fi
+
+if command -v nix >/dev/null 2>&1; then
+  good "Nix is already installed"
+else
+  log "Installing Nix (official installer)…"
+  sh <(curl -L https://nixos.org/nix/install)
+  # Activate nix daemon profile in current shell (if present) after install
+  if [[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
+    # shellcheck disable=SC1091
+    . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+  fi
 fi
 
 # =============== Nix config (experimental features) ===============
