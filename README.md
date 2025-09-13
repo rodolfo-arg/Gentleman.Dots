@@ -7,7 +7,9 @@
 ## Quick Install (macOS)
 
 Prerequisites:
+
 - Git installed (either Xcode Command Line Tools or Homebrew Git)
+  [Lightweight Installer to get around brew/system cmd tools intallation](https://developer.apple.com/download/all/?q=Command%20Line%20Tools)
 - Homebrew installed (recommended) or Ghostty already installed
 - Admin (sudo) access
 
@@ -19,6 +21,7 @@ cd Gentleman.Dots && bash scripts/install.sh
 ```
 
 What it does:
+
 - Requests sudo once and keeps it alive
 - Installs Nix (if missing) and enables Flakes in `/etc/nix/nix.conf`
 - Installs Ghostty via Homebrew if available (optional)
@@ -26,6 +29,7 @@ What it does:
 - Registers Home‑Manager Zsh and sets it as your default shell
 
 Afterwards:
+
 - Start a new terminal session (or open Ghostty)
 - You’re ready to go
 
@@ -72,7 +76,6 @@ This repository provides a complete, declarative development environment configu
 - **Atuin**: Enhanced shell history
 - **Carapace**: Universal shell completions
 - **FZF**: Fuzzy finder integration
- 
 
 ### 📝 Development Workflow
 
@@ -99,16 +102,16 @@ The flake automatically handles system-specific configurations, installs all dep
 
 ### 🔧 Technical Stack
 
-| Category            | Tools                                                    |
-| ------------------- | -------------------------------------------------------- |
-| **Package Manager** | Nix with Flakes + Home Manager                           |
-| **Shell**           | Zsh with Starship prompt                                  |
-| **Terminal**        | Ghostty                                                   |
-| **Editor**          | Neovim (LazyVim)                                         |
-| **Languages**       | Node.js, Rust, Go, with Volta management                 |
-| **AI Tools**        | Copilot/CopilotChat, OpenCode, multiple providers        |
-| **Navigation**      | Television, Yazi, Oil.nvim, Zoxide                       |
-| **Development**     | Git, GitHub CLI, Lazy Git                                |
+| Category            | Tools                                             |
+| ------------------- | ------------------------------------------------- |
+| **Package Manager** | Nix with Flakes + Home Manager                    |
+| **Shell**           | Zsh with Starship prompt                          |
+| **Terminal**        | Ghostty                                           |
+| **Editor**          | Neovim (LazyVim)                                  |
+| **Languages**       | Node.js, Rust, Go, with Volta management          |
+| **AI Tools**        | Copilot/CopilotChat, OpenCode, multiple providers |
+| **Navigation**      | Television, Yazi, Oil.nvim, Zoxide                |
+| **Development**     | Git, GitHub CLI, Lazy Git                         |
 
 ### 📁 Project Structure
 
@@ -125,7 +128,7 @@ The flake automatically handles system-specific configurations, installs all dep
 ├── oil-scripts.nix        # Custom Oil.nvim scripts
 ├── nvim/                  # Neovim plugins and settings
 ├── ghostty/               # Ghostty themes and config
-├── 
+├──
 ├── scripts/               # Custom utility scripts
 └── scripts/               # Custom utility scripts
 ```
@@ -179,11 +182,9 @@ You only need to update your username in `flake.nix`:
 
 This flake configures Ghostty. Install it from:
 
-- Ghostty: https://ghostty.org/download
+- Ghostty: <https://ghostty.org/download>
   - Reload config with Shift + Cmd + ,
   - GPU-accelerated with custom theme and keybinds
-
- 
 
 ### 6. Install Home Manager
 
@@ -256,12 +257,12 @@ shellPath="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/zsh" && su
 
 Configurations are automatically deployed to:
 
-| Tool           | Location                                 |
-| -------------- | ---------------------------------------- |
-| **Ghostty**    | `~/.config/ghostty/`                     |
-| **Neovim**     | `~/.config/nvim/`                        |
-| **Starship**   | `~/.config/starship.toml`                |
-| **Television** | `~/.config/television/`                  |
+| Tool           | Location                  |
+| -------------- | ------------------------- |
+| **Ghostty**    | `~/.config/ghostty/`      |
+| **Neovim**     | `~/.config/nvim/`         |
+| **Starship**   | `~/.config/starship.toml` |
+| **Television** | `~/.config/television/`   |
 
 ### 🚀 Performance Features
 
@@ -340,11 +341,13 @@ source ~/.zshrc  # or ~/.bashrc
 - This restores windows, tabs, layout (e.g., Neo-tree panes), and more.
 
 Shortcuts:
+
 - `<leader>qs` — Save session now
 - `<leader>ql` — Load session for current directory
 - `<leader>qd` — Stop session (don’t save on exit)
 
 Notes:
+
 - Auto-restore triggers only when starting `nvim` without explicit files (`nvim` vs `nvim file.lua`).
 - Sessions are stored under `:echo stdpath('state') .. '/sessions'`.
 - Terminal job buffers are not restored by Vim sessions; reopen terminals if needed.
@@ -364,8 +367,6 @@ Notes:
 
 - Update `flake.lock` with: `nix flake update`
 - Pin specific package versions in the flake
-
- 
 
 ## AI Configuration for Neovim
 
