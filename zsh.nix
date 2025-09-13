@@ -10,6 +10,8 @@
     # Full .zshrc content (initExtra is deprecated; use initContent)
     initContent = ''
       typeset -U path cdpath fpath manpath
+      # Ensure HM profile bins are always in PATH (interactive + non-login)
+      export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$HOME/.nix-profile/bin:$PATH"
       for profile in ''${(z)NIX_PROFILES}; do
         fpath+=($profile/share/zsh/site-functions $profile/share/zsh/$ZSH_VERSION/functions $profile/share/zsh/vendor-completions)
       done

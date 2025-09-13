@@ -38,13 +38,11 @@ return {
             return require("lspconfig.util").root_pattern("angular.json", "project.json")(fname)
           end,
         },
-        nil_ls = {
-          -- Configuration for nil (Nix Language Server), already installed via nix
-          cmd = { "nil" },
-          autostart = true,
-          mason = false, -- Explicitly disable mason management for nil_ls
+        nixd = {
+          -- Prefer nixd (installed via flake) for Nix files
+          mason = false,
           settings = {
-            ["nil"] = {
+            nixd = {
               formatting = { command = { "nixpkgs-fmt" } },
             },
           },
