@@ -31,10 +31,8 @@ This document captures the goals, architecture, and working practices for this r
 
 ### Modules intentionally NOT included
 
-- Alternate terminals (WezTerm), zellij, and shells (fish, nushell).
+- Alternate terminals (WezTerm), multiplexers (tmux, zellij), and shells (fish, nushell).
 - Zed, Gemini, and other optional apps.
-  
-Note: tmux is included on macOS via Home Manager for a stable, minimal setup.
 
 ## Coding & Style Guidelines
 
@@ -96,11 +94,7 @@ Note: tmux is included on macOS via Home Manager for a stable, minimal setup.
   - tmux: `aggressive-resize on`, `focus-events on`, and `allow-rename off` to reduce flicker.
   - Prefer top status bar to keep visual alignment with editor.
 
-### Tmux Autostart
-
-- Interactive shells auto‑start tmux if available and not already inside tmux.
-- Opt‑out by exporting `TMUX_DISABLE_AUTOSTART=1` before launching the shell.
-- VS Code integrated terminal is excluded automatically.
+ 
 
 ## Validation Checklist (for releases)
 
