@@ -193,3 +193,7 @@ vim.keymap.set("n", "<leader>qd", function()
   vim.g.__session_stop = true
   vim.notify("Session autosave disabled for this exit")
 end, { desc = "Session Stop (no save)" })
+
+-- Keep paragraph jumps centered to avoid hitting window edges
+vim.keymap.set("n", "{", "{zz", { desc = "Prev paragraph (center)" })
+vim.keymap.set("n", "}", "}zz", { desc = "Next paragraph (center)" })

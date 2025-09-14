@@ -2,6 +2,10 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
+-- Keep the cursor away from window edges to reduce jank
+vim.o.scrolloff = 8
+vim.o.sidescrolloff = 8
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "cpp",
   callback = function()
@@ -28,4 +32,3 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], { buffer = true })
   end,
 })
-
