@@ -64,11 +64,27 @@ Notes:
 - Select a device: run `flutter devices` in a terminal or use your emulator.
 - In Neovim:
   - Set a breakpoint: `<leader>db`
-  - Start/continue: `<leader>dc`
+  - Start/continue (launch defaults): `<leader>dc`
+  - Launch main.dart explicitly: `<leader>dM`
+  - Launch example app explicitly: `<leader>dE`
+  - Attach to a running app: `<leader>dA` (use after `:FlutterRun`)
   - Step over/out/into: `<leader>dO` / `<leader>do` / `<leader>di`
   - Stop: `<leader>dt`
 
 If `.vscode/launch.json` exists, it’s auto-loaded when present. Otherwise, press `<leader>dc` to use the sane defaults above.
+
+## Starting Your App
+
+Two smooth options:
+
+- DAP Launch (recommended if you always debug)
+  - Press `<leader>dc` (or `<leader>dM` / `<leader>dE`) to start under the debugger immediately.
+  - To target a specific device, add `toolArgs` (e.g., `--device-id <id>`) in `.vscode/launch.json`.
+
+- FlutterTools Run + DAP Attach
+  - `:FlutterDevices` to pick a device, then `:FlutterRun` to start normally.
+  - Press `<leader>dA` to attach the debugger to the running app.
+  - `:FlutterRestart` and `:FlutterQuit` still work; dev log window is disabled by default to avoid UI conflicts.
 
 ## Inspecting Variables
 

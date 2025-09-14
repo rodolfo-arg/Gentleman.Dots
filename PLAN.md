@@ -93,10 +93,12 @@ This document captures the goals, architecture, and working practices for this r
 - UX
   - UI auto-opens on session start; toggle with `<leader>du`.
   - Inspect values: hover `<leader>dw`, eval `<leader>de`, scopes `<leader>dS`.
+  - Close Neo-tree automatically when DAP UI opens to avoid layout conflict.
 
 - Notes
   - Requires `dart debug_adapter` resolvable on PATH.
   - Virtual text enabled at EOL; .env merged into session env if present.
+  - `flutter-tools` debugger and dev_log are disabled to prevent conflicting panes with dap-ui.
 
 ## Best Practices & Constraints
 

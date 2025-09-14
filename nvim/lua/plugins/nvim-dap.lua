@@ -15,6 +15,19 @@ local function get_args()
   return vim.split(input, "%s+", { trimempty = true })
 end
 
+-- Run a DAP configuration by partial name match for the current filetype
+local function run_config_by_name(partial)
+  local dap = require("dap")
+  local ft = vim.bo.filetype
+  local configs = dap.configurations[ft] or {}
+  for _, cfg in ipairs(configs) do
+    if type(cfg.name) == "string" and cfg.name:lower():find(partial:lower(), 1, true) then
+      return dap.run(cfg)
+    end
+  end
+  vim.notify("No DAP config matching '" .. partial .. "' for filetype '" .. ft .. "'", vim.log.levels.WARN)
+end
+
 return {
   {
     -- Plugin: nvim-dap
@@ -186,6 +199,27 @@ return {
         desc = "Toggle REPL",
       },
       {
+        "<leader>dA",
+        function()
+          run_config_by_name("attach")
+        end,
+        desc = "Attach (Dart/Flutter)",
+      },
+      {
+        "<leader>dM",
+        function()
+          run_config_by_name("main.dart")
+        end,
+        desc = "Launch main.dart",
+      },
+      {
+        "<leader>dE",
+        function()
+          run_config_by_name("example")
+        end,
+        desc = "Launch example app",
+      },
+      {
         "<leader>ds",
         function()
           require("dap").session()
@@ -306,6 +340,8 @@ return {
       -- nvim-dap-ui setup and auto open/close on sessions
       dapui.setup()
       dap.listeners.after.event_initialized["dapui_config"] = function()
+        -- If Neo-tree is open, close it to make room for DAP UI
+        pcall(vim.cmd, "Neotree close")
         dapui.open()
       end
       dap.listeners.before.event_terminated["dapui_config"] = function()
