@@ -8,9 +8,10 @@ local M = {}
 local function get_system_node()
   -- Priority order for system Node.js (avoiding project overrides)
   local system_paths = {
+    -- Prefer Volta-managed Node (easier to pin to LTS for LS compatibility)
+    vim.fn.expand("~/.volta/bin/node"), -- Volta's global Node
     "/opt/homebrew/bin/node", -- Homebrew on Apple Silicon
     "/usr/local/bin/node", -- Homebrew on Intel Mac or standard install
-    vim.fn.expand("~/.volta/bin/node"), -- Volta's global Node
     vim.fn.expand("~/.nvm/versions/node/*/bin/node"), -- NVM default version
     vim.fn.expand("~/.nix-profile/bin/node"), -- Nix
     "/usr/bin/node", -- System default

@@ -1,8 +1,12 @@
 return {
   "saghen/blink.cmp",
+  -- Use stable releases to match prebuilt binaries
+  version = "1.*",
   lazy = true,
   dependencies = { "saghen/blink.compat" },
   opts = {
+    -- Prefer Lua fuzzy matcher to avoid Rust/nightly builds or downloads
+    fuzzy = { implementation = "lua" },
     sources = {
       default = { "avante_commands", "avante_mentions", "avante_files" },
       compat = {
