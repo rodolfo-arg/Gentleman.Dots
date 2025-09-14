@@ -29,6 +29,7 @@
         ./zsh.nix  # Zsh configuration
         ./oil-scripts.nix  # Oil.nvim scripts configuration
         ./opencode.nix  # OpenCode AI assistant configuration
+        ./tmux.nix  # Tmux configuration (macOS only)
       ];
 
       # Function to create home configuration for a specific system
@@ -97,6 +98,7 @@
               programs.zsh.enable = true;
               programs.git.enable = true;
               programs.gh.enable = true;  # GitHub CLI
+              programs.tmux.enable = true;  # Tmux multiplexer
               programs.home-manager.enable = true;
               # Optional: keep flake inputs fresh on every switch (best-effort)
               home.activation.updateFlakeInputs = home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -106,7 +108,7 @@
                   (cd "$REPO_DIR" && nix flake update) || true
                 fi
               '';
-              # Tmux and other terminals are intentionally not managed; only Ghostty + Zsh
+              # Tmux is now managed as an opt-in productivity tool for macOS
 
               # Allow unfree packages
               nixpkgs.config.allowUnfree = true;
