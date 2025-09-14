@@ -100,10 +100,8 @@ require("lazy").setup({
     lazy = false,
     -- It's recommended to leave version=false for now, since a lot of the plugins that support versioning
     -- have outdated releases, which may break your Neovim install.
-    -- Prefer stable plugin tags to avoid breaking changes across ecosystems
-    -- This helps keep LazyVim, mason-lspconfig, and companions in sync
-    -- If a plugin has no tags, lazy.nvim will still use latest commit
-    version = "*",
+    -- Track latest commits (LazyVim default) to match its ecosystem
+    version = false,
   },
   install = { colorscheme = { "tokyonight", "habamax" } }, -- Specify colorschemes to install
   -- Automatically check for plugin updates, but don't pop intrusive windows
