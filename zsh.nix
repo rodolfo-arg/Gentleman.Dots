@@ -140,10 +140,10 @@
     start_if_needed() {
       # Only in interactive shells with a real TTY, not already inside tmux,
       # and avoid special terminals like Zed's embedded terminal.
-      if [[ $- == *i* ]] && [[ -t 1 ]] && [[ -z "${TMUX}" ]] && [[ -z "${ZED_TERMINAL}" ]]; then
-        if command -v "${WM_CMD}" >/dev/null 2>&1; then
+      if [[ $- == *i* ]] && [[ -t 1 ]] && [[ -z "''${TMUX}" ]] && [[ -z "''${ZED_TERMINAL}" ]]; then
+        if command -v "''${WM_CMD}" >/dev/null 2>&1; then
           # Attach to existing session or create one named 'main'
-          exec "${WM_CMD}" new-session -A -s main
+          exec "''${WM_CMD}" new-session -A -s main
         fi
       fi
     }
