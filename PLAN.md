@@ -31,8 +31,10 @@ This document captures the goals, architecture, and working practices for this r
 
 ### Modules intentionally NOT included
 
-- Alternate terminals (WezTerm), multiplexers (tmux, zellij), and shells (fish, nushell).
+- Alternate terminals (WezTerm), zellij, and shells (fish, nushell).
 - Zed, Gemini, and other optional apps.
+  
+Note: tmux is included on macOS via Home Manager for a stable, minimal setup.
 
 ## Coding & Style Guidelines
 
@@ -82,6 +84,24 @@ This document captures the goals, architecture, and working practices for this r
 - Validate changes with `nix flake check` and a fresh `home-manager switch` where possible.
 - Keep docs simple and front‑loaded: installation first, maintenance later.
 
+## Preferences: Prompt & Terminal
+
+- Starship must look identical inside and outside tmux.
+  - Export `STARSHIP_CONFIG=$HOME/.config/starship.toml` in shell init.
+  - Propagate `STARSHIP_CONFIG` into tmux via `update-environment`.
+  - Use truecolor in tmux (`terminal-overrides` for `xterm-256color` and `tmux-256color`).
+
+- Ghostty + tmux resizing should feel native.
+  - Ghostty: free resize (no step-resize) and balanced padding.
+  - tmux: `aggressive-resize on`, `focus-events on`, and `allow-rename off` to reduce flicker.
+  - Prefer top status bar to keep visual alignment with editor.
+
+### Tmux Autostart
+
+- Interactive shells auto‑start tmux if available and not already inside tmux.
+- Opt‑out by exporting `TMUX_DISABLE_AUTOSTART=1` before launching the shell.
+- VS Code integrated terminal is excluded automatically.
+
 ## Validation Checklist (for releases)
 
 - Fresh macOS (Intel/ARM) with Git + Homebrew or Ghostty present.
@@ -91,4 +111,3 @@ This document captures the goals, architecture, and working practices for this r
   - Ghostty installed (via brew) or preinstalled.
   - `home-manager switch` succeeds; Zsh set as default.
   - New terminal session picks up configuration (PATH, Starship, Neovim).
-

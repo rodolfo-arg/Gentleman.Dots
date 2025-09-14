@@ -70,6 +70,8 @@
       # --------------------------
       eval "$(zoxide init zsh)"
       eval "$(atuin init zsh)"
+      # Ensure Starship uses our managed config inside and outside tmux
+      export STARSHIP_CONFIG="$HOME/.config/starship.toml"
       eval "$(starship init zsh)"
 
       ya_zed() {
@@ -95,9 +97,10 @@
       # --------------------------
       # 5) Final cleanup
       # --------------------------
-      # Clear gives you that "fresh" feeling,
-      # but if you prefer speed, you can comment it out.
-      clear
+      # Avoid clearing inside tmux so prompt/theme remains visible
+      if [[ -z "$TMUX" ]]; then
+        clear
+      fi
 
       # --------------------------
       # 6) Homebrew PATH (login and non-login shells)
@@ -133,6 +136,23 @@
     alias -- oo='oil .'
     alias -- oz=oil-zed
     alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
+
+    # --------------------------
+    # 7) Tmux autostart (guarded)
+    # --------------------------
+    # Start tmux automatically for interactive shells when available.
+    # Guards:
+    # - Do not start inside an existing tmux session (TMUX set)
+    # - Allow opt-out with TMUX_DISABLE_AUTOSTART=1
+    # - Skip in non-interactive shells
+    # - Avoid VS Code integrated terminal to prevent UX conflicts
+    if [[ $- == *i* ]]; then
+      if command -v tmux >/dev/null 2>&1; then
+        if [[ -z "$TMUX" && -z "$TMUX_DISABLE_AUTOSTART" && "$TERM_PROGRAM" != "vscode" ]]; then
+          exec tmux new-session -A -s main
+        fi
+      fi
+    fi
     '';
   };
 

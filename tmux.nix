@@ -23,9 +23,14 @@ in
     extraConfig = ''
       # Use truecolor when available
       set -ga terminal-overrides ',xterm-256color:RGB'
+      set -ga terminal-overrides ',tmux-256color:RGB'
 
       # Prefer top status bar to match editor-centric layout
       set -g status-position top
+      set -g focus-events on
+      set -g allow-rename off
+      set -g renumber-windows on
+      set -g pane-base-index 1
 
       # Prefix = Ctrl-a (unbind default)
       unbind C-b
@@ -40,7 +45,9 @@ in
 
       # Vi-style selection in copy mode
       setw -g mode-keys vi
+
+      # Ensure tmux sessions inherit Starship config when attaching
+      set -ga update-environment 'STARSHIP_CONFIG'
     '';
   };
 }
-
