@@ -1,5 +1,20 @@
 -- This file contains the configuration for the nvim-dap plugin in Neovim.
 
+-- Prompt and cache program args for "Run with Args"
+local last_args = nil
+local function get_args()
+  local input = vim.fn.input("Args (space-separated): ", last_args or "")
+  if input == nil then
+    return {}
+  end
+  input = vim.trim(input)
+  if input == "" then
+    return {}
+  end
+  last_args = input
+  return vim.split(input, "%s+", { trimempty = true })
+end
+
 return {
   {
     -- Plugin: nvim-dap
@@ -20,7 +35,12 @@ return {
       -- Description: Virtual text for the debugger.
       {
         "theHamsta/nvim-dap-virtual-text",
-        opts = {}, -- Default options
+        opts = {
+          commented = true,
+          virt_text_pos = "eol",
+          highlight_changed_variables = true,
+          all_frames = true,
+        },
       },
     },
 
@@ -54,6 +74,44 @@ return {
           require("dap").continue({ before = get_args })
         end,
         desc = "Run with Args",
+      },
+      {
+        "<leader>du",
+        function()
+          require("dapui").toggle({ reset = true })
+        end,
+        desc = "Toggle UI",
+      },
+      {
+        "<leader>de",
+        function()
+          require("dapui").eval(nil, { enter = true })
+        end,
+        mode = { "n" },
+        desc = "Eval Expression",
+      },
+      {
+        "<leader>de",
+        function()
+          require("dapui").eval(nil, { enter = true })
+        end,
+        mode = { "v" },
+        desc = "Eval Selection",
+      },
+      {
+        "<leader>dL",
+        function()
+          require("dap").set_breakpoint(nil, nil, vim.fn.input("Log point message: "))
+        end,
+        desc = "Set Logpoint",
+      },
+      {
+        "<leader>dS",
+        function()
+          local widgets = require("dap.ui.widgets")
+          widgets.centered_float(widgets.scopes)
+        end,
+        desc = "Scopes (Float)",
       },
       {
         "<leader>dC",
@@ -150,6 +208,7 @@ return {
 
     config = function()
       local dap = require("dap")
+      local dapui = require("dapui")
 
       -- Load mason-nvim-dap if available
       if LazyVim.has("mason-nvim-dap.nvim") then
@@ -181,6 +240,12 @@ return {
             program = "${workspaceFolder}/example/lib/main.dart",
             cwd = "${workspaceFolder}/example",
           })
+          table.insert(dap.configurations.dart, {
+            type = "dart",
+            request = "attach",
+            name = "Attach to Dart/Flutter",
+            cwd = "${workspaceFolder}",
+          })
         end
       end
 
@@ -209,32 +274,43 @@ return {
         vscode.load_launchjs(nil, { dart = { "dart" } })
       end
 
-      -- Function to load environment variables
+      -- Function to load environment variables (merge current env + optional .env)
       local function load_env_variables()
-        local variables = {}
+        local out = {}
         for k, v in pairs(vim.fn.environ()) do
-          variables[k] = v
+          out[k] = v
         end
-
-        -- Load variables from .env file manually
-        local env_file_path = vim.fn.getcwd() .. "/.env"
-        local env_file = io.open(env_file_path, "r")
-        if env_file then
-          for line in env_file:lines() do
-            for key, value in string.gmatch(line, "([%w_]+)=([%w_]+)") do
-              variables[key] = value
+        local env_path = vim.fn.getcwd() .. "/.env"
+        local f = io.open(env_path, "r")
+        if f then
+          for line in f:lines() do
+            local key, value = line:match("^%s*([%w_]+)%s*=%s*(.-)%s*$")
+            if key and value and key ~= "" then
+              -- strip surrounding quotes if any
+              value = value:gsub('^"(.*)"$', "%1"):gsub("^'(.*)'$", "%1")
+              out[key] = value
             end
           end
-          env_file:close()
-        else
-          print("Error: .env file not found in " .. env_file_path)
+          f:close()
         end
-        return variables
+        return out
       end
 
-      -- Add the env property to each existing Go configuration
-      for _, config in pairs(dap.configurations.go or {}) do
+      -- Add env provider to Dart configurations
+      for _, config in ipairs(dap.configurations.dart or {}) do
         config.env = load_env_variables
+      end
+
+      -- nvim-dap-ui setup and auto open/close on sessions
+      dapui.setup()
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
       end
     end,
   },

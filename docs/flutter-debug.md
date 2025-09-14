@@ -16,6 +16,10 @@ This setup enables debugging Flutter apps (including plugin example apps) using 
 - Default nvim-dap entries are provided if no `launch.json` exists:
   - Launch `lib/main.dart` in the current workspace
   - Launch `example/lib/main.dart` for typical plugin repos
+  - Attach to a running Dart/Flutter process
+
+- nvim-dap-ui auto-opens on session start; close/toggle with `<leader>du`.
+- nvim-dap-virtual-text shows inline values at EOL during stops.
 
 ## Recommended .vscode/launch.json
 
@@ -64,11 +68,22 @@ Notes:
   - Step over/out/into: `<leader>dO` / `<leader>do` / `<leader>di`
   - Stop: `<leader>dt`
 
-If `.vscode/launch.json` exists, pick a config with `:DapLoadLaunchJSON` or let the defaults run when pressing continue.
+If `.vscode/launch.json` exists, it’s auto-loaded when present. Otherwise, press `<leader>dc` to use the sane defaults above.
+
+## Inspecting Variables
+
+- Open/close the debug UI: `<leader>du` (auto-opens on start)
+- Hover variable under cursor: `<leader>dw`
+- Evaluate expression (prompt, opens in sidebar): `<leader>de`
+- Evaluate visual selection: select text, then `<leader>de`
+- Scopes (floating window): `<leader>dS`
+
+Notes:
+- Inline values appear at end-of-line via virtual text. Full details and children render in the Scopes panel or hover.
+
 
 ## Troubleshooting
 
 - No debug start: ensure `dart` is on PATH and `dart debug_adapter` works.
 - No device: start a simulator or connect a device.
 - launch.json ignored: ensure its `type` is `"dart"`.
-
