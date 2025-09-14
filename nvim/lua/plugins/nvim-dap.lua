@@ -156,6 +156,34 @@ return {
         require("mason-nvim-dap").setup(LazyVim.opts("mason-nvim-dap.nvim"))
       end
 
+      -- Dart / Flutter adapter
+      do
+        local dart_exe = vim.fn.exepath("dart")
+        if dart_exe and dart_exe ~= "" then
+          dap.adapters.dart = {
+            type = "executable",
+            command = dart_exe,
+            args = { "debug_adapter" },
+          }
+
+          dap.configurations.dart = dap.configurations.dart or {}
+          table.insert(dap.configurations.dart, {
+            type = "dart",
+            request = "launch",
+            name = "Launch main.dart",
+            program = "${workspaceFolder}/lib/main.dart",
+            cwd = "${workspaceFolder}",
+          })
+          table.insert(dap.configurations.dart, {
+            type = "dart",
+            request = "launch",
+            name = "Launch example (plugin)",
+            program = "${workspaceFolder}/example/lib/main.dart",
+            cwd = "${workspaceFolder}/example",
+          })
+        end
+      end
+
       -- Set highlight for DapStoppedLine
       vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
 
@@ -177,7 +205,8 @@ return {
 
       -- Load launch configurations from .vscode/launch.json if it exists
       if vim.fn.filereadable(".vscode/launch.json") then
-        vscode.load_launchjs()
+        -- Map VSCode's "dart" type to Neovim's dart filetype
+        vscode.load_launchjs(nil, { dart = { "dart" } })
       end
 
       -- Function to load environment variables

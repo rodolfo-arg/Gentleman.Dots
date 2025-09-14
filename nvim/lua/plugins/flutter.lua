@@ -15,6 +15,12 @@ return {
       widget_guides = { enabled = true },
       closing_tags = { highlight = "Comment" },
 
+      -- Enable debugger integration and run via nvim-dap
+      debugger = {
+        enabled = true,
+        run_via_dap = true,
+      },
+
       lsp = {
         color = { enabled = true },
         cmd = { dart_exe, "language-server", "--protocol=lsp" },
