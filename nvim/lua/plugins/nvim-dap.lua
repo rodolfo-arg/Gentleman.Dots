@@ -364,31 +364,40 @@ return {
         floating = { border = "rounded" },
       })
 
-      -- DAP UI theming: link groups to colorscheme highlights for better readability
+      -- DAP UI theming: explicit colors for clarity across themes
       local function set_dapui_highlights()
-        local link = function(name, target)
-          pcall(vim.api.nvim_set_hl, 0, name, { link = target, default = true })
+        local yellow = "#E0AF68"
+        local white = "#FFFFFF"
+        local set = function(name, spec)
+          pcall(vim.api.nvim_set_hl, 0, name, spec)
         end
-        link("DapUIVariable", "Identifier")
-        link("DapUIValue", "String")
-        link("DapUIDecoration", "Special")
-        link("DapUIType", "Type")
-        link("DapUIModifiedValue", "DiagnosticWarn")
-        link("DapUIThread", "Function")
-        link("DapUIStoppedThread", "Special")
-        link("DapUISource", "Title")
-        link("DapUILineNumber", "LineNr")
-        link("DapUIFloatBorder", "FloatBorder")
-        link("DapUIWatchesEmpty", "DiagnosticHint")
-        link("DapUIWatchesValue", "String")
-        link("DapUIWatchesNone", "Comment")
-        link("DapUIBreakpointsPath", "Title")
-        link("DapUIBreakpointsInfo", "DiagnosticInfo")
-        link("DapUIBreakpointsCurrentLine", "DiagnosticInfo")
-        link("DapUIBreakpointsLine", "LineNr")
-        link("DapUIBreakpointsDisabledLine", "Comment")
-        -- Virtual text coloring
-        link("NvimDapVirtualText", "DiagnosticHint")
+
+        -- Make variable names pop
+        set("DapUIVariable", { fg = yellow, bold = true })
+
+        -- Keep most other text clean/neutral
+        set("DapUIValue", { fg = white })
+        set("DapUIType", { fg = white })
+        set("DapUISource", { fg = white })
+        set("DapUIThread", { fg = white })
+        set("DapUIStoppedThread", { fg = white })
+        set("DapUILineNumber", { fg = white })
+        set("DapUIDecoration", { fg = white })
+        set("DapUIWatchesEmpty", { fg = white })
+        set("DapUIWatchesValue", { fg = white })
+        set("DapUIWatchesNone", { fg = white })
+        set("DapUIBreakpointsPath", { fg = white })
+        set("DapUIBreakpointsInfo", { fg = white })
+        set("DapUIBreakpointsCurrentLine", { fg = white })
+        set("DapUIBreakpointsLine", { fg = white })
+        set("DapUIBreakpointsDisabledLine", { fg = white })
+        set("DapUIReplPrompt", { fg = white, bold = true })
+
+        -- Respect theme border for floats
+        pcall(vim.api.nvim_set_hl, 0, "DapUIFloatBorder", { link = "FloatBorder" })
+
+        -- Virtual text subtle
+        pcall(vim.api.nvim_set_hl, 0, "NvimDapVirtualText", { link = "DiagnosticHint" })
       end
 
       set_dapui_highlights()
