@@ -196,3 +196,21 @@ end, { desc = "Session Stop (no save)" })
 
 -- Keep paragraph jumps centered to avoid hitting window edges
 -- Paragraph jumps: keep default (no auto-center)
+
+-- Toggle smooth animations (mini.animate)
+vim.keymap.set("n", "<leader>uS", function()
+  local ok, animate = pcall(require, "mini.animate")
+  if not ok then
+    vim.notify("mini.animate not available", vim.log.levels.WARN)
+    return
+  end
+  if vim.g.__mini_animate_enabled then
+    animate.disable()
+    vim.g.__mini_animate_enabled = false
+    vim.notify("Animations: off")
+  else
+    animate.enable()
+    vim.g.__mini_animate_enabled = true
+    vim.notify("Animations: on")
+  end
+end, { desc = "Toggle smooth animations" })
