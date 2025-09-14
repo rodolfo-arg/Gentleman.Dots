@@ -91,14 +91,14 @@ This document captures the goals, architecture, and working practices for this r
   - Auto-load `.vscode/launch.json` when present.
 
 - UX
-  - Minimal UI: bottom panel with Variables (scopes) + controls; inline values via virtual text.
+  - Minimal UI: left side panel split in half — Variables (scopes) and Controls side-by-side; inline values via virtual text.
   - Inspect values: hover `<leader>dw`, eval `<leader>de`, scopes `<leader>dS`; toggle UI `<leader>du`.
   - Close Neo-tree on debug start to reduce layout conflicts.
 
 - Notes
   - Requires `dart debug_adapter` resolvable on PATH.
   - Virtual text enabled at EOL; .env merged into session env if present.
-  - `flutter-tools` debugger and dev_log are enabled; dev log opens at side; dap-ui bottom kept minimal.
+  - `flutter-tools` debugger enabled; dev_log window disabled to avoid conflicts.
 
 ## Best Practices & Constraints
 

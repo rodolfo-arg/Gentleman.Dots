@@ -334,13 +334,23 @@ return {
         config.env = load_env_variables
       end
 
-      -- Minimal dap-ui: only show variables (scopes) + controls; open bottom
+      -- Minimal dap-ui: side-by-side Variables (scopes) and Controls (in repl) using half screen width
+      local half_cols = math.floor((vim.o.columns or 160) * 0.5)
+      if half_cols < 60 then
+        half_cols = 60
+      end
       dapui.setup({
         layouts = {
           {
             elements = {
-              { id = "scopes", size = 0.8 },
-              { id = "repl", size = 0.2 },
+              { id = "scopes" },
+            },
+            size = 20,
+            position = "left",
+          },
+          {
+            elements = {
+              { id = "repl" },
             },
             size = 12,
             position = "bottom",

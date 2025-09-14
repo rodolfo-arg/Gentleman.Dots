@@ -21,7 +21,7 @@ return {
         run_via_dap = true,
       },
       dev_log = {
-        enabled = true,
+        enabled = false, -- disable the flutter-tools dev log window only
       },
 
       lsp = {
