@@ -66,7 +66,7 @@
               # Base packages that should be available everywhere
               home.packages = with pkgs; [
                 # Terminal
-                zsh
+                zsh tmux
                 # Development
                 volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
                 # Compilers/Utilities
@@ -98,7 +98,7 @@
               programs.zsh.enable = true;
               programs.git.enable = true;
               programs.gh.enable = true;  # GitHub CLI
-              programs.tmux.enable = true;  # Tmux multiplexer
+              programs.tmux.enable = true;
               programs.home-manager.enable = true;
               # Optional: keep flake inputs fresh on every switch (best-effort)
               home.activation.updateFlakeInputs = home-manager.lib.hm.dag.entryAfter [ "writeBoundary" ] ''

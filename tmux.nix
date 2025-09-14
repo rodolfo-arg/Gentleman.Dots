@@ -3,16 +3,30 @@ let
   isDarwin = pkgs.stdenv.isDarwin;
 in
 {
-  # Install TPM on macOS and provide a tmux.conf via XDG config
+  # Install TPM so your plugin lines work
   home.activation.installTpm = lib.mkIf isDarwin ''
     if [ ! -d ~/.tmux/plugins/tpm ]; then
       ${pkgs.git}/bin/git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
     fi
   '';
 
-  home.file = lib.mkIf isDarwin {
-    ".config/tmux/tmux.conf" = {
-      text = ''
+  programs.tmux = lib.mkIf isDarwin {
+    enable = true;
+
+    # Built-in options
+    terminal = "tmux-256color";
+    mouse = true;
+    keyMode = "vi";
+    baseIndex = 1;
+    escapeTime = 0;
+    aggressiveResize = true;   # nice with Ghostty
+    clock24 = true;
+
+    # Keep Nix-managed plugins minimal to avoid duplicate loading with TPM
+    plugins = [ ];
+
+    # Inject your previous tmux.conf content so HM "contains" it
+    extraConfig = ''
 # Carga TPM
 set -g @plugin 'tmux-plugins/tpm'
 
@@ -80,7 +94,6 @@ setw -g pane-base-index 1
 set -g extended-keys always
 
 run '~/.tmux/plugins/tpm/tpm'
-      '';
-    };
+    '';
   };
 }
