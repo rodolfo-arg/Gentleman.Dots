@@ -345,7 +345,7 @@ return {
             elements = {
               { id = "scopes" },
             },
-            size = half_cols,
+            size = half_cols / 2,
             position = "left",
           },
           {
