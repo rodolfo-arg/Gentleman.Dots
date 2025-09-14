@@ -364,6 +364,39 @@ return {
         floating = { border = "rounded" },
       })
 
+      -- DAP UI theming: link groups to colorscheme highlights for better readability
+      local function set_dapui_highlights()
+        local link = function(name, target)
+          pcall(vim.api.nvim_set_hl, 0, name, { link = target, default = true })
+        end
+        link("DapUIVariable", "Identifier")
+        link("DapUIValue", "String")
+        link("DapUIDecoration", "Special")
+        link("DapUIType", "Type")
+        link("DapUIModifiedValue", "DiagnosticWarn")
+        link("DapUIThread", "Function")
+        link("DapUIStoppedThread", "Special")
+        link("DapUISource", "Title")
+        link("DapUILineNumber", "LineNr")
+        link("DapUIFloatBorder", "FloatBorder")
+        link("DapUIWatchesEmpty", "DiagnosticHint")
+        link("DapUIWatchesValue", "String")
+        link("DapUIWatchesNone", "Comment")
+        link("DapUIBreakpointsPath", "Title")
+        link("DapUIBreakpointsInfo", "DiagnosticInfo")
+        link("DapUIBreakpointsCurrentLine", "DiagnosticInfo")
+        link("DapUIBreakpointsLine", "LineNr")
+        link("DapUIBreakpointsDisabledLine", "Comment")
+        -- Virtual text coloring
+        link("NvimDapVirtualText", "DiagnosticHint")
+      end
+
+      set_dapui_highlights()
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("GentlemanDapUIColors", { clear = true }),
+        callback = set_dapui_highlights,
+      })
+
       -- Open minimal UI on start, close on end; also close Neo-tree to avoid layout clash
       dap.listeners.after.event_initialized["dapui_minimal"] = function()
         pcall(vim.cmd, "Neotree close")
