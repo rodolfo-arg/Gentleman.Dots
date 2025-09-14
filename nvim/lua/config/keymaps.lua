@@ -195,5 +195,4 @@ vim.keymap.set("n", "<leader>qd", function()
 end, { desc = "Session Stop (no save)" })
 
 -- Keep paragraph jumps centered to avoid hitting window edges
-vim.keymap.set("n", "{", "{zz", { desc = "Prev paragraph (center)" })
-vim.keymap.set("n", "}", "}zz", { desc = "Next paragraph (center)" })
+-- Paragraph jumps: keep default (no auto-center)

@@ -10,7 +10,6 @@ return {
     respect_scrolloff = true,  -- respect our scrolloff when animating
     use_local_scrolloff = true,
     performance_mode = true,
-    easing_function = "quadratic", -- smooth but snappy
+    easing_function = "sine", -- even smoother than quadratic
   },
 }
-
