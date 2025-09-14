@@ -82,8 +82,8 @@ This document captures the goals, architecture, and working practices for this r
   - Simple defaults that work without a launch.json; attach supported.
 
 - Components
-  - nvim-dap, nvim-dap-ui (with nvim-nio), nvim-dap-virtual-text.
-  - flutter-tools configured with `run_via_dap = true`.
+  - nvim-dap and nvim-dap-virtual-text (dap-ui disabled for stability).
+  - flutter-tools used for run commands; debugger disabled.
 
 - Defaults
   - Launch `${workspaceFolder}/lib/main.dart` and `example/lib/main.dart`.
@@ -91,14 +91,14 @@ This document captures the goals, architecture, and working practices for this r
   - Auto-load `.vscode/launch.json` when present.
 
 - UX
-  - UI auto-opens on session start; toggle with `<leader>du`.
+  - Lightweight UI: inline values + hover/scopes floats.
   - Inspect values: hover `<leader>dw`, eval `<leader>de`, scopes `<leader>dS`.
-  - Close Neo-tree automatically when DAP UI opens to avoid layout conflict.
+  - Close Neo-tree on debug start to reduce layout conflicts.
 
 - Notes
   - Requires `dart debug_adapter` resolvable on PATH.
   - Virtual text enabled at EOL; .env merged into session env if present.
-  - `flutter-tools` debugger and dev_log are disabled to prevent conflicting panes with dap-ui.
+  - `flutter-tools` debugger and dev_log are disabled to prevent conflicting panes.
 
 ## Best Practices & Constraints
 

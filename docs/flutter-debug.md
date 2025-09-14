@@ -11,15 +11,14 @@ This setup enables debugging Flutter apps (including plugin example apps) using 
 ## What’s Configured
 
 - Dart DAP adapter (`dart debug_adapter`) is auto-detected.
-- flutter-tools debugger is enabled and runs via nvim-dap.
+- flutter-tools is used to run apps; its debugger and dev log panes are disabled to avoid heavy UI.
 - nvim-dap reads `.vscode/launch.json` if present and maps entries with `"type": "dart"`.
 - Default nvim-dap entries are provided if no `launch.json` exists:
   - Launch `lib/main.dart` in the current workspace
   - Launch `example/lib/main.dart` for typical plugin repos
   - Attach to a running Dart/Flutter process
 
-- nvim-dap-ui auto-opens on session start; close/toggle with `<leader>du`.
-- nvim-dap-virtual-text shows inline values at EOL during stops.
+- Minimal UI (dap-ui disabled); nvim-dap-virtual-text shows inline values at EOL during stops.
 
 ## Recommended .vscode/launch.json
 
@@ -77,25 +76,24 @@ If `.vscode/launch.json` exists, it’s auto-loaded when present. Otherwise, pre
 
 Two smooth options:
 
-- DAP Launch (recommended if you always debug)
+- DAP Launch (if you want to start under the debugger)
   - Press `<leader>dc` (or `<leader>dM` / `<leader>dE`) to start under the debugger immediately.
   - To target a specific device, add `toolArgs` (e.g., `--device-id <id>`) in `.vscode/launch.json`.
 
-- FlutterTools Run + DAP Attach
+- FlutterTools Run + DAP Attach (lightweight, recommended)
   - `:FlutterDevices` to pick a device, then `:FlutterRun` to start normally.
   - Press `<leader>dA` to attach the debugger to the running app.
   - `:FlutterRestart` and `:FlutterQuit` still work; dev log window is disabled by default to avoid UI conflicts.
 
 ## Inspecting Variables
 
-- Open/close the debug UI: `<leader>du` (auto-opens on start)
 - Hover variable under cursor: `<leader>dw`
-- Evaluate expression (prompt, opens in sidebar): `<leader>de`
+- Evaluate expression (prompt): `<leader>de`
 - Evaluate visual selection: select text, then `<leader>de`
 - Scopes (floating window): `<leader>dS`
 
 Notes:
-- Inline values appear at end-of-line via virtual text. Full details and children render in the Scopes panel or hover.
+- Inline values appear at end-of-line via virtual text. Use the Scopes float for full detail.
 
 
 ## Troubleshooting

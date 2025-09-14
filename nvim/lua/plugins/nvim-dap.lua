@@ -38,13 +38,6 @@ return {
     desc = "Debugging support. Requires language specific adapters to be configured. (see lang extras)",
 
     dependencies = {
-      -- Plugin: nvim-dap-ui
-      -- URL: https://github.com/rcarriga/nvim-dap-ui
-      -- Description: A UI for nvim-dap.
-      "rcarriga/nvim-dap-ui",
-      -- Required by nvim-dap-ui
-      "nvim-neotest/nvim-nio",
-
       -- Plugin: nvim-dap-virtual-text
       -- URL: https://github.com/theHamsta/nvim-dap-virtual-text
       -- Description: Virtual text for the debugger.
@@ -91,16 +84,12 @@ return {
         desc = "Run with Args",
       },
       {
-        "<leader>du",
-        function()
-          require("dapui").toggle({ reset = true })
-        end,
-        desc = "Toggle UI",
-      },
-      {
         "<leader>de",
         function()
-          require("dapui").eval(nil, { enter = true })
+          local expr = vim.fn.input("Evaluate: ")
+          if expr and expr ~= "" then
+            require("dap").evaluate(expr)
+          end
         end,
         mode = { "n" },
         desc = "Eval Expression",
@@ -108,7 +97,19 @@ return {
       {
         "<leader>de",
         function()
-          require("dapui").eval(nil, { enter = true })
+          local function get_visual_selection()
+            local _, ls, cs = unpack(vim.fn.getpos("'<"))
+            local _, le, ce = unpack(vim.fn.getpos("'>"))
+            if ls == 0 then
+              return nil
+            end
+            local text = vim.api.nvim_buf_get_text(0, ls - 1, cs - 1, le - 1, ce, {})
+            return table.concat(text, "\n")
+          end
+          local sel = get_visual_selection()
+          if sel and sel ~= "" then
+            require("dap").evaluate(sel)
+          end
         end,
         mode = { "v" },
         desc = "Eval Selection",
@@ -244,7 +245,6 @@ return {
 
     config = function()
       local dap = require("dap")
-      local dapui = require("dapui")
 
       -- Load mason-nvim-dap if available
       if LazyVim.has("mason-nvim-dap.nvim") then
@@ -337,18 +337,9 @@ return {
         config.env = load_env_variables
       end
 
-      -- nvim-dap-ui setup and auto open/close on sessions
-      dapui.setup()
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        -- If Neo-tree is open, close it to make room for DAP UI
+      -- Close Neo-tree on debug start to reduce layout conflicts
+      dap.listeners.after.event_initialized["gentleman_close_neotree"] = function()
         pcall(vim.cmd, "Neotree close")
-        dapui.open()
-      end
-      dap.listeners.before.event_terminated["dapui_config"] = function()
-        dapui.close()
-      end
-      dap.listeners.before.event_exited["dapui_config"] = function()
-        dapui.close()
       end
     end,
   },
