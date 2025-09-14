@@ -30,9 +30,12 @@ window-decoration = false
 font-family = IosevkaTerm NF
 font-size = 14
 #font-size = 20
+window-padding-color = extend
+window-step-resize = false
+window-padding-balance = true
 ## Avoid pinning fixed content size; let the terminal resize freely
-window-height = 5000
-window-width = 5000
+window-height = 10000
+window-width = 10000
 
 ### Mac Alt Fix
 macos-option-as-alt = left
