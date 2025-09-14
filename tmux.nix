@@ -80,6 +80,9 @@ bind d split-window -v -c "#{pane_current_path}"
 # Mouse support
 set -g mouse on
 
+# Toggle mouse quickly (Prefix + m)
+bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
+
 # Status bar position
 set -g status-position top
 

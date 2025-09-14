@@ -120,7 +120,7 @@
         done
       fi
 
-    # Multiplexer autostart removed; use plain Zsh in Ghostty
+    # Multiplexer autostart: replace the shell with tmux for interactive TTYs
     # Initialize asdf
     . ${pkgs.asdf-vm}/share/asdf-vm/asdf.sh
 
@@ -134,15 +134,18 @@
     alias -- oz=oil-zed
     alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
 
-    WM_VAR="/$TMUX"
-    # change with ZELLIJ
+    # Change WM_CMD to "zellij" if you switch multiplexers later.
     WM_CMD="tmux"
-    # change with zellij
 
-    function start_if_needed() {
-        if [[ $- == *i* ]] && [[ -z "\$\{WM_VAR#/\}" ]] && [[ -t 1 ]] && [[ -z "$ZED_TERMINAL" ]]; then
-            exec $WM_CMD
+    start_if_needed() {
+      # Only in interactive shells with a real TTY, not already inside tmux,
+      # and avoid special terminals like Zed's embedded terminal.
+      if [[ $- == *i* ]] && [[ -t 1 ]] && [[ -z "${TMUX}" ]] && [[ -z "${ZED_TERMINAL}" ]]; then
+        if command -v "${WM_CMD}" >/dev/null 2>&1; then
+          # Attach to existing session or create one named 'main'
+          exec "${WM_CMD}" new-session -A -s main
         fi
+      fi
     }
     start_if_needed
     
