@@ -15,7 +15,7 @@ in
 
     # Built-in options
     terminal = "tmux-256color";
-    mouse = true;
+    mouse = false;
     keyMode = "vi";
     baseIndex = 1;
     escapeTime = 0;
@@ -77,8 +77,8 @@ unbind '"'
 bind v split-window -h -c "#{pane_current_path}"
 bind d split-window -v -c "#{pane_current_path}"
 
-# Mouse support
-set -g mouse on
+# Mouse support (default OFF; toggle with Prefix+m)
+set -g mouse off
 
 # Toggle mouse quickly (Prefix + m)
 bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
