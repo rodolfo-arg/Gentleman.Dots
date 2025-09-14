@@ -10,9 +10,10 @@ in
     force = true;
   };
 
-  # macOS convenience symlink to native location, pointing to XDG path
+  # macOS: place files directly in Application Support (no extra symlink hops)
   home.file."Library/Application Support/ghostty" = lib.mkIf pkgs.stdenv.isDarwin {
-    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/ghostty";
+    source = sourceDir;
+    recursive = true;
     force = true;
   };
 }
