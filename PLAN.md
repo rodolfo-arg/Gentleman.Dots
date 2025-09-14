@@ -73,7 +73,30 @@ This document captures the goals, architecture, and working practices for this r
   - Environment variables read by modules, or
   - `home-manager` `--impure` with env, or
   - Flake `--override-input` / `extraSpecialArgs` for structured options.
-- Keep defaults clean; custom mode only adds opt‑in packages and (optionally) macOS apps.
+  - Keep defaults clean; custom mode only adds opt‑in packages and (optionally) macOS apps.
+
+## Neovim Debugging (Flutter)
+
+- Goals
+  - First-class Flutter/Dart debugging via nvim-dap + flutter-tools.
+  - Simple defaults that work without a launch.json; attach supported.
+
+- Components
+  - nvim-dap, nvim-dap-ui (with nvim-nio), nvim-dap-virtual-text.
+  - flutter-tools configured with `run_via_dap = true`.
+
+- Defaults
+  - Launch `${workspaceFolder}/lib/main.dart` and `example/lib/main.dart`.
+  - Attach configuration for running apps.
+  - Auto-load `.vscode/launch.json` when present.
+
+- UX
+  - UI auto-opens on session start; toggle with `<leader>du`.
+  - Inspect values: hover `<leader>dw`, eval `<leader>de`, scopes `<leader>dS`.
+
+- Notes
+  - Requires `dart debug_adapter` resolvable on PATH.
+  - Virtual text enabled at EOL; .env merged into session env if present.
 
 ## Best Practices & Constraints
 
@@ -91,4 +114,3 @@ This document captures the goals, architecture, and working practices for this r
   - Ghostty installed (via brew) or preinstalled.
   - `home-manager switch` succeeds; Zsh set as default.
   - New terminal session picks up configuration (PATH, Starship, Neovim).
-

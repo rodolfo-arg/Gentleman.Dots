@@ -29,6 +29,8 @@ return {
       -- URL: https://github.com/rcarriga/nvim-dap-ui
       -- Description: A UI for nvim-dap.
       "rcarriga/nvim-dap-ui",
+      -- Required by nvim-dap-ui
+      "nvim-neotest/nvim-nio",
 
       -- Plugin: nvim-dap-virtual-text
       -- URL: https://github.com/theHamsta/nvim-dap-virtual-text
