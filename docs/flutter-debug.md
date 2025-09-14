@@ -18,7 +18,7 @@ This setup enables debugging Flutter apps (including plugin example apps) using 
   - Launch `example/lib/main.dart` for typical plugin repos
   - Attach to a running Dart/Flutter process
 
-- Minimal UI (dap-ui disabled); nvim-dap-virtual-text shows inline values at EOL during stops.
+- Minimal UI via dap-ui (only variables + controls); inline values at EOL.
 
 ## Recommended .vscode/launch.json
 
@@ -88,12 +88,12 @@ Two smooth options:
 ## Inspecting Variables
 
 - Hover variable under cursor: `<leader>dw`
-- Evaluate expression (prompt): `<leader>de`
-- Evaluate visual selection: select text, then `<leader>de`
+- Evaluate expression/selection in sidebar: `<leader>de`
+- Variables panel: auto-opens at bottom; toggle with `<leader>du`
 - Scopes (floating window): `<leader>dS`
 
 Notes:
-- Inline values appear at end-of-line via virtual text. Use the Scopes float for full detail.
+- Inline values appear at end-of-line via virtual text. Use the bottom Variables panel or Scopes float for details.
 
 
 ## Troubleshooting

@@ -15,13 +15,13 @@ return {
       widget_guides = { enabled = true },
       closing_tags = { highlight = "Comment" },
 
-      -- Disable flutter-tools debugger and dev log to avoid UI conflicts with nvim-dap + dap-ui
+      -- Enable flutter-tools debugger and dev log; run via nvim-dap
       debugger = {
-        enabled = false,
-        run_via_dap = false,
+        enabled = true,
+        run_via_dap = true,
       },
       dev_log = {
-        enabled = false,
+        enabled = true,
       },
 
       lsp = {

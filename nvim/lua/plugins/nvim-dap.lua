@@ -38,6 +38,10 @@ return {
     desc = "Debugging support. Requires language specific adapters to be configured. (see lang extras)",
 
     dependencies = {
+      -- Minimal DAP UI
+      "rcarriga/nvim-dap-ui",
+      "nvim-neotest/nvim-nio",
+
       -- Plugin: nvim-dap-virtual-text
       -- URL: https://github.com/theHamsta/nvim-dap-virtual-text
       -- Description: Virtual text for the debugger.
@@ -86,10 +90,7 @@ return {
       {
         "<leader>de",
         function()
-          local expr = vim.fn.input("Evaluate: ")
-          if expr and expr ~= "" then
-            require("dap").evaluate(expr)
-          end
+          require("dapui").eval(nil, { enter = true })
         end,
         mode = { "n" },
         desc = "Eval Expression",
@@ -97,22 +98,17 @@ return {
       {
         "<leader>de",
         function()
-          local function get_visual_selection()
-            local _, ls, cs = unpack(vim.fn.getpos("'<"))
-            local _, le, ce = unpack(vim.fn.getpos("'>"))
-            if ls == 0 then
-              return nil
-            end
-            local text = vim.api.nvim_buf_get_text(0, ls - 1, cs - 1, le - 1, ce, {})
-            return table.concat(text, "\n")
-          end
-          local sel = get_visual_selection()
-          if sel and sel ~= "" then
-            require("dap").evaluate(sel)
-          end
+          require("dapui").eval(nil, { enter = true })
         end,
         mode = { "v" },
         desc = "Eval Selection",
+      },
+      {
+        "<leader>du",
+        function()
+          require("dapui").toggle({ reset = true })
+        end,
+        desc = "Toggle UI",
       },
       {
         "<leader>dL",
@@ -245,6 +241,7 @@ return {
 
     config = function()
       local dap = require("dap")
+      local dapui = require("dapui")
 
       -- Load mason-nvim-dap if available
       if LazyVim.has("mason-nvim-dap.nvim") then
@@ -337,9 +334,36 @@ return {
         config.env = load_env_variables
       end
 
-      -- Close Neo-tree on debug start to reduce layout conflicts
-      dap.listeners.after.event_initialized["gentleman_close_neotree"] = function()
+      -- Minimal dap-ui: only show variables (scopes) + controls; open bottom
+      dapui.setup({
+        layouts = {
+          {
+            elements = {
+              { id = "scopes", size = 0.8 },
+              { id = "repl", size = 0.2 },
+            },
+            size = 12,
+            position = "bottom",
+          },
+        },
+        controls = {
+          enabled = true,
+          element = "repl",
+        },
+        expand_lines = true,
+        floating = { border = "rounded" },
+      })
+
+      -- Open minimal UI on start, close on end; also close Neo-tree to avoid layout clash
+      dap.listeners.after.event_initialized["dapui_minimal"] = function()
         pcall(vim.cmd, "Neotree close")
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_minimal"] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited["dapui_minimal"] = function()
+        dapui.close()
       end
     end,
   },
