@@ -15,7 +15,7 @@ in
 
     # Built-in options
     terminal = "tmux-256color";
-    mouse = false;
+    mouse = true;
     keyMode = "vi";
     baseIndex = 1;
     escapeTime = 0;
@@ -77,8 +77,17 @@ unbind '"'
 bind v split-window -h -c "#{pane_current_path}"
 bind d split-window -v -c "#{pane_current_path}"
 
-# Mouse support (default OFF; toggle with Prefix+m)
-set -g mouse off
+# Mouse support (default ON; toggle with Prefix+m)
+set -g mouse on
+
+# Smooth mouse selection: drag to select, auto-copy on release, then exit copy-mode
+# Enter copy-mode and begin selection on drag
+bind -n MouseDrag1Pane if -F '#{?pane_in_mode,1,0}' 'send -X begin-selection' 'copy-mode -M'
+
+# On drag end, copy to clipboard and cancel to remove highlight
+if-shell 'uname | grep -q Darwin' \
+  'bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "pbcopy"' \
+  'bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "xclip -in -selection clipboard"'
 
 # Toggle mouse quickly (Prefix + m)
 bind m set -g mouse \; display-message "mouse: #{?mouse,on,off}"
