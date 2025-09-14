@@ -234,3 +234,40 @@ echo "- Start a new terminal session to use your Home Manager environment"
 # - Detect gum/fzf for interactive selection
 # - Export choices as environment variables for HM modules to read
 # - For now, we always install the default config
+
+# =============== Launch Ghostty and close current terminal ===============
+# Try to launch Ghostty for a fresh session
+if open -Ra Ghostty >/dev/null 2>&1; then
+  log "Launching Ghostty"
+  open -a Ghostty || warn "Could not launch Ghostty automatically"
+  sleep 1
+else
+  warn "Ghostty app not found; skipping launch"
+fi
+
+# If we are not already in Ghostty, attempt to close the current terminal
+case "${TERM_PROGRAM:-}" in
+  "Apple_Terminal")
+    log "Closing Terminal.app window"
+    osascript <<'OSA' >/dev/null 2>&1 || true
+tell application "Terminal"
+  try
+    if (count of windows) > 0 then close front window
+    if (count of windows) is 0 then quit
+  end try
+end tell
+OSA
+    ;;
+  "iTerm.app")
+    log "Closing iTerm.app"
+    osascript -e 'tell application "iTerm" to quit' >/dev/null 2>&1 || true
+    ;;
+  "Ghostty")
+    # Already in Ghostty; do nothing
+    ;;
+  *)
+    # Unknown terminal; best-effort exit of this shell
+    ;;
+esac
+
+exit 0

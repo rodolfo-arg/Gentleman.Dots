@@ -49,15 +49,6 @@ return {
           },
         })
       end,
-      copilot_gemini_25_pro = function()
-        return require("codecompanion.adapters").extend("copilot", {
-          schema = {
-            model = {
-              default = "gemini-2.5-pro",
-            },
-          },
-        })
-      end,
       copilot_41_mini = function()
         return require("codecompanion.adapters").extend("copilot", {
           schema = {
