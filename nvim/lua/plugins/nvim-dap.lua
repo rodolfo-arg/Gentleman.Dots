@@ -366,14 +366,23 @@ return {
 
       -- DAP UI theming: explicit colors for clarity across themes
       local function set_dapui_highlights()
-        local yellow = "#E0AF68"
+        -- Choose a purple that matches the active theme where possible
+        local scheme = (vim.g.colors_name or ""):lower()
+        local purple
+        if scheme:find("kanagawa") or scheme:find("gentleman%-kanagawa") then
+          purple = "#A48CF2" -- Kanagawa Fuji Purple
+        elseif scheme:find("catppuccin") or scheme:find("mocha") then
+          purple = "#CBA6F7" -- Catppuccin Mauve
+        else
+          purple = "#CBA6F7" -- sensible default
+        end
         local white = "#FFFFFF"
         local set = function(name, spec)
           pcall(vim.api.nvim_set_hl, 0, name, spec)
         end
 
         -- Make variable names pop
-        set("DapUIVariable", { fg = yellow, bold = true })
+        set("DapUIVariable", { fg = purple, bold = true })
 
         -- Keep most other text clean/neutral
         set("DapUIValue", { fg = white })

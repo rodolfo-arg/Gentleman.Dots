@@ -94,7 +94,7 @@ This document captures the goals, architecture, and working practices for this r
   - Minimal UI: left side panel split in half — Variables (scopes) and Controls side-by-side; inline values via virtual text.
   - Inspect values: hover `<leader>dw`, eval `<leader>de`, scopes `<leader>dS`; toggle UI `<leader>du`.
   - Close Neo-tree on debug start to reduce layout conflicts.
-  - Theming: DAP UI uses explicit colors for clarity across themes — variables are yellow; most other text in the panel is white; borders follow the theme.
+  - Theming: DAP UI uses explicit colors for clarity across themes — variables are purple (theme‑matched: Kanagawa Fuji or Catppuccin Mauve); most other text is white; borders follow the theme.
 
 - Notes
   - Requires `dart debug_adapter` resolvable on PATH.
