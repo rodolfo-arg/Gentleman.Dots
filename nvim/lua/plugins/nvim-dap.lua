@@ -339,7 +339,7 @@ return {
           vim.fn.jobstart(build_cmd, { detach = true })
           return vim.fn.input(
             "Path to iOS device binary: ",
-            vim.fn.getcwd() .. "/build/ios/iphoneos/Runner.app/Runner",
+            vim.fn.getcwd() .. "../build/ios/iphoneos/Runner.app/Runner",
             "file"
           )
         else
@@ -347,7 +347,8 @@ return {
           vim.fn.jobstart(build_cmd, { detach = true })
           return vim.fn.input(
             "Path to macOS binary: ",
-            vim.fn.getcwd() .. "/build/macos/Build/Products/Debug/Runner.app/Contents/MacOS/Runner",
+            vim.fn.getcwd()
+              .. "../build/macos/Build/Products/Debug-develop/RODE\\ Central.app/Contents/MacOS/RODE\\ Central",
             "file"
           )
         end
