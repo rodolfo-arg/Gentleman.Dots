@@ -336,34 +336,61 @@ return {
       end
 
       -- Build helper
+      -- Build helper (dynamic detection)
       local function build_and_get_binary(target)
-        local scheme = "Runner"
+        -- Run xcodebuild -showBuildSettings to capture key values
+        local function get_build_setting(sdk, extra)
+          local cmd = string.format("xcodebuild -showBuildSettings -sdk %s %s", sdk, extra or "")
+          local handle = io.popen(cmd)
+          if not handle then
+            return {}
+          end
+          local result = handle:read("*a")
+          handle:close()
+
+          local settings = {}
+          for k, v in result:gmatch("([%w_]+) = (.+)") do
+            settings[k] = v
+          end
+          return settings
+        end
+
         if target == "ios-device" then
           local udid = get_default_ios_device_udid()
           if not udid then
             vim.notify("No connected iOS device found", vim.log.levels.ERROR)
             return ""
           end
+
+          -- iOS device build
+          local settings = get_build_setting("iphoneos", string.format("-destination 'platform=iOS,id=%s'", udid))
+          local scheme = settings["SCHEME_NAME"] or "Runner"
+          local config = settings["CONFIGURATION"] or "Debug"
+          local products = settings["BUILT_PRODUCTS_DIR"] or (vim.fn.getcwd() .. "/build/ios/iphoneos")
+          local exe = settings["EXECUTABLE_NAME"] or "Runner"
+
           local build_cmd = string.format(
-            "xcodebuild -scheme %s -destination 'platform=iOS,id=%s' -configuration Debug build",
+            "xcodebuild -scheme %s -destination 'platform=iOS,id=%s' -configuration %s build",
             scheme,
-            udid
+            udid,
+            config
           )
           vim.fn.jobstart(build_cmd, { detach = true })
-          return vim.fn.input(
-            "Path to iOS device binary: ",
-            vim.fn.getcwd() .. "../build/ios/iphoneos/Runner.app/Runner",
-            "file"
-          )
+
+          return string.format("%s/%s.app/%s", products, scheme, exe)
         else
-          local build_cmd = string.format("xcodebuild -scheme %s -sdk macosx -configuration Debug build", scheme)
+          -- macOS build
+          local settings = get_build_setting("macosx")
+          local scheme = settings["SCHEME_NAME"] or "Runner"
+          local config = settings["CONFIGURATION"] or "Debug"
+          local products = settings["BUILT_PRODUCTS_DIR"]
+            or (vim.fn.getcwd() .. "/build/macos/Build/Products/" .. config)
+          local exe = settings["EXECUTABLE_NAME"] or scheme
+
+          local build_cmd = string.format("xcodebuild -scheme %s -sdk macosx -configuration %s build", scheme, config)
           vim.fn.jobstart(build_cmd, { detach = true })
-          return vim.fn.input(
-            "Path to macOS binary: ",
-            vim.fn.getcwd()
-              .. "../build/macos/Build/Products/Debug-develop/RODE\\ Central.app/Contents/MacOS/RODE\\ Central",
-            "file"
-          )
+
+          return string.format("%s/%s.app/Contents/MacOS/%s", products, scheme, exe)
         end
       end
 
