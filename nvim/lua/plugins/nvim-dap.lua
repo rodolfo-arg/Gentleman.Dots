@@ -353,14 +353,15 @@ return {
 
         local function get_build_settings(sdk, config, extra)
           local cmd = string.format(
-            "cd %s && xcodebuild -showBuildSettings -sdk %s -configuration %s",
-            proj_dir,
+            "xcodebuild -showBuildSettings -sdk %s -configuration %s %s",
             sdk,
-            config or "Debug"
+            config or "Debug",
+            extra or ""
           )
-          local handle = io.popen(cmd)
+          local handle = io.popen("cd " .. proj_dir .. " && " .. cmd)
           if not handle then
-            return {}
+            vim.notify("❌ Failed to run xcodebuild", vim.log.levels.ERROR)
+            return nil
           end
           local result = handle:read("*a")
           handle:close()
@@ -368,6 +369,11 @@ return {
           local settings = {}
           for k, v in result:gmatch("([%w_]+) = (.+)") do
             settings[k] = v
+          end
+
+          if not settings["EXECUTABLE_NAME"] or not settings["BUILT_PRODUCTS_DIR"] then
+            vim.notify("⚠️ Missing EXECUTABLE_NAME or BUILT_PRODUCTS_DIR", vim.log.levels.WARN)
+            return nil
           end
           return settings
         end
@@ -380,36 +386,35 @@ return {
             return ""
           end
           settings = get_build_settings("iphoneos", "Debug", string.format("-destination 'platform=iOS,id=%s'", udid))
-
-          -- build with same configuration
-          vim.fn.jobstart(
+          os.execute(
             string.format(
               "cd %s && xcodebuild -scheme Runner -destination 'platform=iOS,id=%s' -configuration %s build",
               proj_dir,
               udid,
-              settings["CONFIGURATION"] or "Debug"
-            ),
-            { detach = true }
+              settings and settings["CONFIGURATION"] or "Debug"
+            )
           )
         else
           settings = get_build_settings("macosx", "Debug-develop")
-
-          -- build with same configuration
-          vim.fn.jobstart(
+          os.execute(
             string.format(
               "cd %s && xcodebuild -scheme Runner -sdk macosx -configuration %s build",
               proj_dir,
-              settings["CONFIGURATION"] or "Debug-develop"
-            ),
-            { detach = true }
+              settings and settings["CONFIGURATION"] or "Debug-develop"
+            )
           )
         end
 
-        local exe = settings["EXECUTABLE_NAME"] or "Runner"
-        local products = settings["BUILT_PRODUCTS_DIR"] or (proj_dir .. "/build/Debug")
+        if not settings then
+          return ""
+        end
 
-        -- ✅ Always use EXECUTABLE_NAME for the app bundle
-        return string.format("%s/%s.app/Contents/MacOS/%s", products, exe, exe)
+        local exe = settings["EXECUTABLE_NAME"]
+        local products = settings["BUILT_PRODUCTS_DIR"]
+
+        local app_path = string.format("%s/%s.app/Contents/MacOS/%s", products, exe, exe)
+        vim.notify("Launching binary: " .. app_path, vim.log.levels.INFO)
+        return app_path
       end
 
       -- Native configs
