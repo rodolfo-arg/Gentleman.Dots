@@ -349,7 +349,6 @@ return {
       end
       -- Build helper
       -- Build helper using dynamic settings
-
       -- Build helper using dynamic settings
       local function build_and_get_binary(target)
         local proj_dir = project_dir(target)
@@ -376,18 +375,14 @@ return {
           return settings
         end
 
+        local settings
         if target == "ios-device" then
           local udid = get_default_ios_device_udid()
           if not udid then
             vim.notify("No connected iOS device found", vim.log.levels.ERROR)
             return ""
           end
-
-          local settings =
-            get_build_settings("iphoneos", "Debug", string.format("-destination 'platform=iOS,id=%s'", udid))
-          local exe = settings["EXECUTABLE_NAME"] or "Runner"
-          local products = settings["BUILT_PRODUCTS_DIR"] or (proj_dir .. "/build/Debug")
-
+          settings = get_build_settings("iphoneos", "Debug", string.format("-destination 'platform=iOS,id=%s'", udid))
           vim.fn.jobstart(
             string.format(
               "cd %s && xcodebuild -scheme Runner -destination 'platform=iOS,id=%s' -configuration %s build",
@@ -397,14 +392,8 @@ return {
             ),
             { detach = true }
           )
-
-          return string.format("%s/%s.app/%s", products, exe, exe)
         else
-          -- macOS build
-          local settings = get_build_settings("macosx", "Debug-develop")
-          local exe = settings["EXECUTABLE_NAME"] or "Runner"
-          local products = settings["BUILT_PRODUCTS_DIR"] or (proj_dir .. "/build/Debug-develop")
-
+          settings = get_build_settings("macosx", "Debug-develop")
           vim.fn.jobstart(
             string.format(
               "cd %s && xcodebuild -scheme Runner -sdk macosx -configuration %s build",
@@ -413,9 +402,11 @@ return {
             ),
             { detach = true }
           )
-
-          return string.format("%s/%s.app/Contents/MacOS/%s", products, exe, exe)
         end
+
+        local exe = settings["EXECUTABLE_NAME"] or "Runner"
+        local products = settings["BUILT_PRODUCTS_DIR"] or (proj_dir .. "/build/Debug")
+        return string.format("%s/%s.app/Contents/MacOS/%s", products, exe, exe)
       end
 
       -- Native configs
