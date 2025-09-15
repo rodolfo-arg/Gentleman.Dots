@@ -336,21 +336,6 @@ return {
       end
 
       -- Build helper
-      -- Detect correct project subdir for Xcode builds
-      local function project_dir(target)
-        local cwd = vim.fn.getcwd()
-        if target == "ios-device" then
-          if vim.fn.isdirectory(cwd .. "/ios") == 1 then
-            return cwd .. "/ios"
-          end
-        else
-          if vim.fn.isdirectory(cwd .. "/macos") == 1 then
-            return cwd .. "/macos"
-          end
-        end
-        return cwd
-      end
-
       -- Build helper using dynamic settings
       local function build_and_get_binary(target)
         local proj_dir = project_dir(target)
@@ -386,42 +371,39 @@ return {
 
           local settings =
             get_build_settings("iphoneos", "Debug", string.format("-destination 'platform=iOS,id=%s'", udid))
-          local scheme = settings["SCHEME_NAME"] or "Runner"
-          local exe = settings["EXECUTABLE_NAME"] or scheme
+          local exe = settings["EXECUTABLE_NAME"] or "Runner"
           local products = settings["BUILT_PRODUCTS_DIR"] or (proj_dir .. "/build/Debug")
 
           vim.fn.jobstart(
             string.format(
-              "cd %s && xcodebuild -scheme %s -destination 'platform=iOS,id=%s' -configuration %s build",
+              "cd %s && xcodebuild -scheme Runner -destination 'platform=iOS,id=%s' -configuration %s build",
               proj_dir,
-              scheme,
               udid,
               settings["CONFIGURATION"] or "Debug"
             ),
             { detach = true }
           )
 
-          return string.format("%s/%s.app/%s", products, scheme, exe)
+          return string.format("%s/%s.app/%s", products, exe, exe)
         else
           -- macOS build
           local settings = get_build_settings("macosx", "Debug-develop")
-          local scheme = settings["SCHEME_NAME"] or "Runner"
-          local exe = settings["EXECUTABLE_NAME"] or scheme
+          local exe = settings["EXECUTABLE_NAME"] or "Runner"
           local products = settings["BUILT_PRODUCTS_DIR"] or (proj_dir .. "/build/Debug-develop")
 
           vim.fn.jobstart(
             string.format(
-              "cd %s && xcodebuild -scheme %s -sdk macosx -configuration %s build",
+              "cd %s && xcodebuild -scheme Runner -sdk macosx -configuration %s build",
               proj_dir,
-              scheme,
               settings["CONFIGURATION"] or "Debug-develop"
             ),
             { detach = true }
           )
 
-          return string.format("%s/%s.app/Contents/MacOS/%s", products, scheme, exe)
+          return string.format("%s/%s.app/Contents/MacOS/%s", products, exe, exe)
         end
       end
+
       -- Native configs
       local native_configs = {
         {
