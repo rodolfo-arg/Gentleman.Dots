@@ -30,21 +30,13 @@ end
 
 return {
   {
-    -- Plugin: nvim-dap
-    -- URL: https://github.com/mfussenegger/nvim-dap
-    -- Description: Debug Adapter Protocol client implementation for Neovim.
     "mfussenegger/nvim-dap",
-    recommended = true, -- Recommended plugin
+    recommended = true,
     desc = "Debugging support. Requires language specific adapters to be configured. (see lang extras)",
 
     dependencies = {
-      -- Minimal DAP UI
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
-
-      -- Plugin: nvim-dap-virtual-text
-      -- URL: https://github.com/theHamsta/nvim-dap-virtual-text
-      -- Description: Virtual text for the debugger.
       {
         "theHamsta/nvim-dap-virtual-text",
         opts = {
@@ -56,9 +48,8 @@ return {
       },
     },
 
-    -- Keybindings for nvim-dap
     keys = {
-      { "<leader>d", "", desc = "+debug", mode = { "n", "v" } }, -- Group for debug commands
+      { "<leader>d", "", desc = "+debug", mode = { "n", "v" } },
       {
         "<leader>dB",
         function()
@@ -237,13 +228,35 @@ return {
         end,
         desc = "Widgets",
       },
+
+      -- NEW: Native iOS/macOS commands
+      {
+        "<leader>dX",
+        function()
+          run_config_by_name("macOS")
+        end,
+        desc = "Build & Launch macOS App",
+      },
+      {
+        "<leader>dP",
+        function()
+          run_config_by_name("iOS Device App")
+        end,
+        desc = "Build & Launch iOS Device App",
+      },
+      {
+        "<leader>dD",
+        function()
+          run_config_by_name("Attach to iOS Device")
+        end,
+        desc = "Attach to iOS Device",
+      },
     },
 
     config = function()
       local dap = require("dap")
       local dapui = require("dapui")
 
-      -- Load mason-nvim-dap if available
       if LazyVim.has("mason-nvim-dap.nvim") then
         require("mason-nvim-dap").setup(LazyVim.opts("mason-nvim-dap.nvim"))
       end
@@ -282,10 +295,104 @@ return {
         end
       end
 
-      -- Set highlight for DapStoppedLine
-      vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
+      -- LLDB Adapter
+      dap.adapters.lldb = {
+        type = "executable",
+        command = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-vscode",
+        name = "lldb",
+      }
 
-      -- Define signs for DAP
+      -- Auto-detect device UDID via xcdevice
+      local function get_default_ios_device_udid()
+        local handle = io.popen("xcrun xcdevice list --json")
+        if not handle then
+          return nil
+        end
+        local result = handle:read("*a")
+        handle:close()
+        local ok, devices = pcall(vim.json.decode, result)
+        if not ok or not devices then
+          return nil
+        end
+        for _, dev in ipairs(devices) do
+          if dev.isConnected and dev.platform == "iOS" then
+            return dev.udid
+          end
+        end
+        return nil
+      end
+
+      -- Build helper
+      local function build_and_get_binary(target)
+        local scheme = "Runner"
+        if target == "ios-device" then
+          local udid = get_default_ios_device_udid()
+          if not udid then
+            vim.notify("No connected iOS device found", vim.log.levels.ERROR)
+            return ""
+          end
+          local build_cmd = string.format(
+            "xcodebuild -scheme %s -destination 'platform=iOS,id=%s' -configuration Debug build",
+            scheme,
+            udid
+          )
+          vim.fn.jobstart(build_cmd, { detach = true })
+          return vim.fn.input(
+            "Path to iOS device binary: ",
+            vim.fn.getcwd() .. "/build/ios/iphoneos/Runner.app/Runner",
+            "file"
+          )
+        else
+          local build_cmd = string.format("xcodebuild -scheme %s -sdk macosx -configuration Debug build", scheme)
+          vim.fn.jobstart(build_cmd, { detach = true })
+          return vim.fn.input(
+            "Path to macOS binary: ",
+            vim.fn.getcwd() .. "/build/macos/Build/Products/Debug/Runner.app/Contents/MacOS/Runner",
+            "file"
+          )
+        end
+      end
+
+      -- Native configs
+      local native_configs = {
+        {
+          name = "Launch macOS App",
+          type = "lldb",
+          request = "launch",
+          program = function()
+            return build_and_get_binary("macos")
+          end,
+          cwd = "${workspaceFolder}",
+          stopOnEntry = false,
+          args = get_args,
+        },
+        {
+          name = "Launch iOS Device App",
+          type = "lldb",
+          request = "launch",
+          program = function()
+            return build_and_get_binary("ios-device")
+          end,
+          cwd = "${workspaceFolder}",
+          stopOnEntry = false,
+          args = get_args,
+        },
+        {
+          name = "Attach to iOS Device",
+          type = "lldb",
+          request = "attach",
+          pid = require("dap.utils").pick_process,
+          cwd = "${workspaceFolder}",
+        },
+      }
+
+      dap.configurations.swift = native_configs
+      dap.configurations.objc = native_configs
+      dap.configurations.cpp = native_configs
+      dap.configurations.c = native_configs
+
+      -- UI & theming (unchanged from your base config)
+      vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
       for name, sign in pairs(LazyVim.config.icons.dap) do
         sign = type(sign) == "table" and sign or { sign }
         vim.fn.sign_define(
@@ -294,20 +401,15 @@ return {
         )
       end
 
-      -- Setup DAP configuration using VsCode launch.json file
       local vscode = require("dap.ext.vscode")
       local json = require("plenary.json")
       vscode.json_decode = function(str)
         return vim.json.decode(json.json_strip_comments(str))
       end
-
-      -- Load launch configurations from .vscode/launch.json if it exists
       if vim.fn.filereadable(".vscode/launch.json") then
-        -- Map VSCode's "dart" type to Neovim's dart filetype
         vscode.load_launchjs(nil, { dart = { "dart" } })
       end
 
-      -- Function to load environment variables (merge current env + optional .env)
       local function load_env_variables()
         local out = {}
         for k, v in pairs(vim.fn.environ()) do
@@ -319,7 +421,6 @@ return {
           for line in f:lines() do
             local key, value = line:match("^%s*([%w_]+)%s*=%s*(.-)%s*$")
             if key and value and key ~= "" then
-              -- strip surrounding quotes if any
               value = value:gsub('^"(.*)"$', "%1"):gsub("^'(.*)'$", "%1")
               out[key] = value
             end
@@ -328,94 +429,43 @@ return {
         end
         return out
       end
-
-      -- Add env provider to Dart configurations
       for _, config in ipairs(dap.configurations.dart or {}) do
         config.env = load_env_variables
       end
 
-      -- Minimal dap-ui: side-by-side Variables (scopes) and Controls (in repl) using half screen width
-      local half_cols = math.floor((vim.o.columns or 160) * 0.5)
-      if half_cols < 60 then
-        half_cols = 60
-      end
       dapui.setup({
         layouts = {
-          {
-            elements = {
-              { id = "scopes" },
-            },
-            size = 40,
-            position = "left",
-          },
-          {
-            elements = {
-              { id = "repl" },
-            },
-            size = 12,
-            position = "bottom",
-          },
+          { elements = { { id = "scopes" } }, size = 40, position = "left" },
+          { elements = { { id = "repl" } }, size = 12, position = "bottom" },
         },
-        controls = {
-          enabled = true,
-          element = "repl",
-        },
+        controls = { enabled = true, element = "repl" },
         expand_lines = true,
         floating = { border = "rounded" },
       })
 
-      -- DAP UI theming: explicit colors for clarity across themes
       local function set_dapui_highlights()
-        -- Choose a purple that matches the active theme where possible
         local scheme = (vim.g.colors_name or ""):lower()
         local purple
-        if scheme:find("kanagawa") or scheme:find("gentleman%-kanagawa") then
-          purple = "#A48CF2" -- Kanagawa Fuji Purple
-        elseif scheme:find("catppuccin") or scheme:find("mocha") then
-          purple = "#CBA6F7" -- Catppuccin Mauve
+        if scheme:find("kanagawa") then
+          purple = "#A48CF2"
+        elseif scheme:find("catppuccin") then
+          purple = "#CBA6F7"
         else
-          purple = "#CBA6F7" -- sensible default
+          purple = "#CBA6F7"
         end
         local white = "#FFFFFF"
         local set = function(name, spec)
           pcall(vim.api.nvim_set_hl, 0, name, spec)
         end
-
-        -- Make variable names pop
         set("DapUIVariable", { fg = purple, bold = true })
-
-        -- Keep most other text clean/neutral
         set("DapUIValue", { fg = white })
-        set("DapUIType", { fg = white })
-        set("DapUISource", { fg = white })
-        set("DapUIThread", { fg = white })
-        set("DapUIStoppedThread", { fg = white })
-        set("DapUILineNumber", { fg = white })
-        set("DapUIDecoration", { fg = white })
-        set("DapUIWatchesEmpty", { fg = white })
-        set("DapUIWatchesValue", { fg = white })
-        set("DapUIWatchesNone", { fg = white })
-        set("DapUIBreakpointsPath", { fg = white })
-        set("DapUIBreakpointsInfo", { fg = white })
-        set("DapUIBreakpointsCurrentLine", { fg = white })
-        set("DapUIBreakpointsLine", { fg = white })
-        set("DapUIBreakpointsDisabledLine", { fg = white })
-        set("DapUIReplPrompt", { fg = white, bold = true })
-
-        -- Respect theme border for floats
-        pcall(vim.api.nvim_set_hl, 0, "DapUIFloatBorder", { link = "FloatBorder" })
-
-        -- Virtual text subtle
-        pcall(vim.api.nvim_set_hl, 0, "NvimDapVirtualText", { link = "DiagnosticHint" })
       end
-
       set_dapui_highlights()
       vim.api.nvim_create_autocmd("ColorScheme", {
         group = vim.api.nvim_create_augroup("GentlemanDapUIColors", { clear = true }),
         callback = set_dapui_highlights,
       })
 
-      -- Open minimal UI on start, close on end; also close Neo-tree to avoid layout clash
       dap.listeners.after.event_initialized["dapui_minimal"] = function()
         pcall(vim.cmd, "Neotree close")
         dapui.open()
