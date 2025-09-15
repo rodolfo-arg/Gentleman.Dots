@@ -298,7 +298,20 @@ return {
       -- LLDB Adapter
       dap.adapters.lldb = {
         type = "executable",
-        command = vim.fn.exepath("lldb-dap"),
+        command = (function()
+          local exe = vim.fn.exepath("lldb-dap")
+          if exe ~= "" then
+            return exe
+          end
+          -- fallback: use xcrun to locate it
+          local handle = io.popen("xcrun --find lldb-dap 2>/dev/null")
+          if handle then
+            local result = handle:read("*l") or ""
+            handle:close()
+            return result
+          end
+          return "" -- will trigger error if still missing
+        end)(),
         name = "lldb",
       }
 
