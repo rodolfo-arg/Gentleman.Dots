@@ -353,11 +353,10 @@ return {
 
         local function get_build_settings(sdk, config, extra)
           local cmd = string.format(
-            "cd %s && xcodebuild -showBuildSettings -sdk %s -configuration %s %s",
+            "cd %s && xcodebuild -showBuildSettings -sdk %s -configuration %s",
             proj_dir,
             sdk,
-            config or "Debug",
-            extra or ""
+            config or "Debug"
           )
           local handle = io.popen(cmd)
           if not handle then
