@@ -429,18 +429,10 @@ return {
           cwd = "${workspaceFolder}",
           stopOnEntry = false,
           args = get_args,
+          runInTerminal = false, -- prevent Neovim terminal attach
+          externalConsole = true, -- let OS handle logs
         },
-        {
-          name = "Launch iOS Device App",
-          type = "lldb",
-          request = "launch",
-          program = function()
-            return build_and_get_binary("ios-device")
-          end,
-          cwd = "${workspaceFolder}",
-          stopOnEntry = false,
-          args = get_args,
-        },
+
         {
           name = "Attach to iOS Device",
           type = "lldb",
