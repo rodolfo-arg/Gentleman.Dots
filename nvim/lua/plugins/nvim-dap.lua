@@ -348,8 +348,6 @@ return {
         return cwd
       end
       -- Build helper
-      -- Build helper using dynamic settings
-      -- Build helper using dynamic settings
       local function build_and_get_binary(target)
         local proj_dir = project_dir(target)
 
@@ -383,6 +381,8 @@ return {
             return ""
           end
           settings = get_build_settings("iphoneos", "Debug", string.format("-destination 'platform=iOS,id=%s'", udid))
+
+          -- build with same configuration
           vim.fn.jobstart(
             string.format(
               "cd %s && xcodebuild -scheme Runner -destination 'platform=iOS,id=%s' -configuration %s build",
@@ -394,6 +394,8 @@ return {
           )
         else
           settings = get_build_settings("macosx", "Debug-develop")
+
+          -- build with same configuration
           vim.fn.jobstart(
             string.format(
               "cd %s && xcodebuild -scheme Runner -sdk macosx -configuration %s build",
@@ -406,6 +408,8 @@ return {
 
         local exe = settings["EXECUTABLE_NAME"] or "Runner"
         local products = settings["BUILT_PRODUCTS_DIR"] or (proj_dir .. "/build/Debug")
+
+        -- ✅ Always use EXECUTABLE_NAME for the app bundle
         return string.format("%s/%s.app/Contents/MacOS/%s", products, exe, exe)
       end
 
