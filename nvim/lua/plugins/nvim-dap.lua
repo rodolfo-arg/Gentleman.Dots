@@ -349,6 +349,8 @@ return {
       end
       -- Build helper
       -- Build helper using dynamic settings
+
+      -- Build helper using dynamic settings
       local function build_and_get_binary(target)
         local proj_dir = project_dir(target)
 
