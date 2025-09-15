@@ -334,7 +334,19 @@ return {
         end
         return nil
       end
-
+      local function project_dir(target)
+        local cwd = vim.fn.getcwd()
+        if target == "ios-device" then
+          if vim.fn.isdirectory(cwd .. "/ios") == 1 then
+            return cwd .. "/ios"
+          end
+        else
+          if vim.fn.isdirectory(cwd .. "/macos") == 1 then
+            return cwd .. "/macos"
+          end
+        end
+        return cwd
+      end
       -- Build helper
       -- Build helper using dynamic settings
       local function build_and_get_binary(target)
