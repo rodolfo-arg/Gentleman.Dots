@@ -298,7 +298,7 @@ return {
       -- LLDB Adapter
       dap.adapters.lldb = {
         type = "executable",
-        command = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-vscode",
+        command = vim.fn.exepath("lldb-dap"),
         name = "lldb",
       }
 
