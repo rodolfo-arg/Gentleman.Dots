@@ -22,10 +22,44 @@ function M.setup()
   vim.g.neovide_cursor_animate_in_insert_mode = true
   vim.g.neovide_cursor_animate_command_line = true
   vim.g.neovide_curser_antialiasing = true
-  vim.g.neovide_cursor_smooth_blink = true
-  vim.g.neovide_cursor_vfx_mode = "pixiedust"
   vim.g.neovide_remember_window_size = true
 
+  do
+    local group = vim.api.nvim_create_augroup("neovide_no_anim_in_term_cmd", { clear = true })
+    local defaults = {
+      cursor_anim = vim.g.neovide_cursor_animation_length or 0,
+      scroll_anim = vim.g.neovide_scroll_animation_length or 0,
+    }
+    local function stop_anim()
+      vim.g.neovide_cursor_animation_length = 0
+      vim.g.neovide_scroll_animation_length = 0
+    end
+    local function restore_anim()
+      vim.g.neovide_cursor_animation_length = defaults.cursor_anim
+      vim.g.neovide_scroll_animation_length = defaults.scroll_anim
+    end
+    -- Terminal buffers
+    vim.api.nvim_create_autocmd({ "TermEnter" }, {
+      group = group,
+      callback = stop_anim,
+      desc = "Disable Neovide animations in terminal",
+    })
+    vim.api.nvim_create_autocmd({ "TermLeave" }, {
+      group = group,
+      callback = restore_anim,
+      desc = "Restore Neovide animations after terminal",
+    })
+    vim.api.nvim_create_autocmd({ "CmdlineEnter", "CmdwinEnter" }, {
+      group = group,
+      callback = stop_anim,
+      desc = "Disable Neovide animations in cmdline",
+    })
+    vim.api.nvim_create_autocmd({ "CmdlineLeave", "CmdwinLeave" }, {
+      group = group,
+      callback = restore_anim,
+      desc = "Restore Neovide animations after cmdline",
+    })
+  end
   -- Scrolling animations (previous values)
   vim.g.neovide_scroll_animation_length = 0.05
   vim.g.neovide_scroll_animation_far_lines = 10
