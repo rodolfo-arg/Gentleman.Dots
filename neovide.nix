@@ -1,8 +1,9 @@
-{ pkgs, lib, ... }:
+{ ... }:
 {
-  # Configure Neovide via its config file on macOS
-  home.file = lib.mkIf pkgs.stdenv.isDarwin {
-    "Library/Application Support/neovide/config.toml" = {
+  # Configure Neovide via its standard config file path
+  # https://neovide.dev/config-file.html
+  home.file = {
+    ".config/neovide/config.toml" = {
       text = ''
         [window]
         frame = "none"
@@ -11,4 +12,3 @@
     };
   };
 }
-
