@@ -33,7 +33,7 @@ function M.setup()
   -- Optional: keep GUI font consistent if already set elsewhere.
   -- You can customize the font via `:set guifont` or here if needed.
   -- Example (commented):
-  vim.opt.guifont = { "Zed Mono Plex", ":h15" }
+  vim.opt.guifont = { "Lilex", ":h15" }
   vim.g.neovide_opacity = 0.8
   vim.g.neovide_window_blurred = true
 
