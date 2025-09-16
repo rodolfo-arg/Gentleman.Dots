@@ -9,14 +9,19 @@ function M.setup()
     return
   end
 
-  -- Disable all animations for a snappy UX
-  vim.g.neovide_position_animation_length = 0
-  vim.g.neovide_cursor_animation_length = 0
-  vim.g.neovide_cursor_trail_size = 0
-  vim.g.neovide_cursor_animate_in_insert_mode = false
-  vim.g.neovide_cursor_animate_command_line = false
-  vim.g.neovide_scroll_animation_far_lines = 0
-  vim.g.neovide_scroll_animation_length = 0
+  -- Enable animations but make them faster/snappier than defaults
+  -- Position/window animations
+  vim.g.neovide_position_animation_length = 0.05
+
+  -- Cursor animations
+  vim.g.neovide_cursor_animation_length = 0.025
+  vim.g.neovide_cursor_trail_size = 0.15
+  vim.g.neovide_cursor_animate_in_insert_mode = true
+  vim.g.neovide_cursor_animate_command_line = true
+
+  -- Scrolling animations
+  vim.g.neovide_scroll_animation_length = 0.05
+  vim.g.neovide_scroll_animation_far_lines = 10
 
   -- Optional: keep GUI font consistent if already set elsewhere.
   -- You can customize the font via `:set guifont` or here if needed.
@@ -25,4 +30,3 @@ function M.setup()
 end
 
 return M
-
