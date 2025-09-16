@@ -33,7 +33,7 @@ function M.setup()
   -- Optional: keep GUI font consistent if already set elsewhere.
   -- You can customize the font via `:set guifont` or here if needed.
   -- Example (commented):
-  vim.opt.guifont = { "Zed Mono", ":h15" }
+  vim.opt.guifont = { "Zed Mono Plex", ":h15" }
   vim.g.neovide_opacity = 0.8
   vim.g.neovide_window_blurred = true
 
@@ -68,7 +68,7 @@ function M.setup()
 
     -- Terminal-mode paste: send clipboard contents to the terminal job
     map("t", "<D-v>", function()
-      local text = vim.fn.getreg('+')
+      local text = vim.fn.getreg("+")
       -- Fallback to unnamed if + is empty (shouldn't happen with unnamedplus)
       if text == nil or text == "" then
         text = vim.fn.getreg('"')
