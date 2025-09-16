@@ -9,6 +9,9 @@ function M.setup()
     return
   end
 
+  -- Detect platform (macOS) for Cmd key mappings
+  local is_macos = (vim.loop.os_uname().sysname == "Darwin")
+
   -- Animations: snappy baseline
   -- Keep position animation disabled to avoid resize/neo-tree jitter
   vim.g.neovide_position_animation_length = 0
@@ -33,6 +36,28 @@ function M.setup()
   -- Example (commented):
   vim.opt.guifont = { "Zed Mono", ":h14" }
   vim.g.neovide.opacity = 0.9
+
+  -- Clipboard: enable Cmd-based copy/paste in Neovide on macOS
+  -- This uses the "logo" key (⌘) and maps it to system clipboard
+  if is_macos then
+    -- Allow ⌘ (logo) as a modifier in Neovide
+    vim.g.neovide_input_use_logo = 1
+
+    local map = vim.keymap.set
+    local opts = { silent = true, noremap = true }
+
+    -- Copy: Cmd+C in normal/visual modes → system clipboard
+    map({ "n", "v" }, "<D-c>", '"+y', vim.tbl_extend("force", opts, { desc = "Copy to system clipboard" }))
+
+    -- Paste: Cmd+V from system clipboard
+    map("n", "<D-v>", '"+p', vim.tbl_extend("force", opts, { desc = "Paste from system clipboard" }))
+    map("v", "<D-v>", '"+p', vim.tbl_extend("force", opts, { desc = "Paste from system clipboard" }))
+
+    -- Insert/command/terminal mode paste: use <C-r>+
+    map("i", "<D-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (insert)" }))
+    map("c", "<D-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (cmdline)" }))
+    map("t", "<D-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (terminal)" }))
+  end
 end
 
 return M
