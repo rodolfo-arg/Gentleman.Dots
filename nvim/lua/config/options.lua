@@ -22,22 +22,54 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-vim.api.nvim_create_autocmd("TermOpen", {
+-- Make terminal buffers clean and free from file UI highlights
+local function setup_terminal_window()
+  -- Always start in insert mode
+  pcall(vim.cmd, "startinsert")
+
+  -- Turn off file/buffer UI that can bleed into terminal rendering
+  vim.opt_local.number = false
+  vim.opt_local.relativenumber = false
+  vim.opt_local.cursorline = false
+  vim.opt_local.cursorcolumn = false
+  vim.opt_local.signcolumn = "no"
+  vim.opt_local.colorcolumn = ""
+  vim.opt_local.list = false
+  vim.opt_local.spell = false
+  -- Window-local option (prevents last search highlights inside the terminal)
+  pcall(function()
+    vim.opt_local.hlsearch = false
+  end)
+  -- Some UIs use statuscolumn; blank it for terminals if present
+  pcall(function()
+    vim.opt_local.statuscolumn = ""
+  end)
+  -- Ensure normal background/no special highlighting in terminal window
+  pcall(function()
+    vim.wo.winhighlight = "Normal:Normal,NormalNC:Normal"
+  end)
+
+  -- Disable common highlighters per-buffer if they exist
+  vim.b.minihipatterns_disable = true
+  vim.b.minicursorword_disable = true
+  vim.b.indent_blankline_enabled = false
+  -- Disable matchparen just in case it's active
+  pcall(vim.cmd, "NoMatchParen")
+
+  -- Navigation: make sure <C-w> works when leaving terminal-mode
+  vim.keymap.set("n", "<C-w>h", "<C-w>h", { buffer = true })
+  vim.keymap.set("n", "<C-w>j", "<C-w>j", { buffer = true })
+  vim.keymap.set("n", "<C-w>k", "<C-w>k", { buffer = true })
+  vim.keymap.set("n", "<C-w>l", "<C-w>l", { buffer = true })
+
+  -- Seamless movement from terminal insert mode
+  vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], { buffer = true })
+  vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], { buffer = true })
+  vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], { buffer = true })
+  vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], { buffer = true })
+end
+
+vim.api.nvim_create_autocmd({ "TermOpen", "TermEnter", "BufEnter" }, {
   pattern = "term://*",
-  callback = function()
-    -- Always start in insert mode
-    vim.cmd("startinsert")
-
-    -- Make sure <C-w> works in terminal normal mode
-    vim.keymap.set("n", "<C-w>h", "<C-w>h", { buffer = true })
-    vim.keymap.set("n", "<C-w>j", "<C-w>j", { buffer = true })
-    vim.keymap.set("n", "<C-w>k", "<C-w>k", { buffer = true })
-    vim.keymap.set("n", "<C-w>l", "<C-w>l", { buffer = true })
-
-    -- Seamless movement from terminal insert mode
-    vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], { buffer = true })
-    vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], { buffer = true })
-    vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], { buffer = true })
-    vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], { buffer = true })
-  end,
+  callback = setup_terminal_window,
 })
