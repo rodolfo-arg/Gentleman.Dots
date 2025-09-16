@@ -26,6 +26,7 @@
         ./television.nix  # Television configuration
         ./starship.nix  # Starship prompt configuration
         ./nvim.nix  # Neovim configuration
+        ./neovide.nix  # Neovide GUI configuration
         ./zsh.nix  # Zsh configuration
         ./oil-scripts.nix  # Oil.nvim scripts configuration
         ./opencode.nix  # OpenCode AI assistant configuration
@@ -72,8 +73,6 @@
                 clang fd ripgrep coreutils unzip bat lazygit yazi asdf-vm
                 # Fonts
                 nerd-fonts.iosevka-term
-                # GUI
-                neovide
               ] ++ [ unstablePkgs.nixd ];
 
               home.sessionVariables = {
@@ -81,8 +80,6 @@
                 ANDROID_HOME = androidHome;
                 ANDROID_NDK_HOME = "${androidHome}/ndk/${ndkVersion}";
                 ANDROID_SDK_ROOT = androidHome;
-                # Prefer a frameless Neovide window (helps remove titlebar)
-                NEOVIDE_FRAME = "none";
               };
 
               home.sessionPath = [

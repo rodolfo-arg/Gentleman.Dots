@@ -127,12 +127,12 @@
     # Bash completions also work in Zsh, so source them
     . ${pkgs.asdf-vm}/share/asdf-vm/completions/asdf.bash
 
-    # Aliases ensured here so they are present regardless of HM alias injection
-    alias -- o=oil
-    alias -- of=oil-float
-    alias -- oo='oil .'
-    alias -- oz=oil-zed
-    alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
+      # Aliases ensured here so they are present regardless of HM alias injection
+      alias -- o=oil
+      alias -- of=oil-float
+      alias -- oo='oil .'
+      alias -- oz=oil-zed
+      alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
     '';
   };
 
