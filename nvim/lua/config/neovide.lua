@@ -33,23 +33,51 @@ function M.setup()
   -- UI: remove title bar and enable transparency/blur
   vim.g.neovide_hide_titlebar = true
   -- neovide_transparency is deprecated; use neovide_opacity (lower is more transparent)
-  vim.g.neovide_opacity = 0.85
+  vim.g.neovide_opacity = 0.8
   vim.g.neovide_window_blurred = true
 
-  -- Optional: small padding to avoid traffic-lights overlap on macOS when titlebar hidden
-  vim.g.neovide_padding_top = 6
-  vim.g.neovide_padding_left = 6
-  vim.g.neovide_padding_right = 6
-  vim.g.neovide_padding_bottom = 6
+  -- Padding: keep flush to edges for faux-fullscreen effect
+  vim.g.neovide_padding_top = 0
+  vim.g.neovide_padding_left = 0
+  vim.g.neovide_padding_right = 0
+  vim.g.neovide_padding_bottom = 0
 
-  -- Try to force titlebar removal/fullscreen after UI is ready (workaround older builds)
+  -- After UI attaches, re-assert titlebar hidden and simulate fullscreen without macOS native fullscreen
+  -- This preserves transparency/blur which macOS disables in native fullscreen spaces
   vim.api.nvim_create_autocmd("UIEnter", {
     once = true,
     callback = function()
-      if vim.g.neovide then
-        vim.g.neovide_hide_titlebar = true
-        -- Open directly in fullscreen as a reliable way to avoid title bar
-        vim.g.neovide_fullscreen = true
+      if not vim.g.neovide then
+        return
+      end
+      vim.g.neovide_hide_titlebar = true
+      vim.g.neovide_fullscreen = false
+
+      -- On macOS, maximize the Neovide window to cover the screen without entering native fullscreen
+      if vim.fn.has("mac") == 1 and vim.fn.executable("osascript") == 1 then
+        vim.defer_fn(function()
+          local script = [[
+            tell application "System Events"
+              if (exists application process "Neovide") then
+                tell application process "Neovide"
+                  set frontmost to true
+                  try
+                    tell application "Finder" to set screenBounds to bounds of window of desktop
+                    set screenX to item 1 of screenBounds
+                    set screenY to item 2 of screenBounds
+                    set screenW to item 3 of screenBounds
+                    set screenH to item 4 of screenBounds
+                    tell window 1
+                      set position to {screenX, screenY}
+                      set size to {screenW, screenH}
+                    end tell
+                  end try
+                end tell
+              end if
+            end tell
+          ]]
+          vim.fn.jobstart({ "osascript", "-e", script }, { detach = true })
+        end, 150)
       end
     end,
   })
