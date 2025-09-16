@@ -190,6 +190,10 @@ function M.setup()
               pcall(vim.cmd, "terminal")
               local b = vim.api.nvim_get_current_buf()
               pcall(vim.api.nvim_buf_set_var, b, "__neotree_side_terminal", true)
+              -- Leave insert/terminal mode after the terminal grabs focus
+              vim.schedule(function()
+                pcall(vim.cmd, "stopinsert")
+              end)
             end
             pcall(vim.fn.delete, pair_marker)
           else
@@ -213,6 +217,8 @@ function M.setup()
         -- Final sweep in case something opened late
         vim.defer_fn(function()
           close_news_windows()
+          -- Ensure we start in Normal mode after all late events
+          pcall(vim.cmd, "stopinsert")
         end, 150)
       end, 150)
     end,
