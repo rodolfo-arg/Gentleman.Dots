@@ -2,7 +2,7 @@
 -- - Saves per-directory session on exit (VimLeavePre)
 -- - Loads session after VeryLazy (plugins ready) when opened with no file args or with a single dir arg
 -- - Hides dashboards/news that could clobber layout when restoring
--- - Reopens neo-tree if it was open but not serialized (via a persisted marker)
+-- - Restores neo-tree only if a paired side terminal existed; recreates the terminal
 
 local M = {}
 
@@ -69,7 +69,7 @@ function M.setup()
   }
 
 
-  -- Save on exit and persist whether neo-tree was open as a marker file
+  -- Save on exit and persist whether neo-tree had a paired terminal
   vim.api.nvim_create_autocmd("VimLeavePre", {
     callback = function()
       if vim.g.__session_stop then
@@ -77,14 +77,31 @@ function M.setup()
         return
       end
       local had_neotree = any_win_with_ft("neo-tree")
+      local had_pair_term = false
+      if had_neotree then
+        local tab = vim.api.nvim_get_current_tabpage()
+        for _, w in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+          local b = vim.api.nvim_win_get_buf(w)
+          if vim.api.nvim_buf_is_valid(b) and vim.bo[b].buftype == "terminal" then
+            local ok, flag = pcall(vim.api.nvim_buf_get_var, b, "__neotree_side_terminal")
+            if ok and flag then
+              had_pair_term = true
+              break
+            end
+          end
+        end
+      end
       local session = session_path_for_cwd()
       pcall(vim.cmd, "silent! mksession! " .. vim.fn.fnameescape(session))
-      local marker = session .. ".neotree"
-      if had_neotree then
-        pcall(vim.fn.writefile, { "" }, marker)
+      -- New behavior: only persist a marker if both neo-tree and its side terminal were present
+      local pair_marker = session .. ".neotree_pair"
+      if had_neotree and had_pair_term then
+        pcall(vim.fn.writefile, { "" }, pair_marker)
       else
-        pcall(vim.fn.delete, marker)
+        pcall(vim.fn.delete, pair_marker)
       end
+      -- Clean up any legacy marker
+      pcall(vim.fn.delete, session .. ".neotree")
     end,
   })
 
@@ -149,14 +166,38 @@ function M.setup()
               end
             end)
           end
-          -- Restore neo-tree if it was open before exit
-          local marker = session .. ".neotree"
-          if vim.fn.filereadable(marker) == 1 and not any_win_with_ft("neo-tree") then
-            pcall(function()
-              require("neo-tree.command").execute({ action = "show", position = "left" })
-            end)
+          -- Restore neo-tree + recreate paired terminal only if they existed before exit
+          local pair_marker = session .. ".neotree_pair"
+          if vim.fn.filereadable(pair_marker) == 1 then
+            -- Ensure neo-tree is open
+            if not any_win_with_ft("neo-tree") then
+              pcall(function()
+                require("neo-tree.command").execute({ action = "show", position = "left" })
+              end)
+            end
+            -- Find neo-tree window and recreate the terminal below it
+            local neotree_win = nil
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              local buf = vim.api.nvim_win_get_buf(win)
+              if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "neo-tree" then
+                neotree_win = win
+                break
+              end
+            end
+            if neotree_win and vim.api.nvim_win_is_valid(neotree_win) then
+              pcall(vim.api.nvim_set_current_win, neotree_win)
+              pcall(vim.cmd, "belowright 12split")
+              pcall(vim.cmd, "terminal")
+              local b = vim.api.nvim_get_current_buf()
+              pcall(vim.api.nvim_buf_set_var, b, "__neotree_side_terminal", true)
+            end
+            pcall(vim.fn.delete, pair_marker)
+          else
+            -- Enforce policy: if session somehow restored neo-tree without the pair marker, close it
+            if any_win_with_ft("neo-tree") then
+              pcall(vim.cmd, "Neotree close")
+            end
           end
-          pcall(vim.fn.delete, marker)
         else
           -- No session: close directory browsers and show dashboard
           close_browser_windows()
