@@ -26,6 +26,7 @@
         ./television.nix  # Television configuration
         ./starship.nix  # Starship prompt configuration
         ./nvim.nix  # Neovim configuration
+        ./neovide.nix  # Neovide GUI configuration
         ./zsh.nix  # Zsh configuration
         ./oil-scripts.nix  # Oil.nvim scripts configuration
         ./opencode.nix  # OpenCode AI assistant configuration
