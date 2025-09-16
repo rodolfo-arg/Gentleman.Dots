@@ -35,7 +35,6 @@ function M.setup()
   -- You can customize the font via `:set guifont` or here if needed.
   -- Example (commented):
   vim.opt.guifont = { "Zed Mono", ":h14" }
-  vim.g.neovide_opacity = 0.0
   vim.g.transparency = 0.2
   vim.g.neovide_background_color = "#0f1117" .. alpha()
 
