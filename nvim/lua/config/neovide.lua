@@ -33,6 +33,13 @@ function M.setup()
   -- UI: remove title bar and enable transparency
   vim.g.neovide_hide_titlebar = true
   vim.g.neovide_transparency = 0.9
+  vim.g.neovide_window_blurred = true
+
+  -- Optional: small padding to avoid traffic-lights overlap on macOS when titlebar hidden
+  vim.g.neovide_padding_top = 6
+  vim.g.neovide_padding_left = 6
+  vim.g.neovide_padding_right = 6
+  vim.g.neovide_padding_bottom = 6
 
   -- Optional: keep GUI font consistent if already set elsewhere.
   -- You can customize the font via `:set guifont` or here if needed.
