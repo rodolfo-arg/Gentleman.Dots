@@ -5,7 +5,6 @@
   home.file = {
     ".config/neovide/config.toml" = {
       text = ''
-        [window]
         frame = "none"
       '';
       force = true;
