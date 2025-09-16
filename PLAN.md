@@ -27,6 +27,7 @@ This document captures the goals, architecture, and working practices for this r
 - `zsh.nix` — full `.zshrc` via `programs.zsh.initContent`, with Homebrew path loading for login and non‑login shells.
 - `starship.nix` — prompt configuration at `~/.config/starship.toml`.
 - `nvim.nix` — copies Neovim config to `~/.config/nvim` and runs Lazy clean/sync on switch when `git` is present.
+- `neovide.nix` — installs Neovide on macOS and writes a minimal `~/.config/neovide/config.toml`.
 - `television.nix`, `oil-scripts.nix`, `opencode.nix` — utilities and scripts.
 
 ### Modules intentionally NOT included
