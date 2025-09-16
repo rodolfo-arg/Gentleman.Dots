@@ -2,6 +2,19 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
+-- Always prefer the on-disk version when files change externally
+vim.opt.autoread = true
+
+-- Avoid swap/lock files to prevent conflicts with external tools (e.g., Codex)
+vim.opt.swapfile = false
+
+-- Keep persistent undo so we don't rely on swap for recovery
+vim.opt.undofile = true
+vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
+
+-- Suppress ATTENTION prompts when a swap file exists (just edit anyway)
+vim.opt.shortmess:append("A")
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "cpp",
   callback = function()
@@ -28,4 +41,3 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], { buffer = true })
   end,
 })
-
