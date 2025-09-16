@@ -30,9 +30,10 @@ function M.setup()
   vim.g.neovide_hide_mouse_when_typing = true
   vim.g.neovide_remember_window_size = true
 
-  -- UI: remove title bar and enable transparency
+  -- UI: remove title bar and enable transparency/blur
   vim.g.neovide_hide_titlebar = true
-  vim.g.neovide_transparency = 0.9
+  -- neovide_transparency is deprecated; use neovide_opacity (lower is more transparent)
+  vim.g.neovide_opacity = 0.85
   vim.g.neovide_window_blurred = true
 
   -- Optional: small padding to avoid traffic-lights overlap on macOS when titlebar hidden
@@ -40,6 +41,18 @@ function M.setup()
   vim.g.neovide_padding_left = 6
   vim.g.neovide_padding_right = 6
   vim.g.neovide_padding_bottom = 6
+
+  -- Try to force titlebar removal/fullscreen after UI is ready (workaround older builds)
+  vim.api.nvim_create_autocmd("UIEnter", {
+    once = true,
+    callback = function()
+      if vim.g.neovide then
+        vim.g.neovide_hide_titlebar = true
+        -- Open directly in fullscreen as a reliable way to avoid title bar
+        vim.g.neovide_fullscreen = true
+      end
+    end,
+  })
 
   -- Optional: keep GUI font consistent if already set elsewhere.
   -- You can customize the font via `:set guifont` or here if needed.
