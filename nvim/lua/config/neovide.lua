@@ -79,6 +79,31 @@ function M.setup()
       end
     end, vim.tbl_extend("force", opts, { desc = "Paste clipboard (terminal)" }))
   end
+
+  -- Open a Ghostty window when quitting Neovide
+  -- Trigger on VimLeavePre so the job starts before Neovim fully exits
+  do
+    local group = vim.api.nvim_create_augroup("neovide_exit_spawn_ghostty", { clear = true })
+    vim.api.nvim_create_autocmd("VimLeavePre", {
+      group = group,
+      callback = function()
+        -- Be gentle if tools are missing and keep it non-blocking
+        local sysname = vim.loop.os_uname().sysname
+        if sysname == "Darwin" then
+          if vim.fn.executable("open") == 1 then
+            -- Open Ghostty app (creates a window if running, otherwise launches)
+            pcall(vim.fn.jobstart, { "open", "-a", "Ghostty" }, { detach = true })
+          end
+        else
+          -- Linux/other: prefer the ghostty CLI if available
+          if vim.fn.executable("ghostty") == 1 then
+            pcall(vim.fn.jobstart, { "ghostty" }, { detach = true })
+          end
+        end
+      end,
+      desc = "Spawn Ghostty on Neovide quit",
+    })
+  end
 end
 
 return M
