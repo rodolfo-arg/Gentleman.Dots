@@ -1,4 +1,4 @@
--- Neovide-specific configuration (animations only)
+-- Neovide-specific configuration (GUI + keymaps)
 -- Applies only when running inside Neovide GUI
 
 local M = {}
@@ -38,25 +38,46 @@ function M.setup()
   vim.g.neovide_window_blurred = true
 
   -- Clipboard: enable Cmd-based copy/paste in Neovide on macOS
-  -- This uses the "logo" key (⌘) and maps it to system clipboard
+  -- - Use the "logo" key (⌘) as a modifier
+  -- - Prefer unnamedplus so regular y/p use the system clipboard
   if is_macos then
     -- Allow ⌘ (logo) as a modifier in Neovide
     vim.g.neovide_input_use_logo = 1
 
+    -- Route unnamed register to system clipboard for a mac-like experience
+    vim.opt.clipboard = "unnamedplus"
+
     local map = vim.keymap.set
     local opts = { silent = true, noremap = true }
 
-    -- Copy: Cmd+C in normal/visual modes → system clipboard
-    map({ "n", "v" }, "<D-c>", '"+y', vim.tbl_extend("force", opts, { desc = "Copy to system clipboard" }))
+    -- Copy: Cmd+C
+    -- - normal: copy current line (no operator-pending)
+    -- - visual: copy selection
+    map("n", "<D-c>", '"+yy', vim.tbl_extend("force", opts, { desc = "Copy line to clipboard" }))
+    map("v", "<D-c>", '"+y', vim.tbl_extend("force", opts, { desc = "Copy to clipboard" }))
 
-    -- Paste: Cmd+V from system clipboard
-    map("n", "<D-v>", '"+p', vim.tbl_extend("force", opts, { desc = "Paste from system clipboard" }))
-    map("v", "<D-v>", '"+p', vim.tbl_extend("force", opts, { desc = "Paste from system clipboard" }))
+    -- Paste: Cmd+V
+    -- - normal: paste after cursor from clipboard
+    -- - visual: paste without clobbering clipboard (use black-hole register)
+    map("n", "<D-v>", '"+p', vim.tbl_extend("force", opts, { desc = "Paste from clipboard" }))
+    map("v", "<D-v>", '"_dP', vim.tbl_extend("force", opts, { desc = "Paste over selection (preserve clipboard)" }))
 
     -- Insert/command/terminal mode paste: use <C-r>+
     map("i", "<D-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (insert)" }))
     map("c", "<D-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (cmdline)" }))
-    map("t", "<D-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (terminal)" }))
+
+    -- Terminal-mode paste: send clipboard contents to the terminal job
+    map("t", "<D-v>", function()
+      local text = vim.fn.getreg('+')
+      -- Fallback to unnamed if + is empty (shouldn't happen with unnamedplus)
+      if text == nil or text == "" then
+        text = vim.fn.getreg('"')
+      end
+      if text and text ~= "" then
+        -- Send to current terminal job (handles multiline)
+        pcall(vim.fn.chansend, vim.b.terminal_job_id, text)
+      end
+    end, vim.tbl_extend("force", opts, { desc = "Paste clipboard (terminal)" }))
   end
 end
 
