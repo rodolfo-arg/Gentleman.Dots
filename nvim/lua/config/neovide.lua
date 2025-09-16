@@ -14,10 +14,15 @@ function M.setup()
   vim.g.neovide_position_animation_length = 0
 
   -- Cursor animations (previous values)
-  vim.g.neovide_cursor_animation_length = 0.025
+  vim.g.neovide_cursor_animation_length = 0.09
   vim.g.neovide_cursor_trail_size = 0.15
   vim.g.neovide_cursor_animate_in_insert_mode = true
   vim.g.neovide_cursor_animate_command_line = true
+  vim.g.neovide_curser_antialiasing = true
+  vim.g.neovide_cursor_smooth_blink = true
+  vim.g.neovide_cursor_vfx_mode = "pixiedust"
+  vim.g.neovide_remember_window_size = true
+  vim.g.neovide_profiler = true
 
   -- Scrolling animations (previous values)
   vim.g.neovide_scroll_animation_length = 0.05
@@ -26,7 +31,8 @@ function M.setup()
   -- Optional: keep GUI font consistent if already set elsewhere.
   -- You can customize the font via `:set guifont` or here if needed.
   -- Example (commented):
-  -- vim.opt.guifont = { "IosevkaTerm Nerd Font", ":h14" }
+  vim.opt.guifont = { "Zed Mono", ":h14" }
+  vim.g.neovide.opacity = 0.9
 end
 
 return M
