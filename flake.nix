@@ -72,6 +72,8 @@
                 clang fd ripgrep coreutils unzip bat lazygit yazi asdf-vm
                 # Fonts
                 nerd-fonts.iosevka-term
+                # GUI
+                neovide
               ] ++ [ unstablePkgs.nixd ];
 
               home.sessionVariables = {
