@@ -35,7 +35,9 @@ function M.setup()
   -- You can customize the font via `:set guifont` or here if needed.
   -- Example (commented):
   vim.opt.guifont = { "Zed Mono", ":h14" }
-  vim.g.neovide.opacity = 0.3
+  vim.g.neovide_opacity = 0.0
+  vim.g.transparency = 0.8
+  vim.g.neovide_background_color = "#0f1117" .. alpha()
 
   -- Clipboard: enable Cmd-based copy/paste in Neovide on macOS
   -- This uses the "logo" key (⌘) and maps it to system clipboard
