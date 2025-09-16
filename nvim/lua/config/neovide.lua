@@ -68,8 +68,10 @@ function M.setup()
                     set screenW to item 3 of screenBounds
                     set screenH to item 4 of screenBounds
                     tell window 1
-                      set position to {screenX, screenY}
-                      set size to {screenW, screenH}
+                      -- Offset Y slightly so the titlebar is off-screen; grow height to compensate
+                      set tb to 28
+                      set position to {screenX, screenY - tb}
+                      set size to {screenW, screenH + tb}
                     end tell
                   end try
                 end tell

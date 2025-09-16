@@ -81,6 +81,8 @@
                 ANDROID_HOME = androidHome;
                 ANDROID_NDK_HOME = "${androidHome}/ndk/${ndkVersion}";
                 ANDROID_SDK_ROOT = androidHome;
+                # Prefer a frameless Neovide window (helps remove titlebar)
+                NEOVIDE_FRAME = "none";
               };
 
               home.sessionPath = [
