@@ -37,14 +37,25 @@ return {
             end
           end
           if neotree_win and vim.api.nvim_win_is_valid(neotree_win) then
+            -- Create the terminal below neo-tree, which momentarily grabs focus and Insert mode
             pcall(vim.api.nvim_set_current_win, neotree_win)
             pcall(vim.cmd, "belowright 12split")
             pcall(vim.cmd, "terminal")
             local b = vim.api.nvim_get_current_buf()
             pcall(vim.api.nvim_buf_set_var, b, "__neotree_side_terminal", true)
-          end
-          if prev and vim.api.nvim_win_is_valid(prev) then
-            pcall(vim.api.nvim_set_current_win, prev)
+            -- Refocus neo-tree after TerminalOpen/BufEnter autocmds have fired
+            vim.schedule(function()
+              if vim.api.nvim_win_is_valid(neotree_win) then
+                pcall(vim.api.nvim_set_current_win, neotree_win)
+                pcall(vim.cmd, "stopinsert")
+              end
+              -- Extra safeguard: ask neo-tree to focus itself
+              vim.defer_fn(function()
+                pcall(function()
+                  require("neo-tree.command").execute({ action = "focus" })
+                end)
+              end, 20)
+            end)
           end
         end
       end
@@ -63,6 +74,17 @@ return {
       opts.filesystem.use_libuv_file_watcher = true
       opts.window = opts.window or {}
       opts.window.position = opts.window.position or "left"
+      -- Ensure neo-tree takes focus when opened by any means
+      opts.event_handlers = opts.event_handlers or {}
+      table.insert(opts.event_handlers, {
+        event = "neo_tree_window_after_open",
+        handler = function()
+          pcall(function()
+            require("neo-tree.command").execute({ action = "focus" })
+            vim.cmd("stopinsert")
+          end)
+        end,
+      })
       return opts
     end,
   },
