@@ -3,6 +3,25 @@ let
   sourceDir = ./ghostty;
 in
 {
+  # Linux: wrap ghostty to force software rendering to avoid EGL issues on VMs
+  home.packages = lib.optionals pkgs.stdenv.isLinux [
+    (pkgs.writeShellScriptBin "ghostty" ''
+      #!/usr/bin/env bash
+      # Prefer software rendering for GTK4 in VM/driver-limited environments
+      export GSK_RENDERER="''${GSK_RENDERER:-cairo}"
+      export LIBGL_ALWAYS_SOFTWARE="''${LIBGL_ALWAYS_SOFTWARE:-1}"
+      export MESA_LOADER_DRIVER_OVERRIDE="''${MESA_LOADER_DRIVER_OVERRIDE:-llvmpipe}"
+      exec ${pkgs.ghostty}/bin/ghostty "$@"
+    '')
+    (pkgs.writeShellScriptBin "ghostty-soft" ''
+      #!/usr/bin/env bash
+      export GSK_RENDERER=cairo
+      export LIBGL_ALWAYS_SOFTWARE=1
+      export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
+      exec ${pkgs.ghostty}/bin/ghostty "$@"
+    '')
+  ];
+
   # Single source of truth: XDG path
   home.file.".config/ghostty" = {
     source = sourceDir;
