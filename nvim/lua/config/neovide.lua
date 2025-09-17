@@ -17,12 +17,14 @@ function M.setup()
   vim.g.neovide_position_animation_length = 0
 
   -- Cursor animations (previous values)
-  vim.g.neovide_cursor_animation_length = 0.09
-  vim.g.neovide_cursor_trail_size = 0.15
-  vim.g.neovide_cursor_animate_in_insert_mode = true
-  vim.g.neovide_cursor_animate_command_line = true
+  vim.g.neovide_cursor_animation_length = 0.04
+  vim.g.neovide_cursor_trail_size = 0.6
+  vim.g.neovide_cursor_animate_in_insert_mode = false
+  vim.g.neovide_cursor_animate_command_line = false
   vim.g.neovide_curser_antialiasing = true
   vim.g.neovide_remember_window_size = true
+  vim.g.neovide_scroll_animation_length = 0.150
+  vim.g.neovide_scroll_animation_far_lines = 10
 
   do
     local group = vim.api.nvim_create_augroup("neovide_no_anim_in_term_cmd", { clear = true })
@@ -61,9 +63,6 @@ function M.setup()
     })
   end
   -- Scrolling animations (previous values)
-  vim.g.neovide_scroll_animation_length = 0.05
-  vim.g.neovide_scroll_animation_far_lines = 10
-
   -- Optional: keep GUI font consistent if already set elsewhere.
   -- You can customize the font via `:set guifont` or here if needed.
   -- Example (commented):
