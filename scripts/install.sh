@@ -173,6 +173,33 @@ SNIP
 
 ensure_login_shell_env
 
+# =============== Cleanup previous Home Manager backups (.backup) ===============
+# Some earlier runs may have created *.backup files that block activation when
+# using backup extensions. We proactively remove them.
+cleanup_hm_backups() {
+  log "Scanning for old Home Manager backups (*.backup)"
+  local removed=0
+  # Top-level dotfiles
+  while IFS= read -r -d '' f; do
+    rm -f -- "$f" && echo "Removed: $f" && removed=1 || true
+  done < <(find "$HOME" -maxdepth 1 -type f -name '*.backup' -print0 2>/dev/null)
+
+  # Under ~/.config
+  if [ -d "$HOME/.config" ]; then
+    while IFS= read -r -d '' f; do
+      rm -f -- "$f" && echo "Removed: $f" && removed=1 || true
+    done < <(find "$HOME/.config" -type f -name '*.backup' -print0 2>/dev/null)
+  fi
+
+  if [ "$removed" -eq 1 ]; then
+    good "Removed previous .backup files"
+  else
+    log "No .backup files found"
+  fi
+}
+
+cleanup_hm_backups
+
 if command -v nix >/dev/null 2>&1; then
   good "Nix is already installed"
 else
@@ -288,18 +315,18 @@ fi
 APPLY_OK=0
 log "Applying Home Manager configuration (prefer nix run)"
 if nix --extra-experimental-features 'nix-command flakes' \
-  run github:nix-community/home-manager -- switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+  run github:nix-community/home-manager -- switch --flake "$REPO_DIR#$FLAKE_SELECTOR"; then
   APPLY_OK=1
 else
   warn "nix run home-manager failed. Trying nix shell with home-manager."
   if nix --extra-experimental-features 'nix-command flakes' \
-    shell github:nix-community/home-manager#home-manager -c home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+    shell github:nix-community/home-manager#home-manager -c home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR"; then
     APPLY_OK=1
   else
     warn "nix shell home-manager failed. Trying installed CLI if available."
     if [[ $HM_READY -eq 1 ]] && command -v home-manager >/dev/null 2>&1; then
       log "Using local home-manager CLI"
-      if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+      if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR"; then
         APPLY_OK=1
       fi
     else
@@ -310,7 +337,7 @@ else
         export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
         if command -v home-manager >/dev/null 2>&1; then
           log "Retrying with installed home-manager CLI"
-          if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+          if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR"; then
             APPLY_OK=1
           fi
         fi
