@@ -13,7 +13,7 @@ in
       # Prefer software rendering in VMs; winit prefers X11 for broader compat
       export LIBGL_ALWAYS_SOFTWARE="''${LIBGL_ALWAYS_SOFTWARE:-1}"
       export MESA_LOADER_DRIVER_OVERRIDE="''${MESA_LOADER_DRIVER_OVERRIDE:-llvmpipe}"
-      if [ -n "${DISPLAY-}" ]; then
+      if [ -n "''${DISPLAY-}" ]; then
         export WINIT_UNIX_BACKEND="''${WINIT_UNIX_BACKEND:-x11}"
       fi
       exec ${pkgSet.neovide}/bin/neovide "$@"
