@@ -37,10 +37,12 @@ warn() { echo "${yellow}⚠${reset} $*"; }
 err()  { echo "${red}✖${reset} $*" >&2; }
 
 # =============== Preconditions ===============
-if [[ "$(uname -s)" != "Darwin" ]]; then
-  err "This installer targets macOS (Darwin)."
-  exit 1
-fi
+OS_NAME=$(uname -s)
+case "$OS_NAME" in
+  Darwin) PLATFORM="darwin" ;;
+  Linux) PLATFORM="linux" ;;
+  *) err "Unsupported OS: $OS_NAME"; exit 1 ;;
+esac
 
 # Require sudo early and keep-alive
 log "Requesting administrator privileges (sudo)…"
@@ -57,15 +59,17 @@ if ! command -v git >/dev/null 2>&1; then
 fi
 good "Git is available"
 
-# Require either Homebrew or a preinstalled Ghostty app
-HAS_BREW=0; command -v brew >/dev/null 2>&1 && HAS_BREW=1 || true
-HAS_GHOSTTY=0; open -Ra Ghostty >/dev/null 2>&1 && HAS_GHOSTTY=1 || true
-if [[ $HAS_BREW -eq 0 && $HAS_GHOSTTY -eq 0 ]]; then
-  err "Homebrew or Ghostty is required."
-  echo "- Install Homebrew: https://brew.sh (recommended)"
-  echo "  or install Ghostty manually: https://ghostty.org/download"
-  echo "Re-run this installer afterwards."
-  exit 1
+# macOS only: require either Homebrew (to install Ghostty) or a preinstalled Ghostty app
+if [[ "$PLATFORM" == "darwin" ]]; then
+  HAS_BREW=0; command -v brew >/dev/null 2>&1 && HAS_BREW=1 || true
+  HAS_GHOSTTY=0; open -Ra Ghostty >/dev/null 2>&1 && HAS_GHOSTTY=1 || true
+  if [[ $HAS_BREW -eq 0 && $HAS_GHOSTTY -eq 0 ]]; then
+    err "Homebrew or Ghostty is required on macOS."
+    echo "- Install Homebrew: https://brew.sh (recommended)"
+    echo "  or install Ghostty manually: https://ghostty.org/download"
+    echo "Re-run this installer afterwards."
+    exit 1
+  fi
 fi
 if [[ $CUSTOM_INSTALL -eq 1 ]]; then
   warn "Custom mode is not implemented yet; proceeding with the default installation."
@@ -115,10 +119,23 @@ fi
 # =============== Nix config (experimental features) ===============
 log "Ensuring /etc/nix/nix.conf has experimental features enabled"
 sudo mkdir -p /etc/nix
+
+# Portable in-place sed wrapper (macOS vs GNU sed)
+sed_in_place() {
+  if sed --version >/dev/null 2>&1; then
+    sudo sed -E -i "$@"
+  else
+    local file
+    file="${@: -1}"
+    # shellcheck disable=SC2295
+    sudo sed -E -i '' "${@:1:$(($#-1))}" "$file"
+  fi
+}
+
 # Remove existing experimental-features keys to avoid duplicates, then append desired settings
 if [[ -f /etc/nix/nix.conf ]]; then
-  sudo sed -E -i '' '/^(extra-)?experimental-features[[:space:]]*=.*/d' /etc/nix/nix.conf || true
-  sudo sed -E -i '' '/^build-users-group[[:space:]]*=.*/d' /etc/nix/nix.conf || true
+  sed_in_place '/^(extra-)?experimental-features[[:space:]]*=.*/d' /etc/nix/nix.conf || true
+  sed_in_place '/^build-users-group[[:space:]]*=.*/d' /etc/nix/nix.conf || true
 fi
 {
   echo "extra-experimental-features = nix-command flakes"
@@ -128,57 +145,66 @@ good "Updated /etc/nix/nix.conf (flakes + nix-command)"
 
 # Ensure features for this process; also try to reload the daemon (best-effort)
 export NIX_CONFIG="extra-experimental-features = nix-command flakes"
-if launchctl list | grep -q org.nixos.nix-daemon; then
-  sudo launchctl kickstart -k system/org.nixos.nix-daemon || true
+if [[ "$PLATFORM" == "darwin" ]]; then
+  if launchctl list | grep -q org.nixos.nix-daemon; then
+    sudo launchctl kickstart -k system/org.nixos.nix-daemon || true
+  fi
+else
+  if command -v systemctl >/dev/null 2>&1; then
+    sudo systemctl reload nix-daemon >/dev/null 2>&1 || true
+  fi
 fi
 
 # =============== Home Manager (install if missing, per README) ===============
+HM_READY=0
 if command -v home-manager >/dev/null 2>&1; then
-  good "Home Manager is already installed"
-else
-  log "Installing Home Manager (channel method)"
-  nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-  nix-channel --update
-  nix-shell '<home-manager>' -A install
-  # Ensure the CLI is available in this shell
-  export PATH="$HOME/.nix-profile/bin:$PATH"
-  good "Home Manager CLI installed"
+  HM_READY=1
 fi
 
 # =============== Homebrew (optional, for Ghostty) ===============
-BREW_BIN="/opt/homebrew/bin/brew"
-if [[ ! -x "$BREW_BIN" ]] && command -v brew >/dev/null 2>&1; then BREW_BIN="$(command -v brew)"; fi
-if [[ ! -x "$BREW_BIN" ]]; then
-  warn "Homebrew not found. Ghostty app install will be skipped (assuming preinstalled or manual)."
-else
-  eval "$($BREW_BIN shellenv)"
-  if ! brew list --cask ghostty >/dev/null 2>&1; then
-    log "Installing Ghostty (Homebrew cask)"
-    brew install --cask ghostty || warn "Ghostty install skipped/failed. You can install it later."
+if [[ "$PLATFORM" == "darwin" ]]; then
+  BREW_BIN="/opt/homebrew/bin/brew"
+  if [[ ! -x "$BREW_BIN" ]] && command -v brew >/dev/null 2>&1; then BREW_BIN="$(command -v brew)"; fi
+  if [[ ! -x "$BREW_BIN" ]]; then
+    warn "Homebrew not found. Ghostty app install will be skipped (assuming preinstalled or manual)."
   else
-    good "Ghostty already installed via Homebrew"
+    eval "$($BREW_BIN shellenv)"
+    if ! brew list --cask ghostty >/dev/null 2>&1; then
+      log "Installing Ghostty (Homebrew cask)"
+      brew install --cask ghostty || warn "Ghostty install skipped/failed. You can install it later."
+    else
+      good "Ghostty already installed via Homebrew"
+    fi
   fi
 fi
 
 # =============== Home Manager switch ===============
 # Pick correct flake output based on CPU architecture
 ARCH="$(uname -m)"
-case "$ARCH" in
-  arm64) FLAKE_SELECTOR="gentleman-macos-arm" ;;
-  x86_64) FLAKE_SELECTOR="gentleman-macos-intel" ;;
-  *) FLAKE_SELECTOR="gentleman" ;;
+case "$PLATFORM:$ARCH" in
+  darwin:arm64)   FLAKE_SELECTOR="gentleman-macos-arm" ;;
+  darwin:x86_64)  FLAKE_SELECTOR="gentleman-macos-intel" ;;
+  linux:aarch64)  FLAKE_SELECTOR="gentleman-linux-arm" ;;
+  linux:arm64)    FLAKE_SELECTOR="gentleman-linux-arm" ;;
+  linux:x86_64)   FLAKE_SELECTOR="gentleman-linux-intel" ;;
+  *)              FLAKE_SELECTOR="gentleman" ;;
 esac
 log "Applying Home Manager configuration (flake: #$FLAKE_SELECTOR)"
 # Ensure flake.nix uses the current macOS user/home
 FLAKE_FILE="$REPO_DIR/flake.nix"
 if [[ -f "$FLAKE_FILE" ]]; then
   DETECTED_USER="${USER:-$(id -un)}"
-  DETECTED_HOME="${HOME:-/Users/${DETECTED_USER}}"
+  DETECTED_HOME="${HOME:-/home/${DETECTED_USER}}"
 
   # Replace default username/homeDirectory defaults inside mkHomeConfiguration
   # Be tolerant of whitespace variations; macOS sed requires -i ''
-  sed -E -i '' 's/(username[[:space:]]*\?[[:space:]]*")[^"]*(")/\1'"$DETECTED_USER"'\2/' "$FLAKE_FILE" || true
-  sed -E -i '' 's|(homeDirectory[[:space:]]*\?[[:space:]]*")[^"]*(")|\1'"$DETECTED_HOME"'\2|' "$FLAKE_FILE" || true
+  if sed --version >/dev/null 2>&1; then
+    sed -E -i 's/(username[[:space:]]*\?[[:space:]]*")[^"]*(")/\1'"$DETECTED_USER"'\2/' "$FLAKE_FILE" || true
+    sed -E -i 's|(homeDirectory[[:space:]]*\?[[:space:]]*")[^"]*(")|\1'"$DETECTED_HOME"'\2|' "$FLAKE_FILE" || true
+  else
+    sed -E -i '' 's/(username[[:space:]]*\?[[:space:]]*")[^"]*(")/\1'"$DETECTED_USER"'\2/' "$FLAKE_FILE" || true
+    sed -E -i '' 's|(homeDirectory[[:space:]]*\?[[:space:]]*")[^"]*(")|\1'"$DETECTED_HOME"'\2|' "$FLAKE_FILE" || true
+  fi
   good "Personalized flake.nix for user '${DETECTED_USER}'"
   # Optionally commit the change so flake evaluations that prefer Git sources pick it up
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -193,8 +219,24 @@ if [[ -f "$FLAKE_FILE" ]]; then
 else
   warn "flake.nix not found at $FLAKE_FILE — skipping user personalization"
 fi
-log "Using local home-manager CLI"
-home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup
+APPLY_OK=0
+log "Applying Home Manager configuration (prefer nix run)"
+if nix --extra-experimental-features 'nix-command flakes' \
+  run github:nix-community/home-manager -- switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+  APPLY_OK=1
+else
+  warn "nix run home-manager failed. Trying home-manager CLI if available."
+  if [[ $HM_READY -eq 1 ]]; then
+    log "Using local home-manager CLI"
+    if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+      APPLY_OK=1
+    fi
+  fi
+fi
+if [[ $APPLY_OK -ne 1 ]]; then
+  err "Home Manager switch failed. Ensure network access to fetch inputs or install the home-manager CLI."
+  exit 1
+fi
 good "Home Manager switch complete"
 
 # Commit flake.lock changes if updated during the switch (best-effort)
@@ -215,9 +257,17 @@ if [[ -x "$HM_ZSH" ]]; then
     log "Registering HM zsh in /etc/shells"
     echo "$HM_ZSH" | sudo tee -a /etc/shells >/dev/null
   fi
-  if [[ "$(dscl . -read /Users/$USER UserShell 2>/dev/null | awk '{print $2}')" != "$HM_ZSH" ]]; then
-    log "Changing default shell to HM zsh"
-    sudo chsh -s "$HM_ZSH" "$USER" || warn "Could not change default shell automatically"
+  if [[ "$PLATFORM" == "darwin" ]]; then
+    CURRENT_SHELL=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
+    if [[ "$CURRENT_SHELL" != "$HM_ZSH" ]]; then
+      log "Changing default shell to HM zsh (macOS)"
+      sudo chsh -s "$HM_ZSH" "$USER" || warn "Could not change default shell automatically"
+    fi
+  else
+    if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$HM_ZSH" ]]; then
+      log "Changing default shell to HM zsh (Linux)"
+      chsh -s "$HM_ZSH" "$USER" || sudo chsh -s "$HM_ZSH" "$USER" || warn "Could not change default shell automatically"
+    fi
   fi
   good "Zsh registered and set (or already set)"
 else
@@ -227,7 +277,9 @@ fi
 # =============== Finish ===============
 echo
 good "Installation complete."
-echo "- Open Ghostty (installed via Homebrew if available)"
+if [[ "$PLATFORM" == "darwin" ]]; then
+  echo "- Open Ghostty (installed via Homebrew if available)"
+fi
 echo "- Start a new terminal session to use your Home Manager environment"
 
 # Future: custom install mode
@@ -237,19 +289,20 @@ echo "- Start a new terminal session to use your Home Manager environment"
 
 # =============== Launch Ghostty and close current terminal ===============
 # Try to launch Ghostty for a fresh session
-if open -Ra Ghostty >/dev/null 2>&1; then
-  log "Launching Ghostty"
-  open -a Ghostty || warn "Could not launch Ghostty automatically"
-  sleep 1
-else
-  warn "Ghostty app not found; skipping launch"
-fi
+if [[ "$PLATFORM" == "darwin" ]]; then
+  if open -Ra Ghostty >/dev/null 2>&1; then
+    log "Launching Ghostty"
+    open -a Ghostty || warn "Could not launch Ghostty automatically"
+    sleep 1
+  else
+    warn "Ghostty app not found; skipping launch"
+  fi
 
-# If we are not already in Ghostty, attempt to close the current terminal
-case "${TERM_PROGRAM:-}" in
-  "Apple_Terminal")
-    log "Closing Terminal.app window"
-    osascript <<'OSA' >/dev/null 2>&1 || true
+  # If we are not already in Ghostty, attempt to close the current terminal
+  case "${TERM_PROGRAM:-}" in
+    "Apple_Terminal")
+      log "Closing Terminal.app window"
+      osascript <<'OSA' >/dev/null 2>&1 || true
 tell application "Terminal"
   try
     if (count of windows) > 0 then close front window
@@ -257,17 +310,18 @@ tell application "Terminal"
   end try
 end tell
 OSA
-    ;;
-  "iTerm.app")
-    log "Closing iTerm.app"
-    osascript -e 'tell application "iTerm" to quit' >/dev/null 2>&1 || true
-    ;;
-  "Ghostty")
-    # Already in Ghostty; do nothing
-    ;;
-  *)
-    # Unknown terminal; best-effort exit of this shell
-    ;;
-esac
+      ;;
+    "iTerm.app")
+      log "Closing iTerm.app"
+      osascript -e 'tell application "iTerm" to quit' >/dev/null 2>&1 || true
+      ;;
+    "Ghostty")
+      # Already in Ghostty; do nothing
+      ;;
+    *)
+      # Unknown terminal; best-effort exit of this shell
+      ;;
+  esac
+fi
 
 exit 0
