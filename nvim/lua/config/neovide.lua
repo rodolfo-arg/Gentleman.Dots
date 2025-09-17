@@ -70,9 +70,8 @@ function M.setup()
   vim.g.neovide_opacity = 0.8
   vim.g.neovide_window_blurred = true
 
-  -- Clipboard: enable Cmd-based copy/paste in Neovide on macOS
-  -- - Use the "logo" key (⌘) as a modifier
-  -- - Prefer unnamedplus so regular y/p use the system clipboard
+  -- Clipboard: platform-friendly copy/paste in Neovide
+  -- macOS: use Cmd (logo) shortcuts; Linux: use Ctrl+Shift
   if is_macos then
     -- Allow ⌘ (logo) as a modifier in Neovide
     vim.g.neovide_input_use_logo = 1
@@ -108,6 +107,31 @@ function M.setup()
       end
       if text and text ~= "" then
         -- Send to current terminal job (handles multiline)
+        pcall(vim.fn.chansend, vim.b.terminal_job_id, text)
+      end
+    end, vim.tbl_extend("force", opts, { desc = "Paste clipboard (terminal)" }))
+  else
+    -- Linux defaults: Ctrl+Shift+C/V for copy/paste
+    vim.opt.clipboard = "unnamedplus"
+
+    local map = vim.keymap.set
+    local opts = { silent = true, noremap = true }
+
+    -- Copy
+    map("n", "<C-S-c>", '"+yy', vim.tbl_extend("force", opts, { desc = "Copy line to clipboard" }))
+    map("v", "<C-S-c>", '"+y', vim.tbl_extend("force", opts, { desc = "Copy to clipboard" }))
+
+    -- Paste
+    map("n", "<C-S-v>", '"+p', vim.tbl_extend("force", opts, { desc = "Paste from clipboard" }))
+    map("v", "<C-S-v>", '"_dP', vim.tbl_extend("force", opts, { desc = "Paste over selection (preserve clipboard)" }))
+    map("i", "<C-S-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (insert)" }))
+    map("c", "<C-S-v>", "<C-r>+", vim.tbl_extend("force", opts, { desc = "Paste clipboard (cmdline)" }))
+    map("t", "<C-S-v>", function()
+      local text = vim.fn.getreg("+")
+      if text == nil or text == "" then
+        text = vim.fn.getreg('\"')
+      end
+      if text and text ~= "" then
         pcall(vim.fn.chansend, vim.b.terminal_job_id, text)
       end
     end, vim.tbl_extend("force", opts, { desc = "Paste clipboard (terminal)" }))

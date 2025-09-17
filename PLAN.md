@@ -4,15 +4,15 @@ This document captures the goals, architecture, and working practices for this r
 
 ## Scope & Goals
 
-- Deliver a clean, reproducible macOS developer environment using Nix Flakes + Home Manager.
+- Deliver a clean, reproducible macOS and Linux developer environment using Nix Flakes + Home Manager.
 - Prioritize simplicity, stability, and maintainability over breadth of options.
 - Keep the surface area focused: Ghostty (terminal) + Zsh (shell) + Neovim (editor) + essential CLI tools.
 - Minimize surprises: default behaviors should be sane, with clear opt‑in for extras.
 
 ## Platform Targets
 
-- macOS only: `x86_64-darwin` and `aarch64-darwin`.
-- Linux and other platforms are out of scope unless explicitly reintroduced later.
+- macOS: `x86_64-darwin` and `aarch64-darwin`.
+- Linux: `x86_64-linux` and `aarch64-linux`.
 
 ## Architecture Overview
 
@@ -54,17 +54,17 @@ This document captures the goals, architecture, and working practices for this r
 
 ## External Dependencies
 
-- Git: required before running the installer (CLT or Homebrew Git).
-- Homebrew or Ghostty: installer requires one of these present (either brew to install Ghostty, or Ghostty already installed).
+- Git: required before running the installer (install via your distro on Linux, CLT/Homebrew on macOS).
+- Ghostty is optional (recommended). On macOS it may be installed via Homebrew; on Linux use your distro or Nix. The installer no longer requires Homebrew.
 
 ## Installation Model
 
 - Single command installer: `scripts/install.sh`
-  - Validates prerequisites (sudo, git, brew or ghostty).
-  - Installs Nix via official script if missing.
+  - Validates prerequisites (sudo, git).
+  - Installs Nix via official script if missing (Linux + macOS).
   - Ensures `/etc/nix/nix.conf` enables `flakes nix-command`.
-  - Optionally installs Ghostty via Homebrew (if brew available).
-  - Applies Home Manager flake `.#gentleman` and sets HM Zsh as default shell.
+  - macOS: optionally installs Ghostty via Homebrew when available.
+  - Applies Home Manager flake for the detected platform/arch and sets HM Zsh as default shell.
 
 ## Future: Custom Install Mode
 
@@ -111,10 +111,27 @@ This document captures the goals, architecture, and working practices for this r
 
 ## Validation Checklist (for releases)
 
-- Fresh macOS (Intel/ARM) with Git + Homebrew or Ghostty present.
+- Fresh macOS (Intel/ARM) with Git present and optionally Homebrew.
+- Fresh Linux (Intel/ARM) with Git present.
 - Run installer once; ensure:
-  - Nix is installed and daemon profile sourced.
+  - Nix is installed and the profile is sourced in the current shell.
   - `/etc/nix/nix.conf` includes experimental features.
-  - Ghostty installed (via brew) or preinstalled.
-  - `home-manager switch` succeeds; Zsh set as default.
-  - New terminal session picks up configuration (PATH, Starship, Neovim).
+  - Ghostty availability verified or install separately (Homebrew on macOS; distro/Nix on Linux).
+  - Home Manager switch succeeds; Zsh set as default shell.
+  - New terminal session picks up configuration (PATH, Starship, Neovim). 
+
+## Linux Migration Work Log
+
+- Completed
+  - Installer: add Linux support (ARM/x86), nix.conf edits portable, daemon reload best-effort, `nix run home-manager` path, Linux-safe shell switching.
+  - Installer: ensure Nix loads via `$HOME/.nix-profile/etc/profile.d/nix.sh` and `$HOME/.nix-profile/bin` added to PATH so `home-manager` is discoverable.
+  - Flake: add `x86_64-linux`/`aarch64-linux` targets and homeConfigurations, per-platform Android SDK path, Linux clipboard tools.
+  - Neovide: enable on Linux and set XDG config; add Linux copy/paste keybinds using Ctrl+Shift with `unnamedplus`.
+  - Ghostty: add Linux-friendly copy/paste keybinds (Ctrl+Shift+C/V).
+  - Linux: add `ghostty` to `home.packages` so it’s installed via Nix; after HM switch, source HM session vars and prepend HM bin to PATH in installer so new binaries are usable immediately.
+  - Bash support: add `bash.nix` module (loads hm-session-vars, starship, zoxide, atuin, carapace). Installer now preserves current login shell (bash or zsh) by switching to the HM-managed equivalent.
+
+- Next
+  - Validate on a fresh Linux VM (Wayland/X11) and confirm clipboard behavior with `xclip` vs `wl-clipboard`.
+  - Review zsh init for Linux-only path tweaks and reduce Homebrew logic under Linux.
+  - Optional: package Ghostty via Nix on Linux (or distro-specific instructions).

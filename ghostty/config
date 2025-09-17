@@ -67,6 +67,10 @@ keybind = alt+l=goto_split:right
 # Miscellaneous
 keybind = cmd+k=clear_screen
 
+# Linux-friendly copy/paste (works cross-platform, harmless on macOS)
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+shift+v=paste_from_clipboard
+
 # Use it by writing 'nvim' first and then the keybinding to open the file with nvim
 keybind = alt+s=write_screen_file:paste
 palette = 0=#06080f

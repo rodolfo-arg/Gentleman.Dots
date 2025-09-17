@@ -17,8 +17,10 @@
 
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, flake-utils, ... }:
     let
-      # Support macOS systems only
-      supportedSystems = [ "x86_64-darwin" "aarch64-darwin" ];
+      # Support macOS and Linux systems
+      supportedSystems = [ "x86_64-darwin" "aarch64-darwin" "x86_64-linux" "aarch64-linux" ];
+
+      lib = nixpkgs.lib;
 
       # Common modules shared across configurations
       commonModules = [
@@ -27,13 +29,14 @@
         ./starship.nix  # Starship prompt configuration
         ./nvim.nix  # Neovim configuration
         ./neovide.nix  # Neovide GUI configuration
+        ./bash.nix  # Bash configuration
         ./zsh.nix  # Zsh configuration
         ./oil-scripts.nix  # Oil.nvim scripts configuration
         ./opencode.nix  # OpenCode AI assistant configuration
       ];
 
       # Function to create home configuration for a specific system
-      mkHomeConfiguration = system: { username ? "rodolfo", homeDirectory ? "/Users/rodolfo" }:
+      mkHomeConfiguration = system: { username ? "rodolfo", homeDirectory ? null }:
         let
           pkgs = import nixpkgs {
             inherit system;
@@ -44,8 +47,12 @@
             inherit system;
             config.allowUnfree = true;
           };
+          # Resolve defaults per-platform
+          isDarwin = pkgs.stdenv.isDarwin;
+          isLinux = pkgs.stdenv.isLinux;
+          effectiveHome = if homeDirectory != null then homeDirectory else if isDarwin then "/Users/${username}" else "/home/${username}";
 
-          androidHome = "${homeDirectory}/Library/Android/sdk";
+          androidHome = if isDarwin then "${effectiveHome}/Library/Android/sdk" else "${effectiveHome}/Android/Sdk";
           ndkVersion = "28.1.13356709";
         in
         home-manager.lib.homeManagerConfiguration {
@@ -60,7 +67,7 @@
             {
               # Personal data (now configurable)
               home.username = username;
-              home.homeDirectory = homeDirectory;
+              home.homeDirectory = effectiveHome;
               home.stateVersion = "24.11";  # State version
 
               # Base packages that should be available everywhere
@@ -73,7 +80,10 @@
                 clang fd ripgrep coreutils unzip bat lazygit yazi asdf-vm
                 # Fonts
                 nerd-fonts.iosevka-term
-              ] ++ [ unstablePkgs.nixd ];
+              ]
+              # Extra helpers per-platform
+              ++ lib.optionals isLinux [ xclip wl-clipboard ghostty ]
+              ++ [ unstablePkgs.nixd ];
 
               home.sessionVariables = {
                 # Set environment variables
@@ -86,10 +96,11 @@
                 "$HOME/.asdf/shims"
                 "$HOME/.asdf/bin"
                 "$HOME/.pub-cache/bin"
-                "/opt/homebrew/bin"
-                "/opt/homebrew/sbin"
                 "${androidHome}/cmdline-tools/latest/bin"
                 "${androidHome}/platform-tools"
+              ] ++ lib.optionals isDarwin [
+                "/opt/homebrew/bin"
+                "/opt/homebrew/sbin"
               ];
               # Enable programs explicitly (critical for binaries to appear)
               # All program enables are centralized here
@@ -104,13 +115,28 @@
                 REPO_DIR="$HOME/Gentleman.Dots"
                 if [ -d "$REPO_DIR/.git" ]; then
                   echo "[flake] Updating inputs in $REPO_DIR"
-                  (cd "$REPO_DIR" && nix flake update) || true
+                  # Ensure git is available to nix while updating inputs
+                  export PATH="${pkgs.git}/bin:$PATH"
+                  if command -v nix >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
+                    (cd "$REPO_DIR" && nix flake update) || true
+                  else
+                    echo "[flake] Skipping update (nix or git not available)"
+                  fi
                 fi
               '';
               # Tmux and other terminals are intentionally not managed; only Ghostty + Zsh
 
               # Allow unfree packages
               nixpkgs.config.allowUnfree = true;
+
+              # Tweak Nix user settings
+              nix.settings = {
+                # Avoid small default buffer warnings during large downloads
+                download-buffer-size = 134217728; # 128 MiB
+              };
+
+              # Required when using nix.settings via Home Manager
+              nix.package = pkgs.nix;
             }
           ];
         };
@@ -122,7 +148,11 @@
         "gentleman-macos-intel" = mkHomeConfiguration "x86_64-darwin" {};
         "gentleman-macos-arm" = mkHomeConfiguration "aarch64-darwin" {};
 
-        # Default to Apple Silicon
+        # Linux system configurations
+        "gentleman-linux-intel" = mkHomeConfiguration "x86_64-linux" {};
+        "gentleman-linux-arm" = mkHomeConfiguration "aarch64-linux" {};
+
+        # Default stays Apple Silicon; installer picks the right one per-OS
         "gentleman" = mkHomeConfiguration "aarch64-darwin" {};
       };
 

@@ -3,6 +3,17 @@ let
   sourceDir = ./ghostty;
 in
 {
+  # Linux: provide a 'ghostty-soft' helper to force software rendering
+  home.packages = lib.optionals pkgs.stdenv.isLinux [
+    (pkgs.writeShellScriptBin "ghostty-soft" ''
+      #!/usr/bin/env bash
+      export GSK_RENDERER=cairo
+      export LIBGL_ALWAYS_SOFTWARE=1
+      export MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
+      exec ${pkgs.ghostty}/bin/ghostty "$@"
+    '')
+  ];
+
   # Single source of truth: XDG path
   home.file.".config/ghostty" = {
     source = sourceDir;

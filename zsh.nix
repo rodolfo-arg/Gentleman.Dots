@@ -133,6 +133,13 @@
       alias -- oo='oil .'
       alias -- oz=oil-zed
       alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
+
+      ${lib.optionalString pkgs.stdenv.isLinux ''
+      # Ghostty wrapper for buggy EGL on some Linux VMs
+      alias ghostty='GSK_RENDERER=cairo LIBGL_ALWAYS_SOFTWARE=1 ${pkgs.ghostty}/bin/ghostty'
+      # Neovide: prefer software GL and X11 on Linux VMs
+      alias neovide='LIBGL_ALWAYS_SOFTWARE=1 MESA_LOADER_DRIVER_OVERRIDE=llvmpipe WINIT_UNIX_BACKEND=x11 ${pkgs.neovide}/bin/neovide'
+      ''}
     '';
   };
 
