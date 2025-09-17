@@ -134,6 +134,9 @@
                 # Avoid small default buffer warnings during large downloads
                 download-buffer-size = 134217728; # 128 MiB
               };
+
+              # Required when using nix.settings via Home Manager
+              nix.package = pkgs.nix;
             }
           ];
         };
