@@ -415,9 +415,37 @@ return {
         callback = set_dapui_highlights,
       })
 
-      -- Open minimal UI on start, close on end; also close Neo-tree to avoid layout clash
+      -- Open minimal UI on start, close on end.
+      -- If neo-tree is open, also close its paired side-terminal so it doesn't take over the column.
       dap.listeners.after.event_initialized["dapui_minimal"] = function()
+        local function any_win_with_ft(ft)
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == ft then
+              return true
+            end
+          end
+          return false
+        end
+
+        local had_neotree = any_win_with_ft("neo-tree")
+        -- Always attempt to close neo-tree (noop if not open)
         pcall(vim.cmd, "Neotree close")
+
+        -- If neo-tree was open, close only the terminal(s) paired under its column
+        if had_neotree then
+          local tab = vim.api.nvim_get_current_tabpage()
+          for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == "terminal" then
+              local ok, flag = pcall(vim.api.nvim_buf_get_var, buf, "__neotree_side_terminal")
+              if ok and flag then
+                pcall(vim.api.nvim_win_close, win, true)
+              end
+            end
+          end
+        end
+
         dapui.open()
       end
       dap.listeners.before.event_terminated["dapui_minimal"] = function()
