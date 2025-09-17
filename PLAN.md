@@ -124,6 +124,7 @@ This document captures the goals, architecture, and working practices for this r
 
 - Completed
   - Installer: add Linux support (ARM/x86), nix.conf edits portable, daemon reload best-effort, `nix run home-manager` path, Linux-safe shell switching.
+  - Installer: ensure Nix loads via `$HOME/.nix-profile/etc/profile.d/nix.sh` and `$HOME/.nix-profile/bin` added to PATH so `home-manager` is discoverable.
   - Flake: add `x86_64-linux`/`aarch64-linux` targets and homeConfigurations, per-platform Android SDK path, Linux clipboard tools.
   - Neovide: enable on Linux and set XDG config; add Linux copy/paste keybinds using Ctrl+Shift with `unnamedplus`.
   - Ghostty: add Linux-friendly copy/paste keybinds (Ctrl+Shift+C/V).

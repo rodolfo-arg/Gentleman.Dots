@@ -98,22 +98,31 @@ else
 fi
 
 # =============== Install Nix ===============
-# First try to load an existing daemon profile so PATH includes nix
-if [[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
-  # shellcheck disable=SC1091
-  . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
-fi
+# Helper to load Nix into current shell on both macOS and Linux
+load_nix_env() {
+  if [[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
+    # shellcheck disable=SC1091
+    . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+  fi
+  # Linux single-user profile (fresh installs)
+  if [[ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]]; then
+    # shellcheck disable=SC1091
+    . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+  fi
+}
+
+# First try to load an existing profile so PATH includes nix
+load_nix_env
+# Ensure user profile bins are on PATH for this shell session (incl. home-manager)
+export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
 
 if command -v nix >/dev/null 2>&1; then
   good "Nix is already installed"
 else
   log "Installing Nix (official installer)…"
   sh <(curl -L https://nixos.org/nix/install)
-  # Activate nix daemon profile in current shell (if present) after install
-  if [[ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]]; then
-    # shellcheck disable=SC1091
-    . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
-  fi
+  # Activate nix environment in current shell after install
+  load_nix_env
 fi
 
 # =============== Nix config (experimental features) ===============
@@ -194,7 +203,7 @@ log "Applying Home Manager configuration (flake: #$FLAKE_SELECTOR)"
 FLAKE_FILE="$REPO_DIR/flake.nix"
 if [[ -f "$FLAKE_FILE" ]]; then
   DETECTED_USER="${USER:-$(id -un)}"
-  DETECTED_HOME="${HOME:-/home/${DETECTED_USER}}"
+  DETECTED_HOME="${HOME}"
 
   # Replace default username/homeDirectory defaults inside mkHomeConfiguration
   # Be tolerant of whitespace variations; macOS sed requires -i ''
