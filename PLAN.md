@@ -128,6 +128,7 @@ This document captures the goals, architecture, and working practices for this r
   - Flake: add `x86_64-linux`/`aarch64-linux` targets and homeConfigurations, per-platform Android SDK path, Linux clipboard tools.
   - Neovide: enable on Linux and set XDG config; add Linux copy/paste keybinds using Ctrl+Shift with `unnamedplus`.
   - Ghostty: add Linux-friendly copy/paste keybinds (Ctrl+Shift+C/V).
+  - Linux: add `ghostty` to `home.packages` so it’s installed via Nix; after HM switch, source HM session vars and prepend HM bin to PATH in installer so new binaries are usable immediately.
 
 - Next
   - Validate on a fresh Linux VM (Wayland/X11) and confirm clipboard behavior with `xclip` vs `wl-clipboard`.

@@ -269,6 +269,16 @@ if [[ $APPLY_OK -ne 1 ]]; then
 fi
 good "Home Manager switch complete"
 
+# Load Home Manager session variables and ensure new tools are in PATH for this shell session
+HM_SESS_VARS="$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
+if [[ -f "$HM_SESS_VARS" ]]; then
+  unset __HM_SESS_VARS_SOURCED
+  # shellcheck disable=SC1090
+  . "$HM_SESS_VARS"
+fi
+export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$PATH"
+hash -r || true
+
 # Commit flake.lock changes if updated during the switch (best-effort)
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   if [[ -n "$(git status --porcelain -- flake.lock)" ]]; then

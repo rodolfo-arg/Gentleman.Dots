@@ -81,7 +81,7 @@
                 nerd-fonts.iosevka-term
               ]
               # Extra helpers per-platform
-              ++ lib.optionals isLinux [ xclip wl-clipboard ]
+              ++ lib.optionals isLinux [ xclip wl-clipboard ghostty ]
               ++ [ unstablePkgs.nixd ];
 
               home.sessionVariables = {
