@@ -4,6 +4,8 @@ set -euo pipefail
 
 # =============== Args ===============
 CUSTOM_INSTALL=0
+# Do not inject env snippet by default; Home Manager manages dotfiles
+APPLY_ENV_SNIPPET=${APPLY_ENV_SNIPPET:-0}
 usage() {
   cat <<'USAGE'
 Gentleman.Dots installer
@@ -231,7 +233,9 @@ cleanup_hm_backups() {
 cleanup_hm_backups
 
 # Now attempt environment snippet adjustments (best-effort)
-ensure_login_shell_env
+if [ "$APPLY_ENV_SNIPPET" -eq 1 ]; then
+  ensure_login_shell_env
+fi
 
 if command -v nix >/dev/null 2>&1; then
   good "Nix is already installed"
