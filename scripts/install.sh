@@ -319,12 +319,20 @@ if [[ -x "$TARGET_SHELL" ]]; then
     if [[ "$PLATFORM" == "darwin" ]]; then
       sudo chsh -s "$TARGET_SHELL" "$USER" || warn "Could not change default shell automatically"
     else
-      chsh -s "$TARGET_SHELL" "$USER" || sudo chsh -s "$TARGET_SHELL" "$USER" || warn "Could not change default shell automatically"
+      chsh -s "$TARGET_SHELL" "$USER" \
+        || sudo chsh -s "$TARGET_SHELL" "$USER" \
+        || sudo usermod -s "$TARGET_SHELL" "$USER" \
+        || warn "Could not change default shell automatically"
     fi
   fi
   good "Default shell is set to $(basename "$TARGET_SHELL") (or already set)"
 else
   warn "Target shell not found/executable at $TARGET_SHELL — skipping default shell change"
+fi
+
+# Hint: $SHELL in the current process won't update automatically
+if [[ "${SHELL:-}" != "$TARGET_SHELL" ]]; then
+  warn "Current process shell remains $SHELL. Open a new terminal or run: exec \"$TARGET_SHELL\" -l"
 fi
 
 # =============== Finish ===============
