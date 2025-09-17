@@ -234,11 +234,32 @@ if nix --extra-experimental-features 'nix-command flakes' \
   run github:nix-community/home-manager -- switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
   APPLY_OK=1
 else
-  warn "nix run home-manager failed. Trying home-manager CLI if available."
-  if [[ $HM_READY -eq 1 ]]; then
-    log "Using local home-manager CLI"
-    if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
-      APPLY_OK=1
+  warn "nix run home-manager failed. Trying nix shell with home-manager."
+  if nix --extra-experimental-features 'nix-command flakes' \
+    shell github:nix-community/home-manager#home-manager -c home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+    APPLY_OK=1
+  else
+    warn "nix shell home-manager failed. Trying installed CLI if available."
+    if [[ $HM_READY -eq 1 ]] && command -v home-manager >/dev/null 2>&1; then
+      log "Using local home-manager CLI"
+      if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+        APPLY_OK=1
+      fi
+    else
+      # Attempt to install the home-manager CLI into the user profile, then retry
+      log "Installing home-manager CLI to user profile via nix profile install"
+      if nix --extra-experimental-features 'nix-command flakes' \
+        profile install github:nix-community/home-manager#home-manager; then
+        export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+        if command -v home-manager >/dev/null 2>&1; then
+          log "Retrying with installed home-manager CLI"
+          if home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup; then
+            APPLY_OK=1
+          fi
+        fi
+      else
+        warn "Failed to install home-manager CLI via nix profile"
+      fi
     fi
   fi
 fi
