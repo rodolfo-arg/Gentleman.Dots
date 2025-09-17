@@ -49,6 +49,11 @@
       alias of=oil-float
       alias 'oo=oil .'
       alias oz=oil-zed
+
+      ${lib.optionalString pkgs.stdenv.isLinux ''
+      # Ghostty wrapper for buggy EGL on some Linux VMs
+      alias ghostty='GSK_RENDERER=cairo LIBGL_ALWAYS_SOFTWARE=1 ${pkgs.ghostty}/bin/ghostty'
+      ''}
     '';
   };
 }
