@@ -116,6 +116,42 @@ load_nix_env
 # Ensure user profile bins are on PATH for this shell session (incl. home-manager)
 export PATH="$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
 
+# Normalize login shell environment files to avoid stale hm-session-vars errors
+ensure_login_shell_env() {
+  local marker="# GENTLEMAN_DOTS_HM_ENV"
+  local snippet
+  read -r -d '' snippet <<'SNIP' || true
+# GENTLEMAN_DOTS_HM_ENV
+# Prefer Home Manager's home-path session vars and PATH
+if [ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]; then
+  unset __HM_SESS_VARS_SOURCED
+  . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
+elif [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi
+export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$HOME/.nix-profile/bin:$PATH"
+SNIP
+
+  for f in "$HOME/.bash_profile" "$HOME/.profile" "$HOME/.bash_login" "$HOME/.bashrc"; do
+    [ -e "$f" ] || continue
+    # Comment out any unconditional sourcing of the old hm-session-vars path
+    if grep -q "/.nix-profile/etc/profile.d/hm-session-vars.sh" "$f"; then
+      log "Patching legacy hm-session-vars reference in $f"
+      cp "$f" "$f.bak" 2>/dev/null || true
+      # Comment direct 'source' or '.' calls unconditionally
+      sed -i 's~^[[:space:]]*\(source\|\.\)[[:space:]]\+\$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh~# \0~' "$f" 2>/dev/null || true
+      sed -i 's~^[[:space:]]*\(source\|\.\)[[:space:]]\+\~/.nix-profile/etc/profile.d/hm-session-vars.sh~# \0~' "$f" 2>/dev/null || true
+      sed -i 's~^[[:space:]]*\(source\|\.\)[[:space:]]\+/home/.*/\.nix-profile/etc/profile.d/hm-session-vars.sh~# \0~' "$f" 2>/dev/null || true
+    fi
+    # Append our snippet once
+    if ! grep -q "^${marker}$" "$f"; then
+      printf '\n%s\n' "$snippet" >> "$f"
+    fi
+  done
+}
+
+ensure_login_shell_env
+
 if command -v nix >/dev/null 2>&1; then
   good "Nix is already installed"
 else
