@@ -173,6 +173,36 @@ SNIP
 
 ensure_login_shell_env
 
+# =============== Purge conflicting dotfiles (pre-link cleanup) ===============
+# Home Manager refuses to clobber existing files it manages. Remove a small,
+# well-defined set of common dotfiles that this flake manages to avoid failures.
+purge_conflicting_dotfiles() {
+  log "Removing known conflicting dotfiles for Home Manager"
+  local targets=(
+    "$HOME/.profile"
+    "$HOME/.bashrc"
+    "$HOME/.bash_profile"
+    "$HOME/.bash_login"
+    "$HOME/.zshrc"
+    "$HOME/.zprofile"
+    "$HOME/.zlogin"
+    "$HOME/.config/gh/config.yml"
+  )
+  local removed=0
+  for t in "${targets[@]}"; do
+    if [ -e "$t" ] || [ -L "$t" ]; then
+      rm -f -- "$t" 2>/dev/null && echo "Removed: $t" && removed=1 || true
+    fi
+  done
+  if [ "$removed" -eq 1 ]; then
+    good "Removed conflicting dotfiles"
+  else
+    log "No conflicting dotfiles to remove"
+  fi
+}
+
+purge_conflicting_dotfiles
+
 # =============== Cleanup previous Home Manager backups (.backup) ===============
 # Some earlier runs may have created *.backup files that block activation when
 # using backup extensions. We proactively remove them.
