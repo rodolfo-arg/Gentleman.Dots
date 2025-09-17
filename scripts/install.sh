@@ -294,6 +294,14 @@ fi
 HM_ZSH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/zsh"
 HM_BASH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/bash"
 
+# Ensure HM shells are registered in /etc/shells if present
+for _sh in "$HM_BASH" "$HM_ZSH"; do
+  if [[ -x "$_sh" ]] && ! grep -qxF "$_sh" /etc/shells; then
+    log "Registering $_sh in /etc/shells"
+    printf '%s\n' "$_sh" | sudo tee -a /etc/shells >/dev/null || true
+  fi
+done
+
 # Detect current login shell path
 if [[ "$PLATFORM" == "darwin" ]]; then
   CURRENT_SHELL_PATH=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
