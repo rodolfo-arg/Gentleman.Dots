@@ -290,28 +290,41 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   fi
 fi
 
-# =============== Default shell: zsh from HM profile ===============
+# =============== Default shell: match current shell (bash or zsh) ===============
 HM_ZSH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/zsh"
-if [[ -x "$HM_ZSH" ]]; then
-  if ! grep -q "$HM_ZSH" /etc/shells; then
-    log "Registering HM zsh in /etc/shells"
-    echo "$HM_ZSH" | sudo tee -a /etc/shells >/dev/null
-  fi
-  if [[ "$PLATFORM" == "darwin" ]]; then
-    CURRENT_SHELL=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
-    if [[ "$CURRENT_SHELL" != "$HM_ZSH" ]]; then
-      log "Changing default shell to HM zsh (macOS)"
-      sudo chsh -s "$HM_ZSH" "$USER" || warn "Could not change default shell automatically"
-    fi
-  else
-    if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$HM_ZSH" ]]; then
-      log "Changing default shell to HM zsh (Linux)"
-      chsh -s "$HM_ZSH" "$USER" || sudo chsh -s "$HM_ZSH" "$USER" || warn "Could not change default shell automatically"
-    fi
-  fi
-  good "Zsh registered and set (or already set)"
+HM_BASH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin/bash"
+
+# Detect current login shell path
+if [[ "$PLATFORM" == "darwin" ]]; then
+  CURRENT_SHELL_PATH=$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')
 else
-  warn "HM zsh not found at $HM_ZSH — skipping default shell change"
+  CURRENT_SHELL_PATH=$(getent passwd "$USER" | cut -d: -f7)
+fi
+CURRENT_SHELL_NAME=$(basename "${CURRENT_SHELL_PATH:-}")
+
+TARGET_SHELL=""
+case "$CURRENT_SHELL_NAME" in
+  zsh)  TARGET_SHELL="$HM_ZSH" ;;
+  bash) TARGET_SHELL="$HM_BASH" ;;
+  *)    TARGET_SHELL="$HM_ZSH" ;; # default preference if unknown
+esac
+
+if [[ -x "$TARGET_SHELL" ]]; then
+  if ! grep -q "$TARGET_SHELL" /etc/shells; then
+    log "Registering $TARGET_SHELL in /etc/shells"
+    echo "$TARGET_SHELL" | sudo tee -a /etc/shells >/dev/null
+  fi
+  if [[ "$CURRENT_SHELL_PATH" != "$TARGET_SHELL" ]]; then
+    log "Changing default shell to $TARGET_SHELL"
+    if [[ "$PLATFORM" == "darwin" ]]; then
+      sudo chsh -s "$TARGET_SHELL" "$USER" || warn "Could not change default shell automatically"
+    else
+      chsh -s "$TARGET_SHELL" "$USER" || sudo chsh -s "$TARGET_SHELL" "$USER" || warn "Could not change default shell automatically"
+    fi
+  fi
+  good "Default shell is set to $(basename "$TARGET_SHELL") (or already set)"
+else
+  warn "Target shell not found/executable at $TARGET_SHELL — skipping default shell change"
 fi
 
 # =============== Finish ===============
