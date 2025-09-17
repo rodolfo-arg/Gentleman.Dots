@@ -15,15 +15,15 @@ in
     force = true;
   };
 
-  # zsh function to launch Neovide as "svim"
-  programs.zsh.initExtra = lib.mkIf (pkgs.stdenv.isDarwin || pkgs.stdenv.isLinux) ''
-    svim() {
+  # Provide a cross-shell launcher "svim" without touching deprecated zsh.initExtra
+  home.packages = lib.mkIf (pkgs.stdenv.isDarwin || pkgs.stdenv.isLinux) [
+    (pkgs.writeShellScriptBin "svim" ''
+      #!/usr/bin/env bash
       if [ $# -eq 0 ]; then
-        neovide --fork
+        exec neovide --fork
       else
-        neovide --fork "$@"
+        exec neovide --fork "$@"
       fi
-      exit
-    }
-  '';
+    '')
+  ];
 }

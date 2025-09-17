@@ -115,13 +115,25 @@
                 REPO_DIR="$HOME/Gentleman.Dots"
                 if [ -d "$REPO_DIR/.git" ]; then
                   echo "[flake] Updating inputs in $REPO_DIR"
-                  (cd "$REPO_DIR" && nix flake update) || true
+                  # Ensure git is available to nix while updating inputs
+                  export PATH="${pkgs.git}/bin:$PATH"
+                  if command -v nix >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
+                    (cd "$REPO_DIR" && nix flake update) || true
+                  else
+                    echo "[flake] Skipping update (nix or git not available)"
+                  fi
                 fi
               '';
               # Tmux and other terminals are intentionally not managed; only Ghostty + Zsh
 
               # Allow unfree packages
               nixpkgs.config.allowUnfree = true;
+
+              # Tweak Nix user settings
+              nix.settings = {
+                # Avoid small default buffer warnings during large downloads
+                download-buffer-size = 134217728; # 128 MiB
+              };
             }
           ];
         };

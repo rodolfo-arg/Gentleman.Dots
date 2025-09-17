@@ -3,6 +3,18 @@ let
   sourceDir = ./ghostty;
 in
 {
+  # On Linux VMs/drivers, GTK4 + OpenGL can crash. Provide a wrapper that
+  # forces software rendering for Ghostty to avoid EGL issues.
+  home.packages = lib.optionals pkgs.stdenv.isLinux [
+    (pkgs.writeShellScriptBin "ghostty" ''
+      #!/usr/bin/env bash
+      export GSK_RENDERER="${GSK_RENDERER:-cairo}"
+      # Fallback to software GL if drivers are incomplete
+      export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
+      exec ${pkgs.ghostty}/bin/ghostty "$@"
+    '')
+  ];
+
   # Single source of truth: XDG path
   home.file.".config/ghostty" = {
     source = sourceDir;

@@ -8,8 +8,12 @@
     profileExtra = ''
       # Prefer Home Manager session variables from home-path when available
       if [ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]; then
+        # Make sourcing tolerant to `set -u` (nounset)
+        _HM_NOUNSET_WAS_ON=
+        if (set -o | grep -q 'nounset[[:space:]]*on'); then _HM_NOUNSET_WAS_ON=1; set +u; fi
         unset __HM_SESS_VARS_SOURCED
         . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
+        if [ -n "${_HM_NOUNSET_WAS_ON-}" ]; then set -u; unset _HM_NOUNSET_WAS_ON; fi
       fi
       # PATH safety
       export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$HOME/.nix-profile/bin:$PATH"
@@ -17,10 +21,13 @@
 
     # Interactive shell setup for Bash
     initExtra = ''
-      # Ensure Home Manager session variables are loaded
+      # Ensure Home Manager session variables are loaded (tolerate `set -u`)
       if [ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]; then
+        _HM_NOUNSET_WAS_ON=
+        if (set -o | grep -q 'nounset[[:space:]]*on'); then _HM_NOUNSET_WAS_ON=1; set +u; fi
         unset __HM_SESS_VARS_SOURCED
         . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
+        if [ -n "${_HM_NOUNSET_WAS_ON-}" ]; then set -u; unset _HM_NOUNSET_WAS_ON; fi
       fi
 
       # Prepend Home Manager profile bin and user nix-profile bin to PATH

@@ -132,6 +132,7 @@ fi
 export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$HOME/.nix-profile/bin:$PATH"
 SNIP
 
+  local appended=0
   for f in "$HOME/.bash_profile" "$HOME/.profile" "$HOME/.bash_login" "$HOME/.bashrc"; do
     [ -e "$f" ] || continue
     # Comment out any unconditional sourcing of the old hm-session-vars path
@@ -145,9 +146,29 @@ SNIP
     fi
     # Append our snippet once
     if ! grep -q "^${marker}$" "$f"; then
-      printf '\n%s\n' "$snippet" >> "$f"
+      if [ -w "$f" ]; then
+        (printf '\n%s\n' "$snippet" >> "$f") || true
+        appended=1
+      else
+        warn "Cannot write to $f (permission denied). Skipping env snippet for this file."
+      fi
     fi
   done
+
+  # Fallback: if nothing was appended, try to create or append to ~/.bashrc
+  if [ "$appended" -eq 0 ]; then
+    local f="$HOME/.bashrc"
+    if ! grep -q "^${marker}$" "$f" 2>/dev/null; then
+      log "Appending environment snippet to $f (fallback)"
+      (touch "$f" 2>/dev/null || true)
+      if [ -w "$f" ]; then
+        (printf '\n%s\n' "$snippet" >> "$f") || true
+      else
+        warn "Fallback also failed: cannot write to $f. Please add the following snippet manually to your bash init file:"
+        printf '%s\n' "$snippet"
+      fi
+    fi
+  fi
 }
 
 ensure_login_shell_env
