@@ -13,7 +13,7 @@
         if (set -o | grep -q 'nounset[[:space:]]*on'); then _HM_NOUNSET_WAS_ON=1; set +u; fi
         unset __HM_SESS_VARS_SOURCED
         . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
-        if [ -n "${_HM_NOUNSET_WAS_ON-}" ]; then set -u; unset _HM_NOUNSET_WAS_ON; fi
+        if [ -n "\${_HM_NOUNSET_WAS_ON-}" ]; then set -u; unset _HM_NOUNSET_WAS_ON; fi
       fi
       # PATH safety
       export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$HOME/.nix-profile/bin:$PATH"
@@ -27,7 +27,7 @@
         if (set -o | grep -q 'nounset[[:space:]]*on'); then _HM_NOUNSET_WAS_ON=1; set +u; fi
         unset __HM_SESS_VARS_SOURCED
         . "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
-        if [ -n "${_HM_NOUNSET_WAS_ON-}" ]; then set -u; unset _HM_NOUNSET_WAS_ON; fi
+        if [ -n "\${_HM_NOUNSET_WAS_ON-}" ]; then set -u; unset _HM_NOUNSET_WAS_ON; fi
       fi
 
       # Prepend Home Manager profile bin and user nix-profile bin to PATH
