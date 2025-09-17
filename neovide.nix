@@ -34,7 +34,7 @@ in
           exec ${pkgSet.neovide}/bin/neovide "$@"
         '')
       ] else []))
-    else [];
+    else []);
 
   # Neovide config (XDG path)
   home.file.".config/neovide/config.toml" = lib.mkIf (pkgs.stdenv.isDarwin || pkgs.stdenv.isLinux) {
