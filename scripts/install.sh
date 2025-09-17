@@ -171,7 +171,7 @@ SNIP
   fi
 }
 
-ensure_login_shell_env
+## delay environment snippet until after we purge conflicts and backups
 
 # =============== Purge conflicting dotfiles (pre-link cleanup) ===============
 # Home Manager refuses to clobber existing files it manages. Remove a small,
@@ -229,6 +229,9 @@ cleanup_hm_backups() {
 }
 
 cleanup_hm_backups
+
+# Now attempt environment snippet adjustments (best-effort)
+ensure_login_shell_env
 
 if command -v nix >/dev/null 2>&1; then
   good "Nix is already installed"
@@ -386,9 +389,13 @@ good "Home Manager switch complete"
 # Load Home Manager session variables and ensure new tools are in PATH for this shell session
 HM_SESS_VARS="$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
 if [[ -f "$HM_SESS_VARS" ]]; then
-  unset __HM_SESS_VARS_SOURCED
+  # Tolerate nounset when sourcing HM session vars
+  _HM_NOUNSET_WAS_ON=
+  if set -o | grep -q 'nounset[[:space:]]*on'; then _HM_NOUNSET_WAS_ON=1; set +u; fi
+  unset __HM_SESS_VARS_SOURCED || true
   # shellcheck disable=SC1090
   . "$HM_SESS_VARS"
+  if [ -n "${_HM_NOUNSET_WAS_ON-}" ]; then set -u; unset _HM_NOUNSET_WAS_ON; fi
 fi
 export PATH="$HOME/.local/state/nix/profiles/home-manager/home-path/bin:$PATH"
 hash -r || true
