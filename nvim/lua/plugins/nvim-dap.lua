@@ -18,14 +18,31 @@ end
 -- Run a DAP configuration by partial name match for the current filetype
 local function run_config_by_name(partial)
   local dap = require("dap")
-  local ft = vim.bo.filetype
-  local configs = dap.configurations[ft] or {}
-  for _, cfg in ipairs(configs) do
-    if type(cfg.name) == "string" and cfg.name:lower():find(partial:lower(), 1, true) then
-      return dap.run(cfg)
+  local needle = (partial or ""):lower()
+
+  local function find_in(configs)
+    for _, cfg in ipairs(configs or {}) do
+      if type(cfg.name) == "string" and cfg.name:lower():find(needle, 1, true) then
+        return cfg
+      end
     end
   end
-  vim.notify("No DAP config matching '" .. partial .. "' for filetype '" .. ft .. "'", vim.log.levels.WARN)
+
+  local ft = vim.bo.filetype
+  local cfg = find_in(dap.configurations[ft])
+  if not cfg then
+    -- Fallback: search all filetypes' configs so we can run globally
+    for _, list in pairs(dap.configurations) do
+      cfg = find_in(list)
+      if cfg then
+        break
+      end
+    end
+  end
+  if cfg then
+    return dap.run(cfg)
+  end
+  vim.notify("No DAP config matching '" .. partial .. "' (searched current ft '" .. ft .. "' and all)", vim.log.levels.WARN)
 end
 
 return {
@@ -217,6 +234,13 @@ return {
         desc = "Launch example app",
       },
       {
+        "<leader>dX",
+        function()
+          run_config_by_name("macOS")
+        end,
+        desc = "macOS: Build + Debug (scheme)",
+      },
+      {
         "<leader>ds",
         function()
           require("dap").session()
@@ -280,6 +304,295 @@ return {
             cwd = "${workspaceFolder}",
           })
         end
+      end
+
+      -- macOS (Xcode) build + debug for Flutter macOS target via LLDB
+      do
+        local is_mac = vim.fn.has("mac") == 1
+        local xcodebuild = vim.fn.exepath("xcodebuild")
+
+        -- Try to locate an LLDB adapter binary (lldb-vscode preferred on macOS)
+        local function find_lldb()
+          -- Prefer lldb-dap (Xcode 15+)
+          local exe = vim.fn.exepath("lldb-dap")
+          if exe ~= nil and exe ~= "" then
+            return exe
+          end
+          if vim.fn.executable("xcrun") == 1 then
+            local okd, outd = pcall(vim.fn.systemlist, { "xcrun", "-f", "lldb-dap" })
+            if okd and type(outd) == "table" and #outd > 0 and outd[1] ~= "" and vim.fn.filereadable(outd[1]) == 1 then
+              return outd[1]
+            end
+          end
+          -- Next try lldb-vscode (older Xcode)
+          exe = vim.fn.exepath("lldb-vscode")
+          if exe ~= nil and exe ~= "" then
+            return exe
+          end
+          if vim.fn.executable("xcrun") == 1 then
+            local okv, outv = pcall(vim.fn.systemlist, { "xcrun", "-f", "lldb-vscode" })
+            if okv and type(outv) == "table" and #outv > 0 and outv[1] ~= "" and vim.fn.filereadable(outv[1]) == 1 then
+              return outv[1]
+            end
+          end
+          -- Fallback to codelldb (mason)
+          local codelldb = vim.fn.exepath("codelldb")
+          if codelldb ~= nil and codelldb ~= "" then
+            return codelldb
+          end
+          return ""
+        end
+
+        if is_mac and xcodebuild ~= nil and xcodebuild ~= "" then
+          local function ensure_lldb_adapter()
+            local lldb_exe = find_lldb()
+            if lldb_exe ~= nil and lldb_exe ~= "" then
+              dap.adapters.lldb = {
+                type = "executable",
+                command = lldb_exe,
+                name = "lldb",
+              }
+              return true
+            end
+            return false
+          end
+
+          local _have_lldb = ensure_lldb_adapter()
+          if not _have_lldb then
+            vim.schedule(function()
+              vim.notify(
+                "nvim-dap: LLDB DAP not found (lldb-dap/lldb-vscode/codelldb). Will attempt again at launch.",
+                vim.log.levels.WARN
+              )
+            end)
+          end
+
+          -- Cache last chosen scheme for convenience
+          local last_scheme = nil
+
+            -- Resolve the macOS project root (dir that contains Runner.xcworkspace|Runner.xcodeproj)
+            local function is_macos_root(dir)
+              if dir == nil or dir == "" then
+                return false
+              end
+              if vim.fn.isdirectory(dir .. "/Runner.xcworkspace") == 1 then
+                return true
+              end
+              if vim.fn.isdirectory(dir .. "/Runner.xcodeproj") == 1 then
+                return true
+              end
+              return false
+            end
+
+            local function dirname(path)
+              return (path:gsub("[\\/]$", ""):match("^(.*)[\\/].-$") or path)
+            end
+
+            local function macos_root()
+              local start = vim.fn.getcwd()
+              -- Directly CWD is macos root
+              if is_macos_root(start) then
+                return start
+              end
+              -- CWD/macos is macos root
+              if is_macos_root(start .. "/macos") then
+                return start .. "/macos"
+              end
+              -- Walk up parents looking for a macos dir
+              local dir = start
+              while dir and dir ~= "" do
+                if is_macos_root(dir .. "/macos") then
+                  return dir .. "/macos"
+                end
+                local parent = dirname(dir)
+                if not parent or parent == dir then
+                  break
+                end
+                dir = parent
+              end
+              -- Last resort: return start
+              return start
+            end
+
+            -- Helpers to append to a single REPL (via dap-ui's repl element) without opening a second window
+            local function has_dap_repl()
+              for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local buf = vim.api.nvim_win_get_buf(win)
+                if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == "dap-repl" then
+                  return true
+                end
+              end
+              return false
+            end
+
+            local function ensure_repl()
+              if not has_dap_repl() then
+                pcall(function()
+                  require("dapui").open()
+                end)
+              end
+            end
+
+            local function append_repl(lines)
+              ensure_repl()
+              local repl = require("dap").repl
+              if type(lines) == "string" then
+                lines = { lines }
+              end
+              for _, l in ipairs(lines or {}) do
+                pcall(repl.append, l .. "\n")
+              end
+            end
+
+            -- Run a shell command in CWD and append output to REPL (non-streaming)
+            local function run_and_capture(cmd)
+              append_repl({
+                "",
+                "[macOS] Running: " .. table.concat(cmd, " "),
+                "",
+              })
+              local out = vim.fn.systemlist(cmd)
+              -- Prepend indent for readability
+              for i, l in ipairs(out) do
+                out[i] = (l == "" and "" or ("  " .. l))
+              end
+              append_repl(out)
+              local rc = vim.v.shell_error
+              return rc == 0, out
+            end
+
+            -- Parse xcodebuild -showBuildSettings output for keys
+            local function parse_build_settings(lines)
+              local data = {}
+              for _, l in ipairs(lines or {}) do
+                local k, v = l:match("^%s*([%u_]+)%s*=%s*(.-)%s*$")
+                if k and v then
+                  data[k] = v
+                end
+              end
+              return data
+            end
+
+            -- Resolve built binary path for the chosen scheme (and optional config)
+            local function resolve_binary_path(scheme, config, root)
+              -- Build using absolute workspace/project paths under detected macOS root
+              local build_dir_flags = {}
+              if vim.fn.isdirectory(root .. "/Runner.xcworkspace") == 1 then
+                build_dir_flags = { "-workspace", root .. "/Runner.xcworkspace" }
+              elseif vim.fn.isdirectory(root .. "/Runner.xcodeproj") == 1 then
+                build_dir_flags = { "-project", root .. "/Runner.xcodeproj" }
+              else
+                return nil, "Could not find Runner.xcworkspace or Runner.xcodeproj under " .. root
+              end
+
+              -- 1) Read build settings
+              local show_cmd = { "xcodebuild", "-showBuildSettings" }
+              for _, v in ipairs(build_dir_flags) do table.insert(show_cmd, v) end
+              table.insert(show_cmd, "-scheme")
+              table.insert(show_cmd, scheme)
+              table.insert(show_cmd, "-sdk")
+              table.insert(show_cmd, "macosx")
+              if config and config ~= "" then
+                table.insert(show_cmd, "-configuration")
+                table.insert(show_cmd, config)
+              end
+              local ok_settings, settings_lines = run_and_capture(show_cmd)
+              if not ok_settings then
+                return nil, "xcodebuild -showBuildSettings failed"
+              end
+              local settings = parse_build_settings(settings_lines)
+              local built_dir = settings["BUILT_PRODUCTS_DIR"] or settings["CONFIGURATION_BUILD_DIR"]
+              local exec_path = settings["EXECUTABLE_PATH"]
+              if not built_dir or not exec_path or built_dir == "" or exec_path == "" then
+                return nil, "Missing BUILT_PRODUCTS_DIR/EXECUTABLE_PATH in build settings"
+              end
+
+              -- 2) Build
+              local build_cmd = { "xcodebuild" }
+              for _, v in ipairs(build_dir_flags) do table.insert(build_cmd, v) end
+              table.insert(build_cmd, "-scheme")
+              table.insert(build_cmd, scheme)
+              table.insert(build_cmd, "-sdk")
+              table.insert(build_cmd, "macosx")
+              table.insert(build_cmd, "build")
+              if config and config ~= "" then
+                table.insert(build_cmd, "-configuration")
+                table.insert(build_cmd, config)
+              end
+              local ok_build = run_and_capture(build_cmd)
+              if not ok_build then
+                return nil, "xcodebuild build failed"
+              end
+
+              -- 3) Compute binary path
+              local bin_path = built_dir .. "/" .. exec_path
+              if vim.fn.filereadable(bin_path) ~= 1 then
+                -- Some builds produce an app bundle only; attempt to read FULL_PRODUCT_NAME
+                local app_name = settings["FULL_PRODUCT_NAME"]
+                if app_name and app_name ~= "" then
+                  local maybe_bin = built_dir .. "/" .. app_name .. "/Contents/MacOS/" .. (exec_path:match("([^/]+)$") or exec_path)
+                  if vim.fn.filereadable(maybe_bin) == 1 then
+                    bin_path = maybe_bin
+                  end
+                end
+              end
+              if vim.fn.filereadable(bin_path) ~= 1 then
+                return nil, "Built binary not found at: " .. bin_path
+              end
+              return bin_path
+            end
+
+          -- Shared config object so we can register for multiple filetypes
+          local macos_build_debug = {
+            type = "lldb",
+            request = "launch",
+            name = "macOS: Build + Debug (choose scheme)",
+            stopOnEntry = false,
+            program = function()
+              -- Ensure adapter availability at launch time
+              if not dap.adapters["lldb"] then
+                ensure_lldb_adapter()
+              end
+
+              -- Detect project root regardless of current buffer
+              local root = macos_root()
+              append_repl({ "[macOS] Project root: " .. root })
+
+              -- Ask for scheme; default to last used or env or develop
+              local default = last_scheme or os.getenv("DAP_XCODE_SCHEME") or "develop"
+              local scheme = vim.fn.input("Xcode scheme (develop/staging/production): ", default)
+              scheme = vim.trim(scheme)
+              if scheme == "" then
+                vim.notify("Scheme is required", vim.log.levels.ERROR)
+                error("scheme required")
+              end
+              last_scheme = scheme
+
+              -- Optional: read config from env (e.g., Debug/Release)
+              local cfg = os.getenv("DAP_XCODE_CONFIG")
+
+              append_repl({ "[macOS] Preparing build for scheme '" .. scheme .. "'" .. (cfg and (" (" .. cfg .. ")") or "") })
+
+              local bin_path, err = resolve_binary_path(scheme, cfg, root)
+              if not bin_path then
+                vim.notify("macOS build failed: " .. (err or "unknown error"), vim.log.levels.ERROR)
+                error(err or "macOS build failed")
+              end
+              append_repl({ "[macOS] Built binary: " .. bin_path })
+              return bin_path
+            end,
+            env = load_env_variables,
+            cwd = function()
+              return (vim.fn.getcwd() ~= macos_root()) and macos_root() or vim.fn.getcwd()
+            end,
+          }
+
+          -- Register for Dart (Flutter projects) and Swift so it's runnable from anywhere
+          dap.configurations.dart = dap.configurations.dart or {}
+          table.insert(dap.configurations.dart, macos_build_debug)
+          dap.configurations.swift = dap.configurations.swift or {}
+          table.insert(dap.configurations.swift, macos_build_debug)
+          end
       end
 
       -- Set highlight for DapStoppedLine
