@@ -22,5 +22,13 @@ return {
         require("which-key").show({ global = false }) -- Show the which-key popup for local keybindings
       end,
     },
+    {
+      -- Flutter: run using launch.json (mapped to <leader>dd)
+      "<leader>dd",
+      function()
+        require("config.gentleman.flutter_launch").run_from_launch()
+      end,
+      desc = "Flutter Run (launch.json)",
+    },
   },
 }

@@ -37,5 +37,10 @@ return {
         end,
       },
     })
+
+    -- Register helper command to run from .vscode/launch.json
+    pcall(function()
+      require("config.gentleman.flutter_launch").setup()
+    end)
   end,
 }

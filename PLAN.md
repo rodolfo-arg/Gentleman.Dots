@@ -102,6 +102,28 @@ This document captures the goals, architecture, and working practices for this r
   - Virtual text enabled at EOL; .env merged into session env if present.
   - `flutter-tools` debugger enabled; dev_log window disabled to avoid conflicts.
 
+### VS Code launch.json Runner
+
+- Purpose
+  - Convert `.vscode/launch.json` Dart entries into `:FlutterRun` commands and present a picker.
+
+- Implementation
+  - New module: `nvim/lua/config/gentleman/flutter_launch.lua`.
+  - Parses `launch.json` as JSON with comments (strips `//`, `/* */`, trailing commas).
+  - Filters `type: "dart"` and `request: "launch"`, ignores `program: "test"` for now.
+  - Replaces `${workspaceFolder}` with the project root; passes target via `-t` and forwards `args` verbatim.
+  - Defaults `program` to `${workspaceFolder}/lib/main.dart` when missing.
+
+- Usage
+  - Keymap: `<leader>dd` → prompts for configuration name, then runs `:FlutterRun -t <target> <args>`.
+  - Works when Neovim is opened at the Flutter project root (or a child directory).
+  - Command: `:FlutterRunFromLaunch` as an alternative to the keymap (always available once flutter-tools loads).
+
+- Future
+  - Handle `program: "test"` via a separate flow (e.g., `:FlutterRun -t test` or `:FlutterTest`).
+  - Device selection integration prior to run if multiple devices are available.
+  - Optional Telescope picker integration if installed.
+
 ## Best Practices & Constraints
 
 - Avoid repo symlinks to `/nix/store`; Home Manager manages symlinks in `$HOME`.
