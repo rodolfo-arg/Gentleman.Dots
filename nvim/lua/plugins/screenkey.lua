@@ -1,1 +1,1 @@
-/nix/store/9jkny5sr9q644ysc7wh41ddcyf5l9rw2-home-manager-files/.config/nvim/lua/plugins/screenkey.lua
+/nix/store/kx271fga4syq8bwj3wq2syx6j1ykp0yx-home-manager-files/.config/nvim/lua/plugins/screenkey.lua
