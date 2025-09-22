@@ -1,8 +1,1 @@
--- This file contains the configuration for the vim-be-good plugin in Neovim.
-
-return {
-  -- Plugin: vim-be-good
-  -- URL: https://github.com/ThePrimeagen/vim-be-good
-  -- Description: A Neovim plugin designed to help you improve your Vim skills through various exercises and games.
-  "ThePrimeagen/vim-be-good",
-}
+/nix/store/9jkny5sr9q644ysc7wh41ddcyf5l9rw2-home-manager-files/.config/nvim/lua/plugins/vim-be-good.lua

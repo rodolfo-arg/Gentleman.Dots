@@ -1,4 +1,1 @@
-return {
-  "folke/snacks.nvim",
-  opts = {},
-}
+/nix/store/9jkny5sr9q644ysc7wh41ddcyf5l9rw2-home-manager-files/.config/nvim/lua/plugins/snacks.lua

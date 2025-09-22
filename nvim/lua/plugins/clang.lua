@@ -1,10 +1,1 @@
-return {
-  "neovim/nvim-lspconfig",
-  opts = {
-    servers = {
-      clangd = {
-        cmd = { vim.fn.exepath("clangd") }, -- resolves to nix-provided clangd
-      },
-    },
-  },
-}
+/nix/store/9jkny5sr9q644ysc7wh41ddcyf5l9rw2-home-manager-files/.config/nvim/lua/plugins/clang.lua

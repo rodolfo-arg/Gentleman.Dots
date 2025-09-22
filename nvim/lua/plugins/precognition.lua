@@ -1,3 +1,1 @@
-return {
-  "tris203/precognition.nvim",
-}
+/nix/store/9jkny5sr9q644ysc7wh41ddcyf5l9rw2-home-manager-files/.config/nvim/lua/plugins/precognition.lua

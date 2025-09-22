@@ -1,12 +1,1 @@
-return {
-  {
-    "folke/snacks.nvim",
-    opts = function(_, opts)
-      opts = opts or {}
-      opts.dashboard = opts.dashboard or {}
-      opts.dashboard.enabled = true
-      return opts
-    end,
-  },
-}
-
+/nix/store/9jkny5sr9q644ysc7wh41ddcyf5l9rw2-home-manager-files/.config/nvim/lua/plugins/snacks_dashboard.lua

@@ -1,13 +1,1 @@
-return {
-  "sphamba/smear-cursor.nvim",
-  -- Disable in Neovide to avoid GUI glitches; keep enabled elsewhere
-  enabled = function()
-    return not vim.g.neovide
-  end,
-  opts = {
-    stiffness = 0.9,
-    trailing_stiffness = 0.5,
-    distance_stop_animating = 0.1,
-  },
-}
-
+/nix/store/9jkny5sr9q644ysc7wh41ddcyf5l9rw2-home-manager-files/.config/nvim/lua/plugins/smear.lua
