@@ -23,7 +23,7 @@ function M.setup()
   vim.g.neovide_cursor_animate_command_line = false
   vim.g.neovide_curser_antialiasing = true
   vim.g.neovide_remember_window_size = true
-  vim.g.neovide_scroll_animation_length = 0.150
+  vim.g.neovide_scroll_animation_length = 0.100
   vim.g.neovide_scroll_animation_far_lines = 10
 
   do
