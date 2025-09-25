@@ -1,1 +1,5 @@
-/nix/store/kx271fga4syq8bwj3wq2syx6j1ykp0yx-home-manager-files/.config/nvim/lua/plugins/fzflua.lua
+return {
+  "ibhagwan/fzf-lua",
+  dependencies = { "nvim-tree/nvim-web-devicons" },
+  opts = {},
+}

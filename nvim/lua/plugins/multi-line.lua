@@ -1,1 +1,10 @@
-/nix/store/kx271fga4syq8bwj3wq2syx6j1ykp0yx-home-manager-files/.config/nvim/lua/plugins/multi-line.lua
+-- This file contains the configuration for the vim-multiple-cursors plugin in Neovim.
+
+return {
+  {
+    -- Plugin: vim-multiple-cursors
+    -- URL: https://github.com/terryma/vim-multiple-cursors
+    -- Description: A Vim plugin that allows multiple cursors for simultaneous editing.
+    "terryma/vim-multiple-cursors",
+  },
+}

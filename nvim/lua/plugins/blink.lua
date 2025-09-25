@@ -1,1 +1,40 @@
-/nix/store/kx271fga4syq8bwj3wq2syx6j1ykp0yx-home-manager-files/.config/nvim/lua/plugins/blink.lua
+return {
+  "saghen/blink.cmp",
+  -- Use stable releases to match prebuilt binaries
+  version = "1.*",
+  lazy = true,
+  dependencies = { "saghen/blink.compat" },
+  opts = {
+    -- Prefer Lua fuzzy matcher to avoid Rust/nightly builds or downloads
+    fuzzy = { implementation = "lua" },
+    sources = {
+      default = { "avante_commands", "avante_mentions", "avante_files" },
+      compat = {
+        "avante_commands",
+        "avante_mentions",
+        "avante_files",
+      },
+      -- LSP score_offset is typically 60
+      providers = {
+        avante_commands = {
+          name = "avante_commands",
+          module = "blink.compat.source",
+          score_offset = 90,
+          opts = {},
+        },
+        avante_files = {
+          name = "avante_files",
+          module = "blink.compat.source",
+          score_offset = 100,
+          opts = {},
+        },
+        avante_mentions = {
+          name = "avante_mentions",
+          module = "blink.compat.source",
+          score_offset = 1000,
+          opts = {},
+        },
+      },
+    },
+  },
+}

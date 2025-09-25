@@ -1,1 +1,8 @@
-/nix/store/kx271fga4syq8bwj3wq2syx6j1ykp0yx-home-manager-files/.config/nvim/lua/plugins/vim-tmux-navigation.lua
+-- This file contains the configuration for the nvim-tmux-navigation plugin in Neovim.
+
+return {
+  -- Plugin: nvim-tmux-navigation
+  -- URL: https://github.com/alexghergh/nvim-tmux-navigation
+  -- Description: A Neovim plugin that allows seamless navigation between Neovim and tmux panes.
+  "alexghergh/nvim-tmux-navigation",
+}

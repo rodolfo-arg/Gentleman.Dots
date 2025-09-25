@@ -1,1 +1,5 @@
-/nix/store/kx271fga4syq8bwj3wq2syx6j1ykp0yx-home-manager-files/.config/nvim/lua/plugins/screenkey.lua
+return {
+  "NStefan002/screenkey.nvim",
+  lazy = false,
+  version = "*", -- or branch = "dev", to use the latest commit
+}
