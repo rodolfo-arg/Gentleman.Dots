@@ -11,6 +11,7 @@ vim.opt.swapfile = false
 -- Keep persistent undo so we don't rely on swap for recovery
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
+vim.opt.backupcopy = "yes"
 
 -- Suppress ATTENTION prompts when a swap file exists (just edit anyway)
 vim.opt.shortmess:append("A")
