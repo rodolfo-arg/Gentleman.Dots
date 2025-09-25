@@ -18,23 +18,36 @@ USAGE
 
 for arg in "$@"; do
   case "$arg" in
-    --custom) CUSTOM_INSTALL=1 ;;
-    -h|--help) usage; exit 0 ;;
-    *) ;;
+  --custom) CUSTOM_INSTALL=1 ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *) ;;
   esac
 done
 
 # =============== Styling ===============
 if test -t 1; then
-  bold=$(tput bold || true); reset=$(tput sgr0 || true)
-  red=$(tput setaf 1 || true); green=$(tput setaf 2 || true)
-  yellow=$(tput setaf 3 || true); blue=$(tput setaf 4 || true)
-else bold=""; reset=""; red=""; green=""; yellow=""; blue=""; fi
+  bold=$(tput bold || true)
+  reset=$(tput sgr0 || true)
+  red=$(tput setaf 1 || true)
+  green=$(tput setaf 2 || true)
+  yellow=$(tput setaf 3 || true)
+  blue=$(tput setaf 4 || true)
+else
+  bold=""
+  reset=""
+  red=""
+  green=""
+  yellow=""
+  blue=""
+fi
 
-log()  { echo "${blue}==>${reset} $*"; }
+log() { echo "${blue}==>${reset} $*"; }
 good() { echo "${green}✔${reset} $*"; }
 warn() { echo "${yellow}⚠${reset} $*"; }
-err()  { echo "${red}✖${reset} $*" >&2; }
+err() { echo "${red}✖${reset} $*" >&2; }
 
 # =============== Preconditions ===============
 if [[ "$(uname -s)" != "Darwin" ]]; then
@@ -44,8 +57,15 @@ fi
 
 # Require sudo early and keep-alive
 log "Requesting administrator privileges (sudo)…"
-if ! sudo -v; then err "Sudo authorization failed"; exit 1; fi
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+if ! sudo -v; then
+  err "Sudo authorization failed"
+  exit 1
+fi
+while true; do
+  sudo -n true
+  sleep 60
+  kill -0 "$$" || exit
+done 2>/dev/null &
 SUDO_KEEPALIVE_PID=$!
 trap 'kill "${SUDO_KEEPALIVE_PID}" 2>/dev/null || true' EXIT INT TERM
 
@@ -58,8 +78,10 @@ fi
 good "Git is available"
 
 # Require either Homebrew or a preinstalled Ghostty app
-HAS_BREW=0; command -v brew >/dev/null 2>&1 && HAS_BREW=1 || true
-HAS_GHOSTTY=0; open -Ra Ghostty >/dev/null 2>&1 && HAS_GHOSTTY=1 || true
+HAS_BREW=0
+command -v brew >/dev/null 2>&1 && HAS_BREW=1 || true
+HAS_GHOSTTY=0
+open -Ra Ghostty >/dev/null 2>&1 && HAS_GHOSTTY=1 || true
 if [[ $HAS_BREW -eq 0 && $HAS_GHOSTTY -eq 0 ]]; then
   err "Homebrew or Ghostty is required."
   echo "- Install Homebrew: https://brew.sh (recommended)"
@@ -164,9 +186,9 @@ fi
 # Pick correct flake output based on CPU architecture
 ARCH="$(uname -m)"
 case "$ARCH" in
-  arm64) FLAKE_SELECTOR="gentleman-macos-arm" ;;
-  x86_64) FLAKE_SELECTOR="gentleman-macos-intel" ;;
-  *) FLAKE_SELECTOR="gentleman" ;;
+arm64) FLAKE_SELECTOR="gentleman-macos-arm" ;;
+x86_64) FLAKE_SELECTOR="gentleman-macos-intel" ;;
+*) FLAKE_SELECTOR="gentleman" ;;
 esac
 log "Applying Home Manager configuration (flake: #$FLAKE_SELECTOR)"
 # Ensure flake.nix uses the current macOS user/home
@@ -186,15 +208,15 @@ if [[ -f "$FLAKE_FILE" ]]; then
       log "Committing flake.nix personalization"
       git add flake.nix || warn "git add failed; proceeding without commit"
       git -c user.name="Gentleman Installer" -c user.email="installer@local" \
-        commit -m "installer: personalize flake.nix for user ${DETECTED_USER}" \
-        || warn "git commit failed; proceeding without commit"
+        commit -m "installer: personalize flake.nix for user ${DETECTED_USER}" ||
+        warn "git commit failed; proceeding without commit"
     fi
   fi
 else
   warn "flake.nix not found at $FLAKE_FILE — skipping user personalization"
 fi
 log "Using local home-manager CLI"
-home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR" -b backup
+home-manager switch --flake "$REPO_DIR#$FLAKE_SELECTOR"
 good "Home Manager switch complete"
 
 # Commit flake.lock changes if updated during the switch (best-effort)
@@ -203,8 +225,8 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     log "Committing updated flake.lock"
     git add flake.lock || warn "git add flake.lock failed; continuing"
     git -c user.name="Gentleman Installer" -c user.email="installer@local" \
-      commit -m "installer: update flake.lock after switch" \
-      || warn "git commit flake.lock failed; continuing"
+      commit -m "installer: update flake.lock after switch" ||
+      warn "git commit flake.lock failed; continuing"
   fi
 fi
 
@@ -247,9 +269,9 @@ fi
 
 # If we are not already in Ghostty, attempt to close the current terminal
 case "${TERM_PROGRAM:-}" in
-  "Apple_Terminal")
-    log "Closing Terminal.app window"
-    osascript <<'OSA' >/dev/null 2>&1 || true
+"Apple_Terminal")
+  log "Closing Terminal.app window"
+  osascript <<'OSA' >/dev/null 2>&1 || true
 tell application "Terminal"
   try
     if (count of windows) > 0 then close front window
@@ -257,17 +279,17 @@ tell application "Terminal"
   end try
 end tell
 OSA
-    ;;
-  "iTerm.app")
-    log "Closing iTerm.app"
-    osascript -e 'tell application "iTerm" to quit' >/dev/null 2>&1 || true
-    ;;
-  "Ghostty")
-    # Already in Ghostty; do nothing
-    ;;
-  *)
-    # Unknown terminal; best-effort exit of this shell
-    ;;
+  ;;
+"iTerm.app")
+  log "Closing iTerm.app"
+  osascript -e 'tell application "iTerm" to quit' >/dev/null 2>&1 || true
+  ;;
+"Ghostty")
+  # Already in Ghostty; do nothing
+  ;;
+*)
+  # Unknown terminal; best-effort exit of this shell
+  ;;
 esac
 
 exit 0
