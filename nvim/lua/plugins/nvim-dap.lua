@@ -972,6 +972,9 @@ return {
               }
               vim.schedule(function()
                 require("dap").run(config)
+                -- Ensure dap-ui (with REPL element) is open, and open the DAP REPL explicitly
+                pcall(require("dapui").open)
+                pcall(require("dap").repl.open)
                 vim.notify("[dap-gcc] Built and launched: " .. out, vim.log.levels.INFO)
               end)
             end,
