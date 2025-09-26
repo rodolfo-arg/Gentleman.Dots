@@ -17,13 +17,13 @@ function M.setup()
   vim.g.neovide_position_animation_length = 0
 
   -- Cursor animations (previous values)
-  vim.g.neovide_cursor_animation_length = 0.04
+  vim.g.neovide_cursor_animation_length = 0.08
   vim.g.neovide_cursor_trail_size = 0.6
   vim.g.neovide_cursor_animate_in_insert_mode = false
   vim.g.neovide_cursor_animate_command_line = false
   vim.g.neovide_curser_antialiasing = true
   vim.g.neovide_remember_window_size = true
-  vim.g.neovide_scroll_animation_length = 0.100
+  vim.g.neovide_scroll_animation_length = 0.080
   vim.g.neovide_scroll_animation_far_lines = 10
 
   do

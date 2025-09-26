@@ -77,6 +77,13 @@ return {
     keys = {
       { "<leader>d", "", desc = "+debug", mode = { "n", "v" } }, -- Group for debug commands
       {
+        "<leader>dG",
+        function()
+          vim.cmd("DapGccRun")
+        end,
+        desc = "C/C++: Build + Debug (gcc)",
+      },
+      {
         "<leader>dB",
         function()
           require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
@@ -811,6 +818,169 @@ return {
       end
       dap.listeners.before.event_exited["dapui_minimal"] = function()
         dapui.close()
+      end
+
+      -- Simple GCC/G++ single-file builder + LLDB launcher
+      -- - Compiles the current buffer to a hidden build dir next to the file
+      -- - Launches the resulting binary via LLDB DAP (lldb-dap/lldb-vscode/codelldb)
+      -- - Works on macOS without requiring gdb/cpptools
+      do
+        local function find_lldb_any()
+          local exe = vim.fn.exepath("lldb-dap")
+          if exe and exe ~= "" then
+            return exe
+          end
+          if vim.fn.executable("xcrun") == 1 then
+            local okd, outd = pcall(vim.fn.systemlist, { "xcrun", "-f", "lldb-dap" })
+            if okd and type(outd) == "table" and #outd > 0 and outd[1] ~= "" and vim.fn.filereadable(outd[1]) == 1 then
+              return outd[1]
+            end
+          end
+          exe = vim.fn.exepath("lldb-vscode")
+          if exe and exe ~= "" then
+            return exe
+          end
+          if vim.fn.executable("xcrun") == 1 then
+            local okv, outv = pcall(vim.fn.systemlist, { "xcrun", "-f", "lldb-vscode" })
+            if okv and type(outv) == "table" and #outv > 0 and outv[1] ~= "" and vim.fn.filereadable(outv[1]) == 1 then
+              return outv[1]
+            end
+          end
+          exe = vim.fn.exepath("codelldb")
+          if exe and exe ~= "" then
+            return exe
+          end
+          return ""
+        end
+
+        local function ensure_lldb()
+          if require("dap").adapters["lldb"] then
+            return true
+          end
+          local lldb_exe = find_lldb_any()
+          if lldb_exe and lldb_exe ~= "" then
+            require("dap").adapters.lldb = { type = "executable", command = lldb_exe, name = "lldb" }
+            return true
+          end
+          return false
+        end
+
+        local function compiler_for(ft)
+          if ft == "c" then
+            return vim.fn.exepath("gcc") ~= "" and "gcc" or (vim.fn.exepath("clang") ~= "" and "clang" or "")
+          end
+          -- default to C++ toolchain
+          return vim.fn.exepath("g++") ~= "" and "g++" or (vim.fn.exepath("clang++") ~= "" and "clang++" or "")
+        end
+
+        local function build_out_path(src)
+          local dir = vim.fn.fnamemodify(src, ":h")
+          local base = vim.fn.fnamemodify(src, ":t:r")
+          local outdir = dir .. "/.nvim_build"
+          if vim.fn.isdirectory(outdir) ~= 1 then
+            pcall(vim.fn.mkdir, outdir, "p")
+          end
+          return outdir .. "/" .. base
+        end
+
+        local function build_args(ft, _compiler, src, out)
+          local args = { "-g", "-O0", src, "-o", out }
+          if ft == "cpp" or src:match("%.[cC]%+%+$") or src:match("%.[cC][cC]$") or src:match("%.[cC][xX][xX]$") then
+            table.insert(args, 1, "-std=c++17")
+          elseif ft == "c" or src:match("%.[cC]$") then
+            table.insert(args, 1, "-std=c11")
+          end
+          return args
+        end
+
+        local function notify_err(msg)
+          vim.notify("[dap-gcc] " .. msg, vim.log.levels.ERROR)
+        end
+
+        vim.api.nvim_create_user_command("DapGccRun", function()
+          -- Save current buffer if modified
+          pcall(vim.cmd, "update")
+
+          local buf = vim.api.nvim_get_current_buf()
+          local src = vim.api.nvim_buf_get_name(buf)
+          if src == nil or src == "" then
+            notify_err("No file to build (empty buffer)")
+            return
+          end
+          local ft = (vim.bo[buf].filetype or ""):lower()
+          if ft ~= "c" and ft ~= "cpp" and not (src:match("%.[cC]$") or src:match("%.[cC]%+%+$") or src:match("%.[cC][cC]$") or src:match("%.[cC][xX][xX]$")) then
+            notify_err("Current file is not C/C++: " .. (ft ~= "" and ft or src))
+            return
+          end
+
+          local cc = compiler_for(ft)
+          if cc == "" then
+            notify_err("No suitable compiler found (gcc/clang)")
+            return
+          end
+          local out = build_out_path(src)
+          local args = build_args(ft, cc, src, out)
+
+          -- Build
+          local cmd = vim.list_extend({ cc }, args)
+          local lines = {}
+          local build_ok = false
+          local job = vim.fn.jobstart(cmd, {
+            cwd = vim.fn.fnamemodify(src, ":h"),
+            stdout_buffered = true,
+            stderr_buffered = true,
+            on_stdout = function(_, data)
+              if data then
+                for _, l in ipairs(data) do
+                  if l and l ~= "" then table.insert(lines, l) end
+                end
+              end
+            end,
+            on_stderr = function(_, data)
+              if data then
+                for _, l in ipairs(data) do
+                  if l and l ~= "" then table.insert(lines, l) end
+                end
+              end
+            end,
+            on_exit = function(_, code)
+              build_ok = (code == 0)
+              if not build_ok then
+                vim.schedule(function()
+                  notify_err("Build failed (" .. code .. ")\n" .. table.concat(lines, "\n"))
+                end)
+                return
+              end
+
+              -- Ensure adapter
+              local ok_lldb = ensure_lldb()
+              if not ok_lldb then
+                vim.schedule(function()
+                  notify_err("LLDB adapter not found (need lldb-dap/lldb-vscode/codelldb)")
+                end)
+                return
+              end
+
+              -- Launch via DAP
+              local config = {
+                type = "lldb",
+                request = "launch",
+                name = "Run " .. vim.fn.fnamemodify(src, ":t"),
+                program = out,
+                cwd = vim.fn.fnamemodify(src, ":h"),
+                stopOnEntry = false,
+              }
+              vim.schedule(function()
+                require("dap").run(config)
+                vim.notify("[dap-gcc] Built and launched: " .. out, vim.log.levels.INFO)
+              end)
+            end,
+          })
+
+          if job <= 0 then
+            notify_err("Failed to start build job")
+          end
+        end, { desc = "Build current C/C++ file with gcc and debug via LLDB" })
       end
     end,
   },
