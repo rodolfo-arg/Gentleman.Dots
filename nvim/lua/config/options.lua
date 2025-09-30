@@ -16,6 +16,11 @@ vim.opt.backupcopy = "yes"
 -- Suppress ATTENTION prompts when a swap file exists (just edit anyway)
 vim.opt.shortmess:append("A")
 
+-- Allow cursor to reach window edges when scrolling fast
+-- This disables the margin that keeps the cursor away from top/bottom/left/right
+vim.opt.scrolloff = 0
+vim.opt.sidescrolloff = 0
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "cpp",
   callback = function()

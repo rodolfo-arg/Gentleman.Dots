@@ -1,4 +1,8 @@
 return {
   "folke/snacks.nvim",
-  opts = {},
+  priority = 1000,
+  lazy = false,
+  opts = {
+    scroll = { enabled = false },
+  },
 }
