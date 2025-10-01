@@ -45,6 +45,12 @@
       # Use a directory in .cache or as you prefer
       compinit -d ''${XDG_CACHE_HOME:-''${HOME}/.cache}/zsh/zcompdump-''${ZSH_VERSION}
 
+      # Completion behavior: always list, never ask
+      # Prevent the prompt: "do you wish to see all ...?"
+      setopt AUTO_LIST
+      unsetopt LIST_PROMPT
+      unsetopt LIST_BEEP
+
       # --------------------------
       # 2) FZF
       # --------------------------
