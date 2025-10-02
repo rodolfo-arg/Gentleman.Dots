@@ -36,3 +36,20 @@ do
     end,
   })
 end
+
+do
+  local group = vim.api.nvim_create_augroup("gentleman_transparent_ui", { clear = true })
+
+  local function make_ui_transparent()
+    pcall(vim.api.nvim_set_hl, 0, "CursorLine", { bg = "none" })
+    pcall(vim.api.nvim_set_hl, 0, "WinBar", { bg = "none" })
+    pcall(vim.api.nvim_set_hl, 0, "WinBarNC", { bg = "none" })
+  end
+
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = group,
+    callback = make_ui_transparent,
+  })
+
+  make_ui_transparent()
+end

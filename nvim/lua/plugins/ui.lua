@@ -86,6 +86,8 @@ return {
       options = {
         theme = "gentleman-kanagawa-blur", -- Set the theme for lualine
         icons_enabled = true, -- Enable icons in the statusline
+        component_separators = { left = "", right = "" }, -- Remove component separators for a cleaner look
+        section_separators = { left = "", right = "" }, -- Remove section separators to avoid filled blocks
       },
       sections = {
         lualine_a = {
@@ -152,6 +154,38 @@ return {
         },
       },
     },
+    config = function(_, opts)
+      require("lualine").setup(opts)
+
+      local function clear_background(name)
+        local ok, hl = pcall(vim.api.nvim_get_hl, 0, { name = name, link = false })
+        if not ok then
+          return
+        end
+
+        local filtered = {}
+        for key, value in pairs(hl) do
+          if key ~= "default" and key ~= "link" then
+            filtered[key] = value
+          end
+        end
+
+        filtered.bg = "none"
+        filtered.ctermbg = "none"
+        vim.api.nvim_set_hl(0, name, filtered)
+      end
+
+      local sections = { "a", "b", "c", "x", "y", "z" }
+      local modes = { "normal", "insert", "visual", "replace", "command", "terminal", "inactive" }
+      for _, mode in ipairs(modes) do
+        for _, section in ipairs(sections) do
+          clear_background("lualine_" .. section .. "_" .. mode)
+        end
+      end
+
+      clear_background("StatusLine")
+      clear_background("StatusLineNC")
+    end,
   },
 
   -- Plugin: incline.nvim

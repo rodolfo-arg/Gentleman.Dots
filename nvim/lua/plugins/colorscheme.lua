@@ -43,7 +43,7 @@ return {
       },
     },
     {
-      "Gentleman-Programming/gentleman-kanagawa-blur",
+      "rodolfo-arg/gentleman-kanagawa-blur",
       name = "gentleman-kanagawa-blur",
       priority = 1000,
     },
