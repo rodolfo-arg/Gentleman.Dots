@@ -1,6 +1,15 @@
 return {
   "folke/sidekick.nvim",
-  opts = {},
+  opts = {
+    cli = {
+      win = {
+        layout = "right",
+        split = {
+          width = 40,
+        },
+      },
+    },
+  },
   keys = {
     {
       "<tab>",
@@ -22,11 +31,11 @@ return {
       desc = "Sidekick Switch Focus",
     },
     {
-      "<leader>ac",
+      "<leader>aa",
       function()
         require("sidekick.cli").toggle({ name = "codex", focus = true })
       end,
-      desc = "Sidekick Claude Toggle",
+      desc = "Codex",
       mode = { "n", "v" },
     },
   },
