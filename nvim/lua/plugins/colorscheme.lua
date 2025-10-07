@@ -104,9 +104,14 @@ return {
       end,
     },
     {
+      "webhooked/kanso.nvim",
+      name = "kanso",
+      priority = 1000,
+    },
+    {
       "LazyVim/LazyVim",
       opts = {
-        colorscheme = "gentleman-kanagawa-blur",
+        colorscheme = "kanso",
       },
     },
   },

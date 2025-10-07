@@ -8,9 +8,8 @@ if vim.fn.executable("node") == 1 then
   print("Using Node.js version: " .. node_version)
 end
 
--- Spell-checking
-vim.opt.spell = true -- activa spell checker
-vim.opt.spelllang = { "en" }
+-- Spell-checking stays disabled to avoid inline spelling squiggles; toggle manually when needed
+vim.opt.spell = false
 
 -- Autoread files when they change
 vim.opt.autoread = true
