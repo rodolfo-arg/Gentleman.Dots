@@ -107,6 +107,45 @@ return {
       "webhooked/kanso.nvim",
       name = "kanso",
       priority = 1000,
+      config = function()
+        require("kanso").setup({
+          transparent = true,
+          theme = "zen",
+          styles = {
+            comments = { italic = true },
+            keywords = { bold = true, italic = true },
+            functions = { bold = true },
+            variables = {},
+            operators = { bold = true },
+            types = { bold = true },
+          },
+          plugins = {
+            bufferline = true,
+            cmp = true,
+            dashboard = true,
+            gitsigns = true,
+            hop = true,
+            indent_blankline = true,
+            lightspeed = true,
+            lsp_saga = true,
+            lsp_trouble = true,
+            mason = true,
+            mini = true,
+            neogit = true,
+            neotest = true,
+            nvimtree = true,
+            notify = true,
+            overseer = true,
+            symbols_outline = true,
+            telescope = true,
+            treesitter = true,
+            whichkey = true,
+          },
+          -- You can use this function to override the default colors (see colors.lua)
+          -- Or create your own theme using the colors you want
+          -- theme_overrides = function(colors) end,
+        })
+      end,
     },
     {
       "LazyVim/LazyVim",
