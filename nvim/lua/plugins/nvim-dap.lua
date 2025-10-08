@@ -78,6 +78,70 @@ local function configure_android_cmake()
     end
   end
 
+  local function relocate_compile_commands()
+    local compile_src = vim.fs.joinpath(src_dir, "build-android", "compile_commands.json")
+    local compile_dst_dir = vim.fs.joinpath(root, "packages", "rode_bridge")
+    local compile_dst = vim.fs.joinpath(compile_dst_dir, "compile_commands.json")
+
+    if not uv.fs_stat(compile_src) then
+      vim.notify("CMake configure finished but compile_commands.json was not generated (expected at " .. compile_src .. ")", vim.log.levels.WARN)
+      return false
+    end
+
+    if not uv.fs_stat(compile_dst_dir) then
+      vim.notify("Destination directory missing: " .. compile_dst_dir, vim.log.levels.ERROR)
+      return false
+    end
+
+    if uv.fs_stat(compile_dst) then
+      local ok_unlink, unlink_err = uv.fs_unlink(compile_dst)
+      if not ok_unlink then
+        vim.notify("Failed to remove existing compile_commands.json at " .. compile_dst .. ": " .. (unlink_err or "unknown error"), vim.log.levels.ERROR)
+        return false
+      end
+    end
+
+    local ok_move, move_err = uv.fs_rename(compile_src, compile_dst)
+    if not ok_move then
+      local ok_copy, copy_err
+      if uv.fs_copyfile then
+        ok_copy, copy_err = uv.fs_copyfile(compile_src, compile_dst)
+      end
+      if not ok_copy then
+        vim.notify("Failed to place compile_commands.json at " .. compile_dst .. ": " .. (copy_err or move_err or "unknown error"), vim.log.levels.ERROR)
+        return false
+      end
+      uv.fs_unlink(compile_src)
+    end
+
+    vim.notify("Updated compile_commands.json in " .. compile_dst_dir, vim.log.levels.INFO)
+    return true
+  end
+
+  local function reindex_clangd()
+    local ok_restart = pcall(vim.api.nvim_cmd, { cmd = "LspRestart", args = { "clangd" } }, {})
+    if ok_restart then
+      vim.notify("Requested clangd restart for reindex", vim.log.levels.INFO)
+      return
+    end
+
+    local clients = vim.lsp.get_active_clients({ name = "clangd" })
+    if #clients == 0 then
+      vim.notify("clangd is not currently active; open a C/C++ buffer to start it manually", vim.log.levels.INFO)
+      return
+    end
+
+    for _, client in ipairs(clients) do
+      client.stop(true)
+    end
+
+    vim.defer_fn(function()
+      pcall(vim.api.nvim_cmd, { cmd = "LspStart", args = { "clangd" } }, {})
+    end, 200)
+
+    vim.notify("Restarted clangd clients for reindex", vim.log.levels.INFO)
+  end
+
   local job = vim.fn.jobstart({
     "cmake",
     "-B",
@@ -124,6 +188,10 @@ local function configure_android_cmake()
           end
           if #preview > 0 then
             vim.notify(table.concat(preview, "\n"), vim.log.levels.ERROR, { title = "CMake Android output" })
+          end
+        else
+          if relocate_compile_commands() then
+            reindex_clangd()
           end
         end
       end)
