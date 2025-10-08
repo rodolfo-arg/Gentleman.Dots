@@ -1,7 +1,144 @@
 -- This file contains the configuration for the nvim-dap plugin in Neovim.
 
+local uv = vim.uv or vim.loop
+
 -- Prompt and cache program args for "Run with Args"
 local last_args = nil
+
+-- Simple helper to resolve the project root (git root or current working dir)
+local function get_project_root()
+  local git_root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("\n", "")
+  if vim.v.shell_error == 0 and git_root ~= "" then
+    return git_root
+  end
+  return vim.fn.getcwd()
+end
+
+-- Start a spinner notification (falls back to plain notify when nvim-notify is unavailable)
+local function start_spinner(message)
+  local frames = { "-", "\\", "|", "/" }
+  local has_notify, notify = pcall(require, "notify")
+  if not has_notify then
+    vim.notify(message .. "...", vim.log.levels.INFO)
+    return function(final_message, level)
+      vim.notify(final_message, level)
+    end
+  end
+
+  local title = "CMake Android"
+  local frame = 1
+  local notification = notify(frames[frame] .. " " .. message, vim.log.levels.INFO, { title = title, timeout = false })
+  local timer = uv.new_timer()
+  timer:start(80, 80, vim.schedule_wrap(function()
+    frame = frame % #frames + 1
+    notification = notify(frames[frame] .. " " .. message, vim.log.levels.INFO, {
+      title = title,
+      replace = notification,
+      timeout = false,
+    })
+  end))
+
+  return function(final_message, level)
+    if timer then
+      timer:stop()
+      timer:close()
+      timer = nil
+    end
+    notify(final_message, level, { title = title, replace = notification, timeout = 3000 })
+  end
+end
+
+-- Run the Android CMake configure step asynchronously with spinner feedback
+local function configure_android_cmake()
+  local ndk = os.getenv("ANDROID_NDK_HOME")
+  if not ndk or ndk == "" then
+    vim.notify("ANDROID_NDK_HOME is not set", vim.log.levels.ERROR)
+    return
+  end
+
+  local root = get_project_root()
+  local src_dir = vim.fs.joinpath(root, "packages", "rode_bridge", "src")
+  if not (uv.fs_stat and uv.fs_stat(src_dir)) then
+    vim.notify("Missing directory: " .. src_dir, vim.log.levels.ERROR)
+    return
+  end
+
+  local toolchain = vim.fs.joinpath(ndk, "build", "cmake", "android.toolchain.cmake")
+  local finish = start_spinner("Configuring Android (cmake)")
+  local stdout_lines, stderr_lines = {}, {}
+
+  local function collect(dst, data)
+    if not data then
+      return
+    end
+    for _, line in ipairs(data) do
+      if line and line ~= "" then
+        table.insert(dst, line)
+      end
+    end
+  end
+
+  local job = vim.fn.jobstart({
+    "cmake",
+    "-B",
+    "build-android",
+    "-DCMAKE_TOOLCHAIN_FILE=" .. toolchain,
+    "-DANDROID_ABI=arm64-v8a",
+    "-DANDROID_PLATFORM=android-23",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DUSE_COMPONENTS=ON",
+    "-DJUCE_BUILD_CONFIGURATION=RELEASE",
+    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+    "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+  }, {
+    cwd = src_dir,
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stdout = function(_, data)
+      collect(stdout_lines, data)
+    end,
+    on_stderr = function(_, data)
+      collect(stderr_lines, data)
+    end,
+    on_exit = function(_, code)
+      vim.schedule(function()
+        local level = code == 0 and vim.log.levels.INFO or vim.log.levels.ERROR
+        if finish then
+          local message
+          if code == 0 then
+            message = "CMake configure finished successfully"
+          else
+            message = "CMake configure failed (exit " .. code .. ")"
+          end
+          finish(message, level)
+        end
+
+        if code ~= 0 then
+          local details = #stderr_lines > 0 and stderr_lines or stdout_lines
+          local preview = {}
+          for _, line in ipairs(details) do
+            table.insert(preview, line)
+            if #preview >= 5 then
+              break
+            end
+          end
+          if #preview > 0 then
+            vim.notify(table.concat(preview, "\n"), vim.log.levels.ERROR, { title = "CMake Android output" })
+          end
+        end
+      end)
+    end,
+  })
+
+  if job <= 0 then
+    if finish then
+      finish("Failed to start CMake job", vim.log.levels.ERROR)
+    else
+      vim.notify("Failed to start CMake job", vim.log.levels.ERROR)
+    end
+  end
+end
+
 local function get_args()
   local input = vim.fn.input("Args (space-separated): ", last_args or "")
   if input == nil then
@@ -82,6 +219,11 @@ return {
           vim.cmd("DapGccRun")
         end,
         desc = "C/C++: Build + Debug (gcc)",
+      },
+      {
+        "<leader>dh",
+        configure_android_cmake,
+        desc = "Android: Configure (CMake)",
       },
       {
         "<leader>dB",
