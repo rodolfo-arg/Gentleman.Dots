@@ -48,8 +48,6 @@
       # Completion behavior: always list, never ask
       # Prevent the prompt: "do you wish to see all ...?"
       setopt AUTO_LIST      # Set a fallback behavior to always show completions
-      setopt ALWAYS_LIST
-      unsetopt LIST_PROMPT
       unsetopt LIST_BEEP
 
       # --------------------------
@@ -134,12 +132,21 @@
     # Bash completions also work in Zsh, so source them
     . ${pkgs.asdf-vm}/share/asdf-vm/completions/asdf.bash
 
-      # Aliases ensured here so they are present regardless of HM alias injection
+    # Aliases ensured here so they are present regardless of HM alias injection
       alias -- o=oil
       alias -- of=oil-float
       alias -- oo='oil .'
       alias -- oz=oil-zed
       alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
+    # Unset c/c++ related dependencies to avoid using nix's.
+      unset CC
+      unset CXX
+      unset AR
+      unset RANLIB
+      unset STRIP
+      unset LD
+      unset AS
+      
     '';
   };
 
