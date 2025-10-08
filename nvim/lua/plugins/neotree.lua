@@ -22,7 +22,9 @@ return {
             local b = vim.api.nvim_win_get_buf(w)
             if vim.api.nvim_buf_is_valid(b) and vim.bo[b].buftype == "terminal" then
               local ok, flag = pcall(vim.api.nvim_buf_get_var, b, "__neotree_side_terminal")
-              if ok and flag then pcall(vim.api.nvim_win_close, w, true) end
+              if ok and flag then
+                pcall(vim.api.nvim_win_close, w, true)
+              end
             end
           end
         else
@@ -39,7 +41,7 @@ return {
           if neotree_win and vim.api.nvim_win_is_valid(neotree_win) then
             -- Create the terminal below neo-tree, which momentarily grabs focus and Insert mode
             pcall(vim.api.nvim_set_current_win, neotree_win)
-            pcall(vim.cmd, "belowright 12split")
+            pcall(vim.cmd, "belowright split")
             pcall(vim.cmd, "terminal")
             local b = vim.api.nvim_get_current_buf()
             pcall(vim.api.nvim_buf_set_var, b, "__neotree_side_terminal", true)
