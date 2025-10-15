@@ -3,182 +3,57 @@
   home.file = {
     ".config/starship.toml" = {
       text = ''
-format = """\
-($directory)\
-$os\
-$git_branch\
-$fill\
-$nodejs\
-$rust\
-$golang\
-$php\
-$bun\
-$java\
-$c\
-$conda\
-$zig\
-$cmd_duration\
-$time\
-\n$character\
-"""
+"$schema" = 'https://starship.rs/config-schema.json'
+format = """$all $fill $cmd_duration
+$character"""
 
-add_newline = true
-command_timeout = 3600000
-palette = "gentleman"
+add_newline = false
+
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+
+[cmd_duration]
+min_time = 10
+show_milliseconds = true
+format = "[$duration](bright-black)"
 
 [fill]
 symbol = ' '
 
-[palettes.catppuccin_mocha]
-rosewater = "#f5e0dc"
-flamingo = "#f2cdcd"
-pink = "#f5c2e7"
-mauve = "#cba6f7"
-red = "#f38ba8"
-maroon = "#eba0ac"
-peach = "#fab387"
-yellow = "#f9e2af"
-green = "#a6e3a1"
-teal = "#94e2d5"
-sky = "#89dceb"
-sapphire = "#74c7ec"
-blue = "#89b4fa"
-lavender = "#b4befe"
-text = "#cdd6f4"
-subtext1 = "#bac2de"
-subtext0 = "#a6adc8"
-overlay2 = "#9399b2"
-overlay1 = "#7f849c"
-overlay0 = "#6c7086"
-surface2 = "#585b70"
-surface1 = "#45475a"
-surface0 = "#313244"
-base = "#1e1e2e"
-mantle = "#181825"
-crust = "#11111b"
-
-[palettes.gentleman]
-text = "#F3F6F9"
-red = "#CB7C94"
-green = "#B7CC85"
-yellow = "#FFE066"
-blue = "#7FB4CA"
-mauve = "#A3B5D6"
-pink = "#FF8DD7"
-teal = "#7AA89F"
-peach = "#DEBA87"
-subtext0 = "#5C6170"
-overlay0 = "#232A40"
-rosewater = "#E0C15A"
-flamingo = "#FF8DD7"
-maroon = "#C4746E"
-lavender = "#B99BF2"
-subtext1 = "#8A8FA3"
-overlay2 = "#313342"
-overlay1 = "#191E28"
-surface2 = "#27345C"
-surface1 = "#232A40"
-surface0 = "#191E28"
-base = "none"
-mantle = "#06080f"
-crust = "#06080f"
-
-[character]
-success_symbol = "[󱗞](fg:green)"
-error_symbol = "[󱗞](fg:red)"
-vimcmd_symbol = "[N](bold red)"
-vimcmd_replace_one_symbol = "[R](bold peach)"
-vimcmd_visual_symbol = "[V](bold mauve)"
-
-[username]
-style_user = 'bold blue'
-style_root = 'bold red'
-format = '[󱗞 $user](fg:$style) '
-disabled = false
-show_always = true
-
-[directory]
-format = "[$path](bold $style)[$read_only]($read_only_style) "
-truncation_length = 2
-style = "fg:blue"
-read_only_style = "fg:blue"
-before_repo_root_style = "fg:blue"
-truncation_symbol = "…/"
-truncate_to_repo = true
-read_only = "  "
-
-[directory.substitutions]
-"Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = " "
-"Pictures" = " "
-
-[cmd_duration]
-format = " took [ $duration]($style) "
-style = "bold fg:yellow"
-min_time = 500
-
-[git_branch]
-format = "-> [$symbol$branch]($style) "
-style = "bold fg:mauve"
-symbol = " "
-
-[git_status]
-format = '[$all_status$ahead_behind ]($style)'
-style = "fg:text bg:pink"
-
-[docker_context]
-disabled = true
-symbol = " "
-
-[python]
-disabled = false
-format = "[$symbol$pyenv_prefix($version)( $virtualenv)](fg:peach)"
-symbol = " "
-version_format = "$raw"
-
-[java]
-format = '[[ $symbol ($version) ](fg:red)]($style)'
-version_format = "$raw"
-symbol = " "
-disabled = false
-
-[c]
-format = '[[ $symbol ($version) ](fg:blue)]($style)'
-symbol = " "
-version_format = "$raw"
-disabled = false
-
-[zig]
-format = '[[ $symbol ($version) ](fg:peach)]($style)'
-version_format = "$raw"
-disabled = false
-
-[bun]
-version_format = "$raw"
-format = '[[ $symbol ($version) ](fg:text)]($style)'
-disabled = false
+[golang]
+symbol = " "
 
 [nodejs]
-symbol = ""
-format = '[[ $symbol ($version) ](fg:green)]($style)'
+detect_extensions = []
 
-[rust]
-symbol = ""
-format = '[[ $symbol ($version) ](fg:red)]($style)'
-
-[golang]
-symbol = ""
-format = '[[ $symbol ($version) ](fg:teal)]($style)'
-
-[php]
-symbol = ""
-format = '[[ $symbol ($version) ](fg:peach)]($style)'
-
-[time]
+[git_metrics]
 disabled = false
-time_format = "%R"
-format = '[[   $time ](fg:subtext0)]($style)'
+format = '(([ $added ]($added_style))([ $deleted ]($deleted_style)))'
+only_nonzero_diffs = true
+added_style = 'green'
+deleted_style = 'red'
+
+[line_break]
+disabled = true
+
+[jobs]
+disabled = true
+
+[battery]
+disabled = true
+
+[env_var.SOFTWARE_UPDATE_AVAILABLE]
+variable = 'SOFTWARE_UPDATE_AVAILABLE'
+format = '[$env_value]($style)'
+default = ' '
+style = 'cyan'
+
+[env_var.DOTFILES_UPDATE_AVAILABLE]
+variable = 'DOTFILES_UPDATE_AVAILABLE'
+format = '[$env_value]($style)'
+default = ' '
+style = 'cyan'
       '';
     };
   };
