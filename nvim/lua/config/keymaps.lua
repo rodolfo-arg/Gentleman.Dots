@@ -38,6 +38,14 @@ vim.api.nvim_set_keymap("x", "<A-k>", "<Nop>", { noremap = true, silent = true }
 vim.api.nvim_set_keymap("x", "J", "<Nop>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("x", "K", "<Nop>", { noremap = true, silent = true })
 
+-- VS Code-style line moving with Option+Arrow keys
+vim.keymap.set("n", "<A-Up>", [[:m .-2<CR>==]], { desc = "Move line up" })
+vim.keymap.set("n", "<A-Down>", [[:m .+1<CR>==]], { desc = "Move line down" })
+vim.keymap.set("i", "<A-Up>", [[<Esc>:m .-2<CR>==gi]], { desc = "Move line up" })
+vim.keymap.set("i", "<A-Down>", [[<Esc>:m .+1<CR>==gi]], { desc = "Move line down" })
+vim.keymap.set("v", "<A-Up>", [[:m '<-2<CR>gv=gv]], { desc = "Move selection up" })
+vim.keymap.set("v", "<A-Down>", [[:m '>+1<CR>gv=gv]], { desc = "Move selection down" })
+
 -- Make 'd' delete into the black hole register by default
 vim.keymap.set({ "n", "v" }, "d", '"_d', { desc = "Delete without yanking" })
 
