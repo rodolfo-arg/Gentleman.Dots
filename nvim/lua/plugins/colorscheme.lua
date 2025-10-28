@@ -148,9 +148,46 @@ return {
       end,
     },
     {
+      "folke/tokyonight.nvim",
+      name = "tokyonight",
+      priority = 1000,
+      config = function()
+        require("tokyonight").setup({
+          style = "night",
+          transparent = true,
+          terminal_colors = true,
+          styles = {
+            comments = { italic = true },
+            keywords = { italic = true },
+            functions = { bold = true },
+            variables = {},
+            sidebars = "transparent",
+            floats = "transparent",
+          },
+          on_highlights = function(highlights)
+            local function merge(group, values)
+              local existing = highlights[group] or {}
+              highlights[group] = vim.tbl_extend("force", existing, values)
+            end
+
+            merge("Normal", { bg = "none" })
+            merge("NormalFloat", { bg = "none" })
+            merge("FloatBorder", { bg = "none" })
+            merge("FloatTitle", { bg = "none" })
+            merge("TelescopeNormal", { bg = "none" })
+            merge("TelescopeBorder", { bg = "none" })
+            merge("TelescopeTitle", { bg = "none" })
+            merge("LspInfoBorder", { bg = "none" })
+            merge("Pmenu", { bg = "none" })
+            merge("Keyword", { italic = true })
+          end,
+        })
+      end,
+    },
+    {
       "LazyVim/LazyVim",
       opts = {
-        colorscheme = "kanso",
+        colorscheme = "tokyonight",
       },
     },
   },
