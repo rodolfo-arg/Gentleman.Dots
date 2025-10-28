@@ -16,6 +16,14 @@ vim.opt.backupcopy = "yes"
 -- Suppress ATTENTION prompts when a swap file exists (just edit anyway)
 vim.opt.shortmess:append("A")
 
+-- Show diagnostics only via gutter signs (no inline text or underline)
+vim.diagnostic.config({
+  underline = false,
+  virtual_text = false,
+  virtual_lines = false,
+  signs = true,
+})
+
 -- Allow cursor to reach window edges when scrolling fast
 -- This disables the margin that keeps the cursor away from top/bottom/left/right
 vim.opt.scrolloff = 0

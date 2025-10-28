@@ -9,7 +9,14 @@ return {
       if not has_mason_lsp then
         opts.mason = false
       end
+
+      -- Force-disable inline diagnostics beyond signs so LazyVim doesn't re-enable them later
+      opts.diagnostics = vim.tbl_deep_extend("force", opts.diagnostics or {}, {
+        underline = false,
+        virtual_text = false,
+        virtual_lines = false,
+        signs = true,
+      })
     end,
   },
 }
-
