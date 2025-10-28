@@ -64,7 +64,7 @@ return {
           commentStyle = { italic = true },
           functionStyle = {},
           keywordStyle = { italic = true },
-          statementStyle = { bold = true },
+          statementStyle = {},
           typeStyle = {},
           transparent = true, -- do not set background color
           dimInactive = false, -- dim inactive window `:h hl-NormalNC`
@@ -113,11 +113,11 @@ return {
           theme = "zen",
           styles = {
             comments = { italic = true },
-            keywords = { bold = true, italic = true },
-            functions = { bold = true },
+            keywords = { italic = true },
+            functions = {},
             variables = {},
-            operators = { bold = true },
-            types = { bold = true },
+            operators = {},
+            types = {},
           },
           plugins = {
             bufferline = true,
@@ -159,7 +159,7 @@ return {
           styles = {
             comments = { italic = true },
             keywords = { italic = true },
-            functions = { bold = true },
+            functions = {},
             variables = {},
             sidebars = "transparent",
             floats = "transparent",

@@ -954,7 +954,7 @@ return {
         end
 
         -- Make variable names pop
-        set("DapUIVariable", { fg = purple, bold = true })
+        set("DapUIVariable", { fg = purple })
 
         -- Keep most other text clean/neutral
         set("DapUIValue", { fg = white })
@@ -972,7 +972,7 @@ return {
         set("DapUIBreakpointsCurrentLine", { fg = white })
         set("DapUIBreakpointsLine", { fg = white })
         set("DapUIBreakpointsDisabledLine", { fg = white })
-        set("DapUIReplPrompt", { fg = white, bold = true })
+        set("DapUIReplPrompt", { fg = white })
 
         -- Respect theme border for floats
         pcall(vim.api.nvim_set_hl, 0, "DapUIFloatBorder", { link = "FloatBorder" })
