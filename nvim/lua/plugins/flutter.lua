@@ -18,7 +18,6 @@ return {
       -- Enable flutter-tools debugger and dev log; run via nvim-dap
       debugger = {
         enabled = true,
-        run_via_dap = true,
       },
       dev_log = {
         enabled = false, -- disable the flutter-tools dev log window only
