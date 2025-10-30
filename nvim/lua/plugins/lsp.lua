@@ -15,7 +15,6 @@ return {
         underline = false,
         virtual_text = false,
         virtual_lines = false,
-        signs = true,
       })
     end,
   },
