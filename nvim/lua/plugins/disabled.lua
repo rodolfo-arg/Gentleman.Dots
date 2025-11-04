@@ -9,6 +9,13 @@ return {
     enabled = false, -- Disable this plugin
   },
   {
+    -- Plugin: mini.diff
+    -- URL: https://github.com/echasnovski/mini.nvim/tree/main/readmes/mini-diff.md
+    -- Description: Inline git diff viewer and hunk helper.
+    "echasnovski/mini.diff",
+    enabled = false,
+  },
+  {
     -- Plugin para mejorar la experiencia de edición en Neovim
     -- URL: https://github.com/yetone/avante.nvim
     -- Description: Este plugin ofrece una serie de mejoras y herramientas para optimizar la edición de texto en Neovim.
