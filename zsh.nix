@@ -49,6 +49,8 @@
       # Prevent the prompt: "do you wish to see all ...?"
       setopt AUTO_LIST      # Set a fallback behavior to always show completions
       unsetopt LIST_BEEP
+      unsetopt LIST_PROMPT  # zsh-autocomplete re-enables LIST_PROMPT; disable it here
+      zstyle ":completion:*" list-prompt ""
 
       # --------------------------
       # 2) FZF
