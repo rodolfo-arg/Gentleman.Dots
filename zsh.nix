@@ -60,61 +60,21 @@
       zstyle ":completion:*" list-prompt ""
 
       # --------------------------
-      # 2) FZF
-      # --------------------------
-      export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
-      export FZF_DEFAULT_T_COMMAND="$FZF_DEFAULT_COMMAND"
-      export FZF_ALT_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
-
-      alias fzfbat='fzf --preview="bat --theme=gruvbox-dark --color=always {}"'
-      alias fzfnvim='nvim $(fzf --preview="bat --theme=gruvbox-dark --color=always {})"'
-
-      # If you really need this eval, leave it:
-      # eval "$(fzf --zsh)"
-
-      # --------------------------
-      # 3) Carapace
-      # --------------------------
-      export CARAPACE_BRIDGES='zsh,bash,inshellisense'
-      zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
-      source <(carapace _carapace)
-
-      # --------------------------
-      # 4) Tools initialization
+      # 2) Tools initialization
       # --------------------------
       eval "$(zoxide init zsh)"
       eval "$(atuin init zsh)"
       eval "$(starship init zsh)"
 
-      ya_zed() {
-        tmp=$(mktemp -t "yazi-chooser.XXXXXXXXXX")
-        yazi --chooser-file "$tmp" "$@"
-
-        if [[ -s "$tmp" ]]; then
-          opened_file=$(head -n 1 -- "$tmp")
-          if [[ -n "$opened_file" ]]; then
-            if [[ -d "$opened_file" ]]; then
-              # Es una carpeta, la agregamos al workspace
-              zed --add "$opened_file"
-            else
-              # Es un archivo, lo abrimos normalmente
-              zed --add "$opened_file"
-            fi
-          fi
-        fi
-
-        rm -f -- "$tmp"
-      }
-
       # --------------------------
-      # 5) Final cleanup
+      # 3) Final cleanup
       # --------------------------
       # Clear gives you that "fresh" feeling,
       # but if you prefer speed, you can comment it out.
       clear
 
       # --------------------------
-      # 6) Homebrew PATH (login and non-login shells)
+      # 4) Homebrew PATH (login and non-login shells)
       # --------------------------
       # In login shells, extend PATH and load Homebrew
       if [[ -o login ]]; then
