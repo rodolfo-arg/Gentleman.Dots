@@ -47,9 +47,10 @@
 
       # Completion behavior: always list, never ask
       # Prevent the prompt: "do you wish to see all ...?"
-      setopt AUTO_LIST      # Set a fallback behavior to always show completions
+      setopt AUTO_LIST      # fallback: list on ambiguous completions
       unsetopt LIST_BEEP
-      unsetopt LIST_PROMPT  # zsh-autocomplete re-enables LIST_PROMPT; disable it here
+      unsetopt LIST_ASK     # stop zsh from asking before showing long lists
+      LISTMAX=0             # never trigger the confirmation threshold
       zstyle ":completion:*" list-prompt ""
 
       # --------------------------
