@@ -30,6 +30,8 @@
       source ${pkgs.zplug}/share/zplug/init.zsh
       zplug "zsh-users/zsh-autosuggestions"
       zplug "zsh-users/zsh-syntax-highlighting"
+      # Lightweight, widely-used completion set (fast, no heavy widgets)
+      zplug "zsh-users/zsh-completions", use:"src"
       # zplug "marlonrichert/zsh-autocomplete"
       zplug "jeffreytse/zsh-vi-mode"
       if ! zplug check; then
@@ -43,6 +45,8 @@
       # --------------------------
       # 1) COMPINIT + CACHE
       # --------------------------
+      # Ensure third-party completions are in fpath before compinit
+      fpath=("$ZPLUG_HOME/repos/zsh-users/zsh-completions/src" $fpath)
       autoload -Uz compinit
       # Use a directory in .cache or as you prefer
       compinit -d ''${XDG_CACHE_HOME:-''${HOME}/.cache}/zsh/zcompdump-''${ZSH_VERSION}
