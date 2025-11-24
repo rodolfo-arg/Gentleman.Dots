@@ -68,7 +68,6 @@ function M.setup()
     "options",
   }
 
-
   -- Save on exit and persist whether neo-tree had a paired terminal
   vim.api.nvim_create_autocmd("VimLeavePre", {
     callback = function()
@@ -126,18 +125,22 @@ function M.setup()
           file_arg = a0
         end
       end
-      if not allow then return end
+      if not allow then
+        return
+      end
 
       -- Slightly defer to let other VeryLazy handlers settle first
       vim.defer_fn(function()
         close_news_windows()
         local session = session_path_for_cwd()
         local has_session = (vim.fn.filereadable(session) == 1)
-      if has_session then
+        if has_session then
           -- Hide dashboard and close intrusive buffers that may claim layout
           pcall(function()
             local ok_snacks, snacks = pcall(require, "snacks")
-            if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
+            if ok_snacks and snacks.dashboard then
+              snacks.dashboard.hide()
+            end
           end)
           close_browser_windows()
           -- Source the session
@@ -186,7 +189,7 @@ function M.setup()
             end
             if neotree_win and vim.api.nvim_win_is_valid(neotree_win) then
               pcall(vim.api.nvim_set_current_win, neotree_win)
-              pcall(vim.cmd, "belowright 12split")
+              pcall(vim.cmd, "belowright split")
               pcall(vim.cmd, "terminal")
               local b = vim.api.nvim_get_current_buf()
               pcall(vim.api.nvim_buf_set_var, b, "__neotree_side_terminal", true)
@@ -211,7 +214,9 @@ function M.setup()
               pcall(lazy.load, { plugins = { "snacks.nvim" } })
             end
             local ok_snacks, snacks = pcall(require, "snacks")
-            if ok_snacks and snacks.dashboard and snacks.dashboard.show then snacks.dashboard.show() end
+            if ok_snacks and snacks.dashboard and snacks.dashboard.show then
+              snacks.dashboard.show()
+            end
           end)
         end
         -- Final sweep in case something opened late
@@ -225,7 +230,6 @@ function M.setup()
   })
 
   -- No auto-terminal on neo-tree open; this is now handled by an explicit toggle mapping.
-
-  end
+end
 
 return M

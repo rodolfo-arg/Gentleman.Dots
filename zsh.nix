@@ -28,7 +28,7 @@
       source ${pkgs.zplug}/share/zplug/init.zsh
       zplug "zsh-users/zsh-autosuggestions"
       zplug "zsh-users/zsh-syntax-highlighting"
-      zplug "marlonrichert/zsh-autocomplete"
+      # zplug "marlonrichert/zsh-autocomplete"
       zplug "jeffreytse/zsh-vi-mode"
       if ! zplug check; then
         zplug install
