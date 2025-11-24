@@ -15,6 +15,8 @@
       for profile in ''${(z)NIX_PROFILES}; do
         fpath+=($profile/share/zsh/site-functions $profile/share/zsh/$ZSH_VERSION/functions $profile/share/zsh/vendor-completions)
       done
+      # asdf provides native zsh completions; add them to fpath before compinit
+      fpath+=(${pkgs.asdf-vm}/share/asdf-vm/completions)
 
       # Ensure Home Manager session vars are loaded from the active HM profile.
       # Unset guard set by ~/.nix-profile hm-session-vars and source the real one.
@@ -131,9 +133,6 @@
     # Multiplexer autostart removed; use plain Zsh in Ghostty
     # Initialize asdf
     . ${pkgs.asdf-vm}/share/asdf-vm/asdf.sh
-
-    # Bash completions also work in Zsh, so source them
-    . ${pkgs.asdf-vm}/share/asdf-vm/completions/asdf.bash
 
     # Aliases ensured here so they are present regardless of HM alias injection
       alias -- o=oil
