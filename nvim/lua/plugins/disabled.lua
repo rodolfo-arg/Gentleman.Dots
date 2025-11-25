@@ -12,7 +12,7 @@ return {
     -- Plugin: mini.diff
     -- URL: https://github.com/echasnovski/mini.nvim/tree/main/readmes/mini-diff.md
     -- Description: Inline git diff viewer and hunk helper.
-    "echasnovski/mini.diff",
+    "nvim-mini/mini.diff",
     enabled = false,
   },
   {
