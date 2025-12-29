@@ -218,13 +218,6 @@ return {
       }
     end,
     dependencies = {
-      "MunifTanjim/nui.nvim",
-      {
-        "folke/snacks.nvim",
-        opts = {
-          indent = { enabled = false },
-        },
-      },
       {
         -- support for image pasting
         "HakonHarnes/img-clip.nvim",

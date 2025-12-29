@@ -47,6 +47,35 @@ return {
             },
           },
         },
+        nil_ls = (function()
+          if vim.fn.executable("nixpkgs-fmt") == 1 then
+            return {
+              settings = {
+                ["nil"] = {
+                  formatting = { command = { "nixpkgs-fmt" } },
+                },
+              },
+            }
+          end
+
+          if vim.fn.executable("nixfmt") == 1 then
+            return {
+              settings = {
+                ["nil"] = {
+                  formatting = { command = { "nixfmt" } },
+                },
+              },
+            }
+          end
+
+          return {
+            settings = {
+              ["nil"] = {
+                formatting = { command = { "cat" } },
+              },
+            },
+          }
+        end)(),
       },
     },
   },

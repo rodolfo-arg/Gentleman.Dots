@@ -66,8 +66,9 @@
                 zsh
                 # Development
                 volta carapace zoxide atuin jq bash starship fzf nodejs bun cargo go nil
+                nixpkgs-fmt statix
                 # Compilers/Utilities
-                fd ripgrep coreutils unzip bat lazygit yazi asdf-vm
+                fd ripgrep coreutils unzip bat lazygit yazi
                 # Fonts
                 nerd-fonts.iosevka-term
               ] ++ [ unstablePkgs.nixd ];
