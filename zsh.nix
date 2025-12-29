@@ -77,9 +77,6 @@
       # 4) Homebrew PATH (login and non-login shells)
       # --------------------------
       # In login shells, extend PATH and load Homebrew
-      if [[ -o login ]]; then
-        export PATH="$HOME/.opencode/bin:$HOME/.cargo/bin:$HOME/.volta/bin:$HOME/.bun/bin:$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH:/usr/local/bin:$HOME/.config:$HOME/.cargo/bin:/usr/local/lib/*"
-      fi
 
       # Determine Homebrew path and load its environment (ARM and Intel macOS)
       if command -v brew >/dev/null 2>&1; then
@@ -98,12 +95,6 @@
     # Initialize asdf
     . ${pkgs.asdf-vm}/share/asdf-vm/asdf.sh
 
-    # Aliases ensured here so they are present regardless of HM alias injection
-      alias -- o=oil
-      alias -- of=oil-float
-      alias -- oo='oil .'
-      alias -- oz=oil-zed
-      alias -- opencode-config='nvim ~/.config/opencode/opencode.json'
     # Unset c/c++ related dependencies to avoid using nix's.
       unset CC
       unset CXX

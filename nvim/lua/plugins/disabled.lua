@@ -27,10 +27,6 @@ return {
     enabled = false,
   },
   {
-    "sudo-tee/opencode.nvim",
-    enabled = true,
-  },
-  {
     "olimorris/codecompanion.nvim",
     enabled = false,
   },

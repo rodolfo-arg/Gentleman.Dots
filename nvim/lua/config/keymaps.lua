@@ -13,9 +13,6 @@ vim.keymap.set({ "i", "n", "v" }, "<C-c>", [[<C-\><C-n>]])
 -- Screen Keys
 vim.keymap.set({ "n" }, "<leader>uk", "<cmd>Screenkey<CR>")
 
------ OIL -----
-vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-
 -- Delete all buffers but the current one
 vim.keymap.set(
   "n",
@@ -182,7 +179,9 @@ vim.keymap.set("n", "<leader>ql", function()
   -- Hide Snacks dashboard if active
   pcall(function()
     local ok_snacks, snacks = pcall(require, "snacks")
-    if ok_snacks and snacks.dashboard then snacks.dashboard.hide() end
+    if ok_snacks and snacks.dashboard then
+      snacks.dashboard.hide()
+    end
   end)
   local session = session_path_for_cwd()
   if vim.fn.filereadable(session) == 1 then
