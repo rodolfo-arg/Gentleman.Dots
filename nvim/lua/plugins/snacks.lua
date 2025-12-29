@@ -3,6 +3,12 @@ return {
   priority = 1000,
   lazy = false,
   opts = function(_, opts)
+    opts.indent = opts.indent or {}
+    opts.indent.enabled = false
+
+    opts.scope = opts.scope or {}
+    opts.scope.enabled = false
+
     opts.scroll = opts.scroll or {}
     opts.scroll.enabled = false
 
