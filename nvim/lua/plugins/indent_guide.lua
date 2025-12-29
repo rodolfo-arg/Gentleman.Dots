@@ -30,7 +30,7 @@ return {
       },
       scope = {
         enabled = true,
-        char = "│",
+        char = "┊",
         priority = 1000,
         -- set this to a single highlight, such as 'BlinkIndent' to disable rainbow-style indent guides
         -- highlights = { 'BlinkIndentScope' },
@@ -38,7 +38,7 @@ return {
         highlights = { "BlinkIndentOrange", "BlinkIndentViolet", "BlinkIndentBlue" },
         -- enable to show underlines on the line above the current scope
         underline = {
-          enabled = true,
+          enabled = false,
           -- optionally add: 'BlinkIndentRedUnderline', 'BlinkIndentCyanUnderline', 'BlinkIndentYellowUnderline', 'BlinkIndentGreenUnderline'
           highlights = { "BlinkIndentOrangeUnderline", "BlinkIndentVioletUnderline", "BlinkIndentBlueUnderline" },
         },
