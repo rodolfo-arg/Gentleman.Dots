@@ -1,11 +1,1 @@
-require("config.nodejs").setup({ silent = true })
-
--- Register session autocmds early (before Lazy & VimEnter)
-pcall(function()
-  require("config.sessions").setup()
-end)
-
--- bootstrap lazy.nvim, LazyVim and your plugins
-require("config.lazy")
-vim.opt.timeoutlen = 1000
-vim.opt.ttimeoutlen = 0
+/nix/store/mysfy8azmkl318qjwxjzra4wj0slpii7-home-manager-files/.config/nvim/init.lua

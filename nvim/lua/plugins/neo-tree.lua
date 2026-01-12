@@ -1,0 +1,1 @@
+/nix/store/mysfy8azmkl318qjwxjzra4wj0slpii7-home-manager-files/.config/nvim/lua/plugins/neo-tree.lua
